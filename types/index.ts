@@ -1,5 +1,7 @@
 export * from './auth'
 export * from './domain'
+export * from './domain-api'
+export * from './domain-persistence'
 export * from './user'
 export * from './lead'
 export * from './activity'

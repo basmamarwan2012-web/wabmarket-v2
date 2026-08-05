@@ -1,48 +1,40 @@
-export type DomainStatus =
-  'opportunity' | 'active' | 'sold' | 'expired' | 'archived'
+export const DOMAIN_STATUSES = [
+  'opportunity',
+  'active',
+  'sold',
+  'expired',
+  'archived',
+] as const
+
+export type DomainStatus = (typeof DOMAIN_STATUSES)[number]
 
 export interface Domain {
   id: string
-
   domainName: string
-
-  registrar?: string
-
-  keyword?: string
-
-  city?: string
-
-  state?: string
-
-  country?: string
-
-  purchasePrice?: number
-
-  estimatedPrice?: number
-
-  askingPrice?: number
-
-  flipScore?: number
-
-  purchaseDate?: Date
-
-  expirationDate?: Date
-
-  renewalDate?: Date
-
-  autoRenew?: boolean
-
-  nameservers?: string[]
-
-  afternicCheckoutLink?: string
-
-  landingPageUrl?: string
-
-  description?: string
-
+  normalizedDomainName: string
+  registrar: string | null
+  keyword: string | null
+  city: string | null
+  state: string | null
+  country: string | null
+  purchasePrice: number
+  estimatedPrice: number
+  askingPrice: number
+  flipScore: number
   status: DomainStatus
-
-  createdAt: Date
-
-  updatedAt: Date
+  purchaseDate: string | null
+  expirationDate: string | null
+  renewalDate: string | null
+  autoRenew: boolean
+  nameservers: string[]
+  afternicCheckoutLink: string | null
+  landingPageUrl: string | null
+  description: string | null
+  isDeleted: boolean
+  deletedAt: string | null
+  deletedBy: string | null
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  updatedBy: string
 }

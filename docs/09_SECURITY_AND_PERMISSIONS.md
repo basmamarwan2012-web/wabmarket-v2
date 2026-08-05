@@ -144,20 +144,17 @@ denied and never promoted automatically.
 ## First-administrator bootstrap
 
 There is no public role-promotion endpoint. A project owner performs the
-one-time bootstrap from a trusted workstation using Google Application Default
-Credentials:
+one-time bootstrap from a trusted workstation using the existing Firebase Admin
+server credentials:
 
 ```powershell
-gcloud auth application-default login
-$env:GOOGLE_CLOUD_PROJECT='<firebase-project-id>'
-node scripts/bootstrap-administrator.mjs '<firebase-auth-uid>'
+node --env-file=.env.local scripts/bootstrap-administrator.mjs '<firebase-auth-uid>'
 ```
 
 Obtain the exact UID from Firebase Console > Authentication > Users. The script
 preserves unrelated custom claims, assigns `administrator`, and updates the
 server-controlled Firestore mirror. The user must sign out and sign in again.
-Application Default Credentials should then be revoked or removed according to
-the operator's credential policy.
+No public role-promotion endpoint exists.
 
 ---
 
@@ -173,6 +170,25 @@ SaaS v2 access is isolated below `users/{uid}`. Viewer can read but cannot write
 tenant business data. Client writes cannot create profiles or alter authoritative
 identity, role, status/security, subscription/plan, timestamp, or audit fields.
 Storage uses the same UID isolation and a 20 MB allowlist for file types.
+
+Phase B domain authorization is enforced by every server API after Firebase
+Admin session verification. Firebase Admin bypasses Firestore Security Rules;
+the rules do not authorize Admin SDK operations. Direct client writes to owned
+domains, domain-name reservations, activities, timelines, logs, and analytics
+are denied.
+
+Owned-domain permissions:
+
+- administrator/manager: create, read, update, move to trash, trash read, and
+  restore;
+- operator: normal reads plus description, asking price, estimated price, and
+  allowlisted workflow transitions only;
+- viewer: normal reads only.
+
+Operator transitions are `active -> sold|expired|archived`, `sold -> archived`,
+and `expired -> archived`. Operators cannot transition from opportunity or
+archived and cannot move any domain into active. Viewer/operator cannot access
+trash records.
 
 ---
 

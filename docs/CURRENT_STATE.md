@@ -266,6 +266,59 @@ The AI engine must generate:
 
 # Current development phase
 
+Phase B Owned Domains is implemented with server-session APIs, canonical
+snake_case Firestore persistence, legacy camelCase read mapping, transactional
+name reservations, soft-delete trash/restore, bounded audit history, atomic
+activity/timeline/log writes, analytics counter maintenance, prefix search,
+filters, sorting, and cursor pagination. Routes exist for list, create, detail,
+edit, trash, and restore.
+
+Remaining Phase B operational work: deploy Firestore rules and indexes, and run
+a future non-destructive backfill so legacy camelCase documents participate in
+all canonical indexed queries. The repository still has no automated test
+runner.
+
+## Phase B stabilization
+
+- Domain actor UIDs remain authoritative, while detail UI resolves the tenant
+  owner name/email and uses immutable audit display snapshots for new writes.
+  Historical non-owner actors fall back to shortened UIDs without cross-tenant
+  profile reads.
+- Domain list requests abort stale fetches; prefix search is debounced by 300 ms.
+- Trash and restore optimistically remove list rows, roll back failures, provide
+  visible feedback, and refetch private tenant data without a full reload.
+- Ascending and descending indexes are configured for the supported query
+  matrix.
+- To limit composite indexes, search, status, and registrar are mutually
+  exclusive. Filtered/search lists use created-date sorting. Unfiltered lists
+  support created date, expiration date, FlipScore, purchase price, and asking
+  price in both directions.
+- Domain API responses use `private, no-store`. Missing-index failures return
+  `FIRESTORE_INDEX_REQUIRED` and emit structured, secret-free diagnostics.
+
+## Phase B.5 UX and loading experience
+
+- One application-level `UXProvider`, mounted inside the existing theme
+  provider, owns loading operations, navigation progress, and bounded toasts.
+- Foreground operations show an immediate thin progress bar and show the smoky
+  fullscreen overlay only when they exceed 250 ms. Foreground mutation messages
+  take priority over generic navigation messages.
+- Navigation tokens complete on pathname/query changes and have a 12-second
+  orphan fallback. Modified, external, download, new-tab, same-URL, and
+  hash-only link clicks retain native behavior and do not start route loading.
+- Admin, domain-list, domain-detail, and domain-form route boundaries use
+  destination-shaped skeletons. Existing list results remain visible during
+  background search and refresh requests.
+- Toasts support success, error, warning, and information states, manual
+  dismissal, bounded visibility, deduplication, expiry, and pause-on-hover or
+  focus.
+- CSS implements progress, shimmer, overlay, and toast animation without
+  animation-frame state updates. Reduced-motion preferences disable
+  nonessential movement.
+- Route progress cannot observe a navigation before browser history emits its
+  event, and its fallback is intentionally finite. Runtime interaction and
+  assistive-technology behavior still require authenticated browser testing.
+
 Phase A of the authentication security foundation is implemented.
 
 The authoritative database architecture is SaaS v2 below `users/{uid}`. Public

@@ -36,6 +36,16 @@ service cloud.firestore {
       return isAdministrator() || isManager();
     }
 
+    function canReadOwnedDomain(userId, domainId) {
+      let domainPath = /databases/$(database)/documents/users/$(userId)/owned_domains/$(domainId);
+      return isOwner(userId)
+        && exists(domainPath)
+        && (
+          get(domainPath).data.get('is_deleted', false) == false
+          || canManageBusinessData()
+        );
+    }
+
     function onlyUpdatesEditableProfileFields() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
         'name',
@@ -53,14 +63,15 @@ service cloud.firestore {
       allow update: if isOwner(userId) && onlyUpdatesEditableProfileFields();
 
       match /owned_domains/{domainId} {
-        allow read: if isOwner(userId);
-        allow create, delete: if isOwner(userId) && canManageBusinessData();
-        allow update: if isOwner(userId) && (
-          canManageBusinessData()
-          || (isOperator()
-            && request.resource.data.diff(resource.data).affectedKeys()
-              .hasOnly(['status']))
+        allow read: if isOwner(userId) && (
+          resource.data.get('is_deleted', false) == false
+          || canManageBusinessData()
         );
+        allow create, update, delete: if false;
+      }
+
+      match /domain_name_reservations/{reservationId} {
+        allow read, write: if false;
       }
 
       match /opportunities/{opportunityId} {
@@ -92,10 +103,18 @@ service cloud.firestore {
       }
 
       match /activities/{activityId} {
-        allow read: if isOwner(userId);
-        allow create: if isOwner(userId)
-          && (canManageBusinessData() || isOperator());
-        allow update, delete: if false;
+        allow read: if canReadOwnedDomain(userId, resource.data.domain_id);
+        allow create, update, delete: if false;
+      }
+
+      match /timelines/{timelineId} {
+        allow read: if canReadOwnedDomain(userId, resource.data.domain_id);
+        allow create, update, delete: if false;
+      }
+
+      match /logs/{logId} {
+        allow read: if isOwner(userId) && isAdministrator();
+        allow create, update, delete: if false;
       }
 
       match /notifications/{notificationId} {
@@ -105,7 +124,7 @@ service cloud.firestore {
 
       match /analytics/{analyticsId} {
         allow read: if isOwner(userId);
-        allow write: if false;
+        allow create, update, delete: if false;
       }
 
       match /{document=**} {

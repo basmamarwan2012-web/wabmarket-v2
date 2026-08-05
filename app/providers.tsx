@@ -3,6 +3,8 @@
 import * as React from 'react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
+import { UXProvider } from '@/components/ui/ux-provider'
+
 /**
  * Providers component
  * Wraps the application to provide global states like Theme.
@@ -16,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem // Supports automatic system mode[cite: 3]
       disableTransitionOnChange
     >
-      {children}
+      <UXProvider>{children}</UXProvider>
     </NextThemesProvider>
   )
 }

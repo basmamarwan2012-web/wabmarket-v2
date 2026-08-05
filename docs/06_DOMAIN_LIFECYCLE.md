@@ -1,4 +1,3 @@
-
 # WABMARKET DOMAIN LIFECYCLE
 
 Version: 1.0
@@ -6,6 +5,20 @@ Version: 1.0
 ---
 
 # OBJECTIVE
+
+## Phase B lifecycle and deletion terminology
+
+Lifecycle archive and soft deletion are independent:
+
+- changing `status` to `archived` records `domain_archived` and does not change
+  analytics totals;
+- moving a domain to trash sets `is_deleted=true` and records `domain_deleted`;
+- restoring from trash clears deletion metadata and records `domain_restored`;
+- domain names remain uniquely reserved while in trash;
+- no permanent deletion exists.
+
+`analytics/global.total_domains` changes only on create (+1), move to trash
+(-1, clamped at zero), and restore (+1).
 
 Every domain must pass through a complete lifecycle.
 

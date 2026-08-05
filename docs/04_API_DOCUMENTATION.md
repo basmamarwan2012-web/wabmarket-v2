@@ -39,9 +39,9 @@ http://localhost:3000/api
 Success
 
 {
-  "success": true,
-  "data": {},
-  "message": ""
+"success": true,
+"data": {},
+"message": ""
 }
 
 ---
@@ -49,9 +49,9 @@ Success
 Error
 
 {
-  "success": false,
-  "error": "",
-  "status": 500
+"success": false,
+"error": "",
+"status": 500
 }
 
 ---
@@ -106,6 +106,40 @@ DOMAIN DISCOVERY API
 
 ############################################################
 
+## Phase B Owned Domains API
+
+The following server-session APIs are authoritative for owned domains:
+
+- `GET /api/domains` — prefix search, status/registrar filters, sort, deletion
+  mode, bounded page size, and cursor pagination;
+- `POST /api/domains` — administrator/manager create;
+- `GET /api/domains/{domainId}` — normal non-deleted detail;
+- `GET /api/domains/{domainId}?deleted=deleted` — administrator/manager trash
+  detail;
+- `PATCH /api/domains/{domainId}` — authorized update;
+- `DELETE /api/domains/{domainId}` — move to trash only;
+- `POST /api/domains/{domainId}/restore` — administrator/manager trash restore.
+
+UID, role, actor fields, and timestamps always come from the verified server
+session and Firebase Admin. Structured errors use:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "DOMAIN_FORBIDDEN",
+    "message": "You do not have permission for this action.",
+    "issues": {}
+  }
+}
+```
+
+The HTTP response status is authoritative and is not duplicated in the body.
+Invalid or query-mismatched cursors return HTTP 400. Audit history returned by
+domain detail is limited to the 50 most recent activities and timeline events.
+
+---
+
 POST
 
 /api/domains/discover
@@ -113,9 +147,9 @@ POST
 Request
 
 {
-  "keyword": "roofing",
-  "city": "miami",
-  "country": "us"
+"keyword": "roofing",
+"city": "miami",
+"country": "us"
 }
 
 ---
@@ -123,7 +157,7 @@ Request
 Response
 
 {
-  "status": "queued"
+"status": "queued"
 }
 
 ---
@@ -211,7 +245,7 @@ POST
 Request
 
 {
-  "domain": "roofingmiami.com"
+"domain": "roofingmiami.com"
 }
 
 ---
@@ -219,7 +253,7 @@ Request
 Response
 
 {
-  "flipscore": 91
+"flipscore": 91
 }
 
 ---
@@ -269,8 +303,8 @@ POST
 Request
 
 {
-  "keyword": "roofing",
-  "city": "miami"
+"keyword": "roofing",
+"city": "miami"
 }
 
 ---
@@ -278,7 +312,7 @@ Request
 Response
 
 {
-  "companies": []
+"companies": []
 }
 
 ---
@@ -504,5 +538,5 @@ GET
 Response
 
 {
-  "status": "healthy"
+"status": "healthy"
 }

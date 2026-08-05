@@ -18,3 +18,96 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.ux-loading-overlay {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.ux-loading-overlay[data-active='true'] {
+  opacity: 1;
+}
+.ux-loading-line {
+  animation: ux-loading-line 700ms ease-in-out infinite;
+}
+.ux-progress-bar {
+  width: 72%;
+  animation: ux-progress 1.2s ease-out infinite;
+  transition:
+    width 200ms ease,
+    opacity 200ms ease;
+}
+.ux-progress-finish {
+  width: 100%;
+  opacity: 0;
+  animation: none;
+}
+.ux-skeleton {
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.45),
+    transparent
+  );
+  animation: ux-shimmer 1.5s ease-in-out infinite;
+}
+.dark .ux-skeleton {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 0.06),
+    transparent
+  );
+}
+.ux-toast {
+  animation: ux-toast-in 180ms ease-out;
+}
+
+@keyframes ux-loading-line {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+@keyframes ux-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(145%);
+  }
+}
+@keyframes ux-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes ux-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ux-loading-overlay,
+  .ux-progress-bar,
+  .ux-toast {
+    transition-duration: 0.01ms;
+  }
+  .ux-loading-line,
+  .ux-progress-bar,
+  .ux-skeleton,
+  .ux-toast {
+    animation: none;
+  }
+}
