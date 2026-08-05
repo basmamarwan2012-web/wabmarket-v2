@@ -266,9 +266,15 @@ The AI engine must generate:
 
 # Current development phase
 
-Phase 1 is partially completed.
+Phase A of the authentication security foundation is implemented.
 
-The next objective is to complete Phase 1.
+The authoritative database architecture is SaaS v2 below `users/{uid}`. Public
+registration defaults to viewer, Firebase custom claims are authoritative, and
+the `/admin` shell is protected by a verified server session. Existing accounts
+without a role claim require an explicit manual assignment.
+
+Cleanup debt: the tracked `gitignore/.next/` directory must be resolved directly
+after Phase A security validation and is intentionally untouched in Phase A.
 
 ---
 

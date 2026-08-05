@@ -66,13 +66,21 @@ POST
 
 /api/auth/login
 
+The implemented browser flow authenticates with Firebase and posts the resulting
+ID token to `POST /api/auth/session`, which creates the server session cookie.
+
 POST
 
 /api/auth/logout
 
+Clears the server cookie; the browser then signs out of Firebase client auth.
+
 POST
 
 /api/auth/register
+
+Creates the user server-side and always assigns `viewer`. It never grants
+administrator and redirects the user to login.
 
 POST
 

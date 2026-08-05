@@ -3,7 +3,7 @@ export const APP_NAME = 'Wabmarket'
 export const APP_DESCRIPTION = 'AI-Powered Domain Acquisition & Sales Platform'
 
 export const USER_ROLES = {
-  ADMIN: 'admin',
+  ADMINISTRATOR: 'administrator',
   MANAGER: 'manager',
   OPERATOR: 'operator',
   VIEWER: 'viewer',

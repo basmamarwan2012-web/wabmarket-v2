@@ -18,7 +18,9 @@ Database engine: Firebase Firestore
 
 # Naming convention
 
-snake_case
+SaaS v2 application documents use camelCase to match the TypeScript model. The
+snake_case examples retained below are legacy schema references and must not be
+used to create parallel top-level collections.
 
 Example:
 
@@ -29,6 +31,22 @@ domain_name
 ---
 
 # Collections
+
+> SaaS v2 architecture decision: all tenant business data is stored below
+> `users/{uid}`. The paths below that omit this prefix are legacy notation and
+> must be interpreted with the prefix. No implementation may migrate these
+> collections back to the top level.
+
+```text
+users/{uid}
+users/{uid}/owned_domains/{domainId}
+users/{uid}/opportunities/{opportunityId}
+users/{uid}/leads/{leadId}
+users/{uid}/campaigns/{campaignId}
+users/{uid}/activities/{activityId}
+users/{uid}/notifications/{notificationId}
+users/{uid}/analytics/global
+```
 
 users
 settings
@@ -50,7 +68,7 @@ timelines
 
 # users
 
-users/{userId}
+users/{uid}
 
 {
   "id": "",
@@ -58,12 +76,17 @@ users/{userId}
   "first_name": "",
   "last_name": "",
   "avatar": "",
-  "role": "",
+  "role": "viewer",
   "status": "",
   "last_login": "",
   "created_at": "",
   "updated_at": ""
 }
+
+The Firebase Authentication custom claim is the authorization source of truth.
+The Firestore `role` field is a server-controlled mirror. Clients cannot create
+profiles or modify ID, role, status/security metadata, server timestamps,
+subscription/plan fields, or audit fields.
 
 ---
 

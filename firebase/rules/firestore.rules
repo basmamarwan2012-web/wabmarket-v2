@@ -2,21 +2,114 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function isSignedIn() {
       return request.auth != null;
     }
 
+    function hasValidRole() {
+      return isSignedIn()
+        && request.auth.token.role in [
+          'administrator',
+          'manager',
+          'operator',
+          'viewer'
+        ];
+    }
+
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return hasValidRole() && request.auth.uid == userId;
+    }
+
+    function isAdministrator() {
+      return request.auth.token.role == 'administrator';
+    }
+
+    function isManager() {
+      return request.auth.token.role == 'manager';
+    }
+
+    function isOperator() {
+      return request.auth.token.role == 'operator';
+    }
+
+    function canManageBusinessData() {
+      return isAdministrator() || isManager();
+    }
+
+    function onlyUpdatesEditableProfileFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'name',
+        'firstName',
+        'lastName',
+        'avatar'
+      ]);
     }
 
     match /users/{userId} {
-      allow create: if isOwner(userId);
-      allow read, update, delete: if isOwner(userId);
+      // User profiles and their authoritative role/security fields are created
+      // only by trusted server code through the Firebase Admin SDK.
+      allow create, delete: if false;
+      allow read: if isOwner(userId);
+      allow update: if isOwner(userId) && onlyUpdatesEditableProfileFields();
+
+      match /owned_domains/{domainId} {
+        allow read: if isOwner(userId);
+        allow create, delete: if isOwner(userId) && canManageBusinessData();
+        allow update: if isOwner(userId) && (
+          canManageBusinessData()
+          || (isOperator()
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status']))
+        );
+      }
+
+      match /opportunities/{opportunityId} {
+        allow read: if isOwner(userId);
+        allow create, update, delete: if isOwner(userId)
+          && canManageBusinessData();
+      }
+
+      match /leads/{leadId} {
+        allow read: if isOwner(userId);
+        allow create, delete: if isOwner(userId) && canManageBusinessData();
+        allow update: if isOwner(userId) && (
+          canManageBusinessData()
+          || (isOperator()
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status']))
+        );
+      }
+
+      match /campaigns/{campaignId} {
+        allow read: if isOwner(userId);
+        allow create, delete: if isOwner(userId) && canManageBusinessData();
+        allow update: if isOwner(userId) && (
+          canManageBusinessData()
+          || (isOperator()
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['status']))
+        );
+      }
+
+      match /activities/{activityId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && (canManageBusinessData() || isOperator());
+        allow update, delete: if false;
+      }
+
+      match /notifications/{notificationId} {
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
+
+      match /analytics/{analyticsId} {
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
 
       match /{document=**} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if false;
       }
     }
   }

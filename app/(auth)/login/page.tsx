@@ -2,40 +2,32 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { getAuthenticationErrorMessage } from '@/lib/auth/errors'
+import { loginSchema, type LoginInput } from '@/lib/validations'
 import { loginUser } from '@/services/auth.service'
-
-// Validation schema using Zod[cite: 5]
-const loginSchema = z.object({
-  email: z.string().email({ message: "L'email machi s7i7" }),
-  password: z.string().min(1, { message: "L'password darouri" }),
-})
-
-type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<LoginFormValues>({
+  const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   })
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginInput) => {
     setIsLoading(true)
     setError(null)
     try {
       await loginUser(data.email, data.password)
       // Redirecting to Dashboard after successful login[cite: 8]
       router.push('/admin/dashboard')
-    } catch (err: any) {
-      console.error(err)
-      setError("Login failed. T2akad mn l'email w password.")
+    } catch (error: unknown) {
+      setError(getAuthenticationErrorMessage(error))
     } finally {
       setIsLoading(false)
     }

@@ -240,11 +240,35 @@ settings/
 
 # Authentication architecture
 
+## SaaS v2 data boundary
+
+The authoritative Firestore structure is user-scoped:
+
+```text
+users/{uid}
+users/{uid}/owned_domains/{domainId}
+users/{uid}/opportunities/{opportunityId}
+users/{uid}/leads/{leadId}
+users/{uid}/campaigns/{campaignId}
+users/{uid}/activities/{activityId}
+users/{uid}/notifications/{notificationId}
+users/{uid}/analytics/global
+```
+
+This v2 hierarchy supersedes legacy top-level business collections. Client SDK
+access is scoped to the authenticated UID.
+
 Supported methods:
 
 - email and password;
 - Google authentication;
 - multi-factor authentication.
+
+The browser Firebase session authenticates direct Firebase SDK calls. Login also
+exchanges a recent ID token for a five-day HttpOnly server session. Middleware
+checks cookie presence only; the Node.js admin layout verifies signature,
+expiry, revocation, and role before protected content renders. Logout clears
+both sessions.
 
 ---
 
@@ -259,6 +283,9 @@ Operator
 
 Viewer
 ```
+
+All four roles may access `/admin`; centralized permissions control individual
+capabilities, and viewer remains read-only.
 
 ---
 

@@ -2,6 +2,24 @@
 
 ---
 
+## Phase A security foundation
+
+### Added
+
+- server-side registration with viewer as the public default;
+- synchronized Firebase browser authentication and server session cookies;
+- verified Node.js `/admin` boundary and centralized RBAC;
+- UID-isolated Firestore and Storage rules;
+- explicit first-administrator bootstrap tooling.
+
+### Architecture decision
+
+- `users/{uid}/...` is the authoritative Firestore SaaS v2 hierarchy;
+- custom claims are authoritative and Firestore roles are server-controlled
+  mirrors.
+
+---
+
 ## Version 1.0.0
 
 ### Added

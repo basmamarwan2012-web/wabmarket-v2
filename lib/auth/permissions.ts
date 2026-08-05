@@ -1,0 +1,56 @@
+import type { UserRole } from './roles'
+
+export const PERMISSIONS = [
+  'admin.access',
+  'data.read',
+  'domains.manage',
+  'leads.manage',
+  'campaigns.manage',
+  'campaigns.send',
+  'negotiations.manage',
+  'statuses.update',
+  'financials.read',
+  'files.manage',
+  'settings.manage',
+  'users.manage',
+] as const
+
+export type Permission = (typeof PERMISSIONS)[number]
+
+const rolePermissions: Record<UserRole, readonly Permission[]> = {
+  administrator: PERMISSIONS,
+  manager: [
+    'admin.access',
+    'data.read',
+    'domains.manage',
+    'leads.manage',
+    'campaigns.manage',
+    'campaigns.send',
+    'negotiations.manage',
+    'statuses.update',
+    'files.manage',
+  ],
+  operator: [
+    'admin.access',
+    'data.read',
+    'campaigns.send',
+    'negotiations.manage',
+    'statuses.update',
+  ],
+  viewer: ['admin.access', 'data.read'],
+}
+
+export function hasPermission(role: UserRole, permission: Permission) {
+  return rolePermissions[role].includes(permission)
+}
+
+export function hasEveryPermission(
+  role: UserRole,
+  permissions: readonly Permission[]
+) {
+  return permissions.every((permission) => hasPermission(role, permission))
+}
+
+export function getPermissions(role: UserRole) {
+  return rolePermissions[role]
+}

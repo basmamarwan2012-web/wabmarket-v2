@@ -1,32 +1,50 @@
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from 'firebase/auth'
+import { type UserCredential, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
 import { auth } from '@/firebase/client'
-import { createUserDocument } from '@/services/user.service'
+import type { RegisterCredentials } from '@/types'
 
-export const registerUser = async (email: string, password: string) => {
-  const credentials = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  )
+async function requestJson(url: string, init: RequestInit) {
+  const response = await fetch(url, init)
+  const body = (await response.json().catch(() => null)) as {
+    error?: string
+  } | null
 
-  await createUserDocument(credentials.user.uid, {
-    email,
-    role: 'admin',
-    createdAt: new Date(),
+  if (!response.ok) {
+    throw new Error(body?.error ?? 'Authentication request failed.')
+  }
+
+  return body
+}
+
+export const registerUser = async (credentials: RegisterCredentials) => {
+  return requestJson('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
   })
-
-  return credentials
 }
 
-export const loginUser = (email: string, password: string) => {
-  return signInWithEmailAndPassword(auth, email, password)
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<UserCredential> => {
+  const credentials = await signInWithEmailAndPassword(auth, email, password)
+
+  try {
+    const idToken = await credentials.user.getIdToken(true)
+    await requestJson('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    })
+    return credentials
+  } catch (error) {
+    await signOut(auth)
+    throw error
+  }
 }
 
-export const logoutUser = () => {
-  return signOut(auth)
+export const logoutUser = async () => {
+  await requestJson('/api/auth/logout', { method: 'POST' })
+  await signOut(auth)
 }

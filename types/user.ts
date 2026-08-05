@@ -1,4 +1,6 @@
-export type UserRole = 'admin' | 'manager' | 'operator' | 'viewer'
+import type { UserRole } from '@/lib/auth/roles'
+
+export type { UserRole } from '@/lib/auth/roles'
 
 export interface User {
   id: string

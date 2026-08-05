@@ -64,6 +64,15 @@ Supported methods:
 
 # SESSION MANAGEMENT
 
+Phase A uses the centralized cookie name `wabmarket_session` with a finite
+five-day lifetime, HttpOnly, Secure in production, SameSite=Lax, and Path=/.
+Middleware checks presence only. Firebase Admin verifies signature, expiry,
+revocation, and role in the Node.js server layout before `/admin` renders.
+
+The browser Firebase session remains active for direct Firestore and Storage SDK
+calls. Login creates both sessions; logout clears the server cookie and then the
+browser Firebase session.
+
 Requirements:
 
 - secure cookies;
@@ -127,6 +136,29 @@ Permissions:
 
 - read-only access.
 
+All four authenticated roles may enter `/admin`. Capabilities are checked with
+centralized permission helpers. Custom claims are authoritative; the Firestore
+role is only a server-controlled mirror. Missing or invalid role claims are
+denied and never promoted automatically.
+
+## First-administrator bootstrap
+
+There is no public role-promotion endpoint. A project owner performs the
+one-time bootstrap from a trusted workstation using Google Application Default
+Credentials:
+
+```powershell
+gcloud auth application-default login
+$env:GOOGLE_CLOUD_PROJECT='<firebase-project-id>'
+node scripts/bootstrap-administrator.mjs '<firebase-auth-uid>'
+```
+
+Obtain the exact UID from Firebase Console > Authentication > Users. The script
+preserves unrelated custom claims, assigns `administrator`, and updates the
+server-controlled Firestore mirror. The user must sign out and sign in again.
+Application Default Credentials should then be revoked or removed according to
+the operator's credential policy.
+
 ---
 
 # DATABASE SECURITY
@@ -136,6 +168,11 @@ Permissions:
 ## Firestore rules
 
 Only authenticated users may access data.
+
+SaaS v2 access is isolated below `users/{uid}`. Viewer can read but cannot write
+tenant business data. Client writes cannot create profiles or alter authoritative
+identity, role, status/security, subscription/plan, timestamp, or audit fields.
+Storage uses the same UID isolation and a 20 MB allowlist for file types.
 
 ---
 
