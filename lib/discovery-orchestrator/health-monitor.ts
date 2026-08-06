@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { DiscoveryProviderIdentifier } from '@/types/discovery-provider'
-import type { ProviderHealthDecision } from '@/types/discovery-orchestrator'
+import type { ProviderHealthDecision } from '@/types/provider-health'
 
 export interface HealthMonitor {
   check(providerIdentifier: DiscoveryProviderIdentifier): Promise<ProviderHealthDecision>

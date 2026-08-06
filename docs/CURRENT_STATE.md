@@ -353,6 +353,32 @@ The AI engine must generate:
   acquisition-provider success is represented by typed provider coverage but
   is not executed in this phase.
 
+## Phase C.2.0.5-B dormant provider policy foundation
+
+- Provider-declared capabilities are authoritative. Tenant/provider settings
+  can disable providers and restrict categories or search modes, but cannot
+  expand adapter capabilities. Registration and activation remain separate;
+  every fresh default setting is immutable and disabled.
+- Independent contracts now cover provider configuration, accumulated usage,
+  statistics events, provider and tenant quotas, provider and tenant budgets,
+  provider health, cache metadata, and deterministic eligibility reasons.
+- A verified zero-cost tier from a provider that does not require paid access
+  is not blocked merely because paid-request budgets are zero. Potentially paid
+  execution requires explicit opt-in and positive provider and tenant budgets;
+  unknown request cost fails closed. Provider-request cost remains separate
+  from domain acquisition price, and currencies are never silently converted.
+- Quota and budget boundaries expose validate, reserve, commit, reconcile, and
+  release contracts with opaque tokens and idempotency metadata. Correct
+  concurrent enforcement will require atomic persistence in a future phase;
+  no counters or reservations are implemented now.
+- Cache fingerprints identify normalized reusable queries while namespaces are
+  reserved for isolation/sharing policy. Cache schema, fingerprint, and value
+  versions are distinct and no hashing or cache implementation exists.
+- Eligibility evaluation is pure and deterministically aggregates already-made
+  capability, compatibility, policy, health, quota, and budget decisions. It
+  performs no selection, reservation, statistics recording, or provider call.
+  No provider is executable after this phase.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

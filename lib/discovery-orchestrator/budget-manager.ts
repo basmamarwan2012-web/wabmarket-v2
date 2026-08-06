@@ -1,15 +1,20 @@
 import 'server-only'
 
 import type { DiscoveryProviderIdentifier } from '@/types/discovery-provider'
-import type { BudgetDecision } from '@/types/discovery-orchestrator'
+import type {
+  BudgetDecision,
+  BudgetReservation,
+  BudgetReservationToken,
+  RequestCostMeasurement,
+  RequestPricingContext,
+} from '@/types/provider-budget'
 
-export interface BudgetReservation { reservationId: string; providerIdentifier: DiscoveryProviderIdentifier; estimatedCost: number; currency: string | null }
 export interface BudgetManager {
-  check(providerIdentifier: DiscoveryProviderIdentifier, estimatedCost: number | null): Promise<BudgetDecision>
-  reserve(providerIdentifier: DiscoveryProviderIdentifier, estimatedCost: number, currency: string | null): Promise<BudgetReservation>
-  recordActualUsage(reservation: BudgetReservation, actualCost: number): Promise<void>
-  reconcile(reservation: BudgetReservation, actualCost: number): Promise<void>
-  release(reservation: BudgetReservation): Promise<void>
+  validate(context: Readonly<RequestPricingContext>): Promise<BudgetDecision>
+  reserve(estimatedCost: RequestCostMeasurement, idempotencyKey: string): Promise<BudgetReservation>
+  commit(token: BudgetReservationToken, actualCost: RequestCostMeasurement, idempotencyKey: string): Promise<BudgetReservation>
+  reconcile(token: BudgetReservationToken, actualCost: RequestCostMeasurement, idempotencyKey: string): Promise<BudgetReservation>
+  release(token: BudgetReservationToken, idempotencyKey: string): Promise<BudgetReservation>
 }
 
 export function isValidMoney(value: number): boolean {

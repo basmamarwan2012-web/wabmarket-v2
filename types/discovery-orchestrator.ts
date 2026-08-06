@@ -1,42 +1,13 @@
 import type { DiscoveryProviderCategory, DiscoveryProviderIdentifier, DiscoveryProviderRequest, DiscoveryProviderResult, DiscoverySearchMode } from './discovery-provider'
 import type { DomainAcquisitionIntelligence, DomainAcquisitionOffer, ProviderCoverage } from './domain-acquisition'
+import type { BudgetDecision } from './provider-budget'
+import type { ProviderHealthDecision } from './provider-health'
+import type { ProviderSettings } from './provider-policy'
+import type { QuotaDecision } from './provider-quota'
 
 export type OrchestrationStrategy = 'priority_fallback' | 'parallel_aggregation'
 
-export interface ProviderPolicy {
-  providerIdentifier: DiscoveryProviderIdentifier
-  enabled: boolean
-  priority: number
-  categories: readonly DiscoveryProviderCategory[]
-  /** Restricts execution to a zero-request-cost tier. */
-  freeOnly: boolean
-  requiresPaidAccess: boolean
-  /** Account-level opt-in to request-cost-incurring providers. */
-  paidProvidersEnabled: boolean
-  dailyRequestLimit: number | null
-  monthlyRequestLimit: number | null
-  dailyCostLimit: number
-  monthlyCostLimit: number
-  emergencyStop: boolean
-  supportsBatch: boolean
-  fallbackAllowed: boolean
-  aggregationAllowed: boolean
-  searchModePriorities: Readonly<Partial<Record<DiscoverySearchMode, number>>>
-}
-
-export type QuotaDecisionStatus = 'allowed' | 'denied' | 'exhausted' | 'unknown'
-export interface QuotaDecision { status: QuotaDecisionStatus; reasonCode: string; dailyRemaining: number | null; monthlyRemaining: number | null; freeQuotaRemaining: number | null; resetsAt: string | null }
-
-export type BudgetDecisionStatus = 'allowed' | 'denied' | 'emergency_stop' | 'paid_provider_disabled' | 'daily_limit_reached' | 'monthly_limit_reached' | 'unknown_cost'
-export interface BudgetDecision { status: BudgetDecisionStatus; reasonCode: string; estimatedRequestCost: number | null; currency: string | null }
-
-export type ProviderHealthState = 'healthy' | 'degraded' | 'offline' | 'quota_exhausted' | 'disabled' | 'unknown'
-export interface ProviderHealthDecision { state: ProviderHealthState; allowed: boolean; reason: string | null; lastSuccessAt: string | null; lastFailureAt: string | null; consecutiveFailures: number; retryAfter: string | null }
-
 export interface CanonicalFingerprintCriteria { searchMode: DiscoverySearchMode; keyword: string | null; city: string | null; state: string | null; country: string | null; language: string | null; candidateDomain: string | null; requestedExtensions: readonly string[]; providerCategory: DiscoveryProviderCategory; strategy: OrchestrationStrategy }
-
-export type OrchestrationCacheValue = { kind: 'discovery'; value: DiscoveryProviderResult } | { kind: 'acquisition'; value: DomainAcquisitionIntelligence }
-export interface CacheRecord<T extends OrchestrationCacheValue> { fingerprint: string; createdAt: string; expiresAt: string; providerIdentifiers: readonly DiscoveryProviderIdentifier[]; sourceStrategy: OrchestrationStrategy; cacheHit: boolean; stale: boolean; value: T }
 
 export type FailoverFailureCategory = 'quota_exhausted' | 'budget_blocked' | 'provider_unhealthy' | 'unsupported_request' | 'temporary_failure' | 'permanent_failure' | 'provider_not_implemented'
 export type FailoverDecision = { action: 'next_provider'; providerIdentifier: DiscoveryProviderIdentifier } | { action: 'stop' } | { action: 'retry_later' } | { action: 'no_free_provider_available' }
@@ -50,3 +21,25 @@ export type SafeOrchestrationResult =
   | { success: false; code: Exclude<OrchestrationResultCode, SuccessCode | 'ORCHESTRATOR_AGGREGATED_SUCCESS'>; message: string; partialOffers?: readonly DomainAcquisitionOffer[]; coverage?: readonly ProviderCoverage[] }
 
 export interface ProviderSelectionRequest { request: DiscoveryProviderRequest; category: DiscoveryProviderCategory; strategy: OrchestrationStrategy }
+export interface EligibleProviderCandidate { providerIdentifier: DiscoveryProviderIdentifier; settings: ProviderSettings; eligibility: ProviderEligibilityResult }
+
+export type EligibilitySeverity = 'blocking' | 'warning' | 'informational'
+export type EligibilityReasonCode = 'POLICY_INVALID_CONFIGURATION' | 'POLICY_UNKNOWN_PROVIDER' | 'POLICY_PROVIDER_DISABLED' | 'POLICY_CATEGORY_UNSUPPORTED' | 'POLICY_CAPABILITY_UNSUPPORTED' | 'POLICY_SEARCH_MODE_UNSUPPORTED' | 'POLICY_REQUEST_INCOMPATIBLE' | 'POLICY_PAID_PROVIDER_DISABLED' | 'POLICY_FREE_ONLY_REQUIRED' | 'POLICY_EMERGENCY_STOP' | 'POLICY_PROVIDER_UNHEALTHY' | 'POLICY_QUOTA_EXHAUSTED' | 'POLICY_BUDGET_BLOCKED'
+export interface EligibilityReason { readonly code: EligibilityReasonCode; readonly severity: EligibilitySeverity; readonly message: string }
+export interface ProviderEligibilityResult { readonly providerIdentifier: DiscoveryProviderIdentifier; readonly eligible: boolean; readonly reasons: readonly EligibilityReason[] }
+export interface ProviderEligibilityInput {
+  readonly providerIdentifier: DiscoveryProviderIdentifier
+  readonly configurationValid: boolean
+  readonly providerKnown: boolean
+  readonly enabled: boolean
+  readonly categorySupported: boolean
+  readonly capabilitySupported: boolean
+  readonly searchModeSupported: boolean
+  readonly requestCompatible: boolean
+  readonly executionPolicyAllowed: boolean
+  readonly executionPolicyReason: EligibilityReasonCode | null
+  readonly emergencyStopBlocked: boolean
+  readonly healthDecision: ProviderHealthDecision
+  readonly quotaDecision: QuotaDecision
+  readonly budgetDecision: BudgetDecision
+}

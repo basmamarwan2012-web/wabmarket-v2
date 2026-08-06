@@ -1,10 +1,10 @@
 import 'server-only'
 
-import type { CacheRecord, OrchestrationCacheValue } from '@/types/discovery-orchestrator'
+import type { ProviderCacheRecord, ProviderCacheValue } from '@/types/provider-cache'
 
 export interface CacheManager {
-  lookup<T extends OrchestrationCacheValue>(fingerprint: string): Promise<CacheRecord<T> | null>
-  store<T extends OrchestrationCacheValue>(record: CacheRecord<T>): Promise<void>
+  lookup<T extends ProviderCacheValue>(fingerprint: string, namespace: string): Promise<ProviderCacheRecord<T> | null>
+  store<T extends ProviderCacheValue>(record: ProviderCacheRecord<T>): Promise<void>
   invalidate(fingerprint: string): Promise<void>
   invalidateByProvider(providerIdentifier: string): Promise<void>
   invalidateByFingerprint(fingerprint: string): Promise<void>

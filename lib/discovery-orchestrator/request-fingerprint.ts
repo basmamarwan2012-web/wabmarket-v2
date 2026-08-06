@@ -1,8 +1,8 @@
 import 'server-only'
 
-import type { CanonicalFingerprintCriteria } from '@/types/discovery-orchestrator'
+import type { FingerprintInput } from '@/types/provider-cache'
 
 /** Implementations must deterministically fingerprint already-normalized criteria. */
 export interface RequestFingerprint {
-  create(criteria: Readonly<CanonicalFingerprintCriteria>): Promise<string>
+  create(input: Readonly<FingerprintInput>): Promise<string>
 }

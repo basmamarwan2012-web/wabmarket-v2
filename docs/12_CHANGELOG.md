@@ -198,3 +198,19 @@ critical
 - This phase contains no working orchestration, external access, provider
   execution, persistence, fake results, pricing, cache, quotas, budgets, or
   failover. Real tracking and execution remain future phases.
+
+# Phase C.2.0.5-B - Dormant provider policy foundation
+
+- Split provider policy into immutable declaration, tenant restriction, usage,
+  statistics-event, quota, budget, health, cache, and eligibility contracts.
+- Added inactive default factories, optional priority/weight settings, typed
+  policy validation errors, and deterministic blocking eligibility reasons.
+- Added opaque, idempotency-aware quota and budget reservation lifecycles for
+  future atomic persistence without implementing counters or storage.
+- Preserved zero-cost free-tier eligibility despite zero paid budgets while
+  making unknown or potentially paid request cost fail closed by default.
+- Kept provider capabilities adapter-authoritative, cache fingerprints separate
+  from namespaces, and provider-request costs separate from acquisition prices.
+- No provider execution, persistence, API/UI integration, external access,
+  pricing implementation, cache, monitoring, or orchestrator connection was
+  added. All providers remain inactive.
