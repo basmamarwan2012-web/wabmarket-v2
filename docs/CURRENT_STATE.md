@@ -455,6 +455,48 @@ The AI engine must generate:
   execution. There is still no orchestration, API/UI integration, persistence,
   opportunity generation, quota/budget tracking, or background processing.
 
+## Phase C.2.1-B controlled internal Google validation
+
+- Production composition remains dormant and no API, UI, discovery lifecycle,
+  repository, persistence, opportunity, or Dynadot path can execute Google. A
+  fresh internal graph can execute Google only through an unexported, per-call
+  reference capability scoped to the local provider test service.
+- Google queries now use small immutable profiles for `business_upgrade` and
+  `local_seo`. Profiles control `q`, conservative exclusions, short OR-term
+  lists, allowlisted `lr`, `num` from 1-10, `safe=active`, and `filter=1`.
+  Safe Search is a content-safety filter, not a business-quality signal, and
+  Google's duplicate filter does not replace local hostname deduplication.
+- All returned items pass through a pure, zero-request quality gate. It rejects
+  invalid/private/local URLs, blocked exact/subdomain hosts, and obvious files;
+  applies an explicit 0-100 heuristic; enforces an experimental immutable
+  threshold of 65; and keeps the highest-quality page for each exact normalized
+  hostname while preserving winning Google order.
+- The initial score starts at 30 for a valid website, adds 18 for a homepage,
+  10 for a shallow path, 15/10 for keyword evidence in title/snippet, 10 for
+  title-or-snippet location evidence, 12 for company-oriented language, and 5
+  for a plausible standalone hostname. It subtracts 35 for jobs language, 20
+  for article/news/blog evidence, 25 for contextual directory/listing language,
+  15 for deep paths, and 15 when both title and snippet are absent. Scores are
+  clamped to 0-100 and signal metadata uses stable codes.
+- The score is not FlipScore, verification, qualification, or an investment
+  recommendation. Results may still be imperfect web pages, and accepted count
+  may be zero. No crawler, DNS, redirect, AI, or additional provider request is
+  used.
+- Safe diagnostics enforce the invariant `received = accepted + hard rejected
+  + below threshold + duplicate host`. Each rejected result has one primary
+  reason; blocked/invalid/non-website counters are documented hard-rejection
+  subcategories and do not change that invariant.
+- Manual validation requires the explicit command below. Each confirmed
+  invocation consumes at most one Google request, creates no opportunity, and
+  writes no database, cache, quota, budget, health, usage, or statistics data:
+
+  `npm.cmd run test:google-discovery -- --confirm-live-google-request --mode business_upgrade --keyword roofing --city Miami --country "United States" --maxResults 10`
+
+- Without the confirmation flag, the script exits before loading `.env.local`,
+  importing the test service, constructing a provider, or reading Google
+  configuration. It never runs during dev, build, startup, lint, or tests. Open
+  Discovery remains the planned free fallback.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic
@@ -523,3 +565,34 @@ after Phase A security validation and is intentionally untouched in Phase A.
 # Important instruction
 
 Continue only from the current state of the repository.
+
+## Temporary Google Custom Search manual diagnostics
+
+- The explicitly confirmed Google discovery CLI temporarily subscribes to an
+  internal HTTP-error diagnostic channel for failure analysis.
+- Diagnostics are limited to HTTP status, Google error code/status/reason, and
+  a strict allowlisted category. Google's raw response and message are never
+  printed, stored, attached to provider errors, or returned through runtime
+  interfaces.
+- Runtime provider errors remain sanitized and unchanged. Product APIs, UI,
+  discovery lifecycle, persistence, normalization, and quality filtering do
+  not receive these diagnostics.
+- The diagnostic path adds no retry or additional request. One confirmed CLI
+  invocation still performs at most one Google request.
+
+## Phase C.2.2-A Open Discovery provider foundation
+
+- A server-only `open_discovery` provider foundation now implements the common
+  provider contract for `business_upgrade` and `local_seo` requests with pure,
+  meaningful criteria validation.
+- Its capability category is `business_discovery`. Its separate immutable
+  configuration metadata classifies provider access as free, requires no paid
+  access, and assigns zero request cost without defining activation state.
+- The provider is a typed stub only: `search()` always throws the sanitized
+  `PROVIDER_NOT_IMPLEMENTED` error, normalization returns an immutable empty
+  result, and no open-data source or transport has been selected.
+- It is exported and known by identifier but remains unregistered in discovery
+  composition, inactive under provider policy, and unreachable from APIs, UI,
+  lifecycle processing, persistence, orchestration, or internal test tooling.
+- The next Open Discovery phase must select and implement the first real free
+  source before this provider can return data.

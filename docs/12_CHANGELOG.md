@@ -260,3 +260,48 @@ critical
 - Documented Google Custom Search as temporary, closed to new customers, and
   scheduled for discontinuation for existing eligible customers on January 1,
   2027. Open Discovery remains the planned free fallback.
+
+# Phase C.2.1-B - Controlled internal Google validation
+
+- Added conservative Google query profiles with controlled exclusions and OR
+  terms, allowlisted language restrictions, `safe=active`, and `filter=1`.
+- Added a pure local quality gate with explicit scoring weights, a fixed
+  experimental 65/100 threshold, narrow exact/subdomain host blocking,
+  non-website/file rejection, and deterministic exact-host deduplication.
+- Added one-pass normalization diagnostics and a fresh Google-only internal
+  execution capability while keeping production composition dormant.
+- Added an explicit `tsx`-backed manual command that requires live-request
+  confirmation before environment loading or service import. One confirmed
+  invocation performs at most one request and prints only safe diagnostics and
+  accepted summaries.
+- Added no API/UI/lifecycle integration, retry, pagination, persistence,
+  opportunity generation, crawler, AI, or Dynadot execution. Accepted results
+  remain heuristic web results and may be empty.
+
+# Google Custom Search failure diagnostics
+
+- Added temporary manual-CLI-only HTTP failure diagnostics through an internal
+  diagnostic channel subscribed after explicit confirmation and environment
+  loading.
+- Limited diagnostic output to provider, HTTP status, Google code/status/reason,
+  and a strict allowlisted category. Raw Google messages, response payloads,
+  credentials, request URLs, headers, stacks, and internal causes remain
+  undisclosed.
+- Preserved existing sanitized provider errors and request behavior. No retry,
+  additional request, API/UI exposure, persistence, lifecycle integration, or
+  provider-result field was added.
+
+# Phase C.2.2-A - Open Discovery provider foundation
+
+- Added the known `open_discovery` provider identifier and a server-only typed
+  provider stub for `business_upgrade` and `local_seo` with pure required-
+  criteria validation.
+- Added immutable source/configuration defaults that keep free, zero-request-
+  cost metadata separate from `business_discovery` capability semantics and
+  contain no provider activation or policy state.
+- Added minimal dormant raw-response types plus pure whitespace, hostname, and
+  source-record helper boundaries without selecting or modeling a real source.
+- The provider performs no request, returns no data, remains unregistered and
+  inactive, and is not connected to composition, orchestration, APIs, UI,
+  lifecycle, persistence, or testing. A future phase must select the first real
+  free open-data source.

@@ -4,6 +4,11 @@ export interface GoogleCustomSearchRequestParameters {
   readonly query: string
   readonly maxResults: number
   readonly languageRestriction: string | null
+  readonly exactTerms: string | null
+  readonly excludeTerms: string
+  readonly orTerms: string
+  readonly safe: 'active'
+  readonly filter: '1'
 }
 
 export interface GoogleCustomSearchCredentials {
@@ -56,6 +61,12 @@ export const loadGoogleCustomSearchConfiguration: GoogleCustomSearchConfiguratio
           url.searchParams.set('num', String(parameters.maxResults))
           if (parameters.languageRestriction)
             url.searchParams.set('lr', parameters.languageRestriction)
+          if (parameters.exactTerms)
+            url.searchParams.set('exactTerms', parameters.exactTerms)
+          url.searchParams.set('excludeTerms', parameters.excludeTerms)
+          url.searchParams.set('orTerms', parameters.orTerms)
+          url.searchParams.set('safe', parameters.safe)
+          url.searchParams.set('filter', parameters.filter)
           return url
         },
       }),

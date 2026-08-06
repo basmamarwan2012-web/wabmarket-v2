@@ -1,6 +1,7 @@
 export const KNOWN_DISCOVERY_PROVIDER_IDENTIFIERS = [
   'google',
   'dynadot',
+  'open_discovery',
 ] as const
 
 export type KnownDiscoveryProviderIdentifier =

@@ -31,7 +31,7 @@ export interface DiscoveryOrchestratorDependencies {
 }
 
 export interface DiscoveryEngineGateway {
-  execute(
+  executeProvider(
     providerIdentifier: DiscoveryProviderIdentifier,
     request: DiscoveryProviderRequest,
     context?: Readonly<DiscoveryProviderExecutionContext>

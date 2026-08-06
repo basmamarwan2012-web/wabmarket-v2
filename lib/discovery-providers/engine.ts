@@ -39,13 +39,53 @@ const itemSchema = z
   })
   .strict()
 
+interface DiagnosticProvider<TRawResponse> extends DiscoveryProvider<TRawResponse> {
+  normalizeWithDiagnostics(
+    response: TRawResponse,
+    request: DiscoveryProviderRequest
+  ): {
+    readonly items: readonly DiscoveryProviderItem[]
+    readonly diagnostics: unknown
+  }
+}
+
+export interface DiscoveryEngineDiagnosticResult {
+  readonly result: DiscoveryProviderResult
+  readonly diagnostics: unknown
+}
+
+const supportsDiagnostics = <TRawResponse>(
+  provider: DiscoveryProvider<TRawResponse>
+): provider is DiagnosticProvider<TRawResponse> =>
+  'normalizeWithDiagnostics' in provider &&
+  typeof provider.normalizeWithDiagnostics === 'function'
+
 export class DiscoveryEngine<TRawResponse = unknown> {
   constructor(private readonly provider: DiscoveryProvider<TRawResponse>) {}
+
+  get providerIdentifier() {
+    return this.provider.name()
+  }
 
   async execute(
     request: DiscoveryProviderRequest,
     context?: Readonly<DiscoveryProviderExecutionContext>
   ): Promise<DiscoveryProviderResult> {
+    return (await this.executeInternal(request, context, false)).result
+  }
+
+  async executeWithDiagnostics(
+    request: DiscoveryProviderRequest,
+    context?: Readonly<DiscoveryProviderExecutionContext>
+  ): Promise<DiscoveryEngineDiagnosticResult> {
+    return this.executeInternal(request, context, true)
+  }
+
+  private async executeInternal(
+    request: DiscoveryProviderRequest,
+    context: Readonly<DiscoveryProviderExecutionContext> | undefined,
+    includeDiagnostics: boolean
+  ): Promise<DiscoveryEngineDiagnosticResult> {
     let supported: boolean
     try {
       supported = this.provider.supports(request)
@@ -56,12 +96,11 @@ export class DiscoveryEngine<TRawResponse = unknown> {
         { cause: error }
       )
     }
-    if (!supported) {
+    if (!supported)
       throw new DiscoveryProviderError(
         'PROVIDER_UNSUPPORTED_REQUEST',
         'The provider does not support this discovery request.'
       )
-    }
 
     const startedAt = new Date()
     const monotonicStart = performance.now()
@@ -78,9 +117,25 @@ export class DiscoveryEngine<TRawResponse = unknown> {
     }
 
     let normalized: readonly DiscoveryProviderItem[]
+    let diagnostics: unknown = null
     try {
-      normalized = await this.provider.normalize(rawResponse, request)
+      if (includeDiagnostics) {
+        if (!supportsDiagnostics(this.provider))
+          throw new DiscoveryProviderError(
+            'PROVIDER_INVALID_CONFIGURATION',
+            'Provider diagnostics are unavailable.'
+          )
+        const outcome = this.provider.normalizeWithDiagnostics(
+          rawResponse,
+          request
+        )
+        normalized = outcome.items
+        diagnostics = outcome.diagnostics
+      } else {
+        normalized = await this.provider.normalize(rawResponse, request)
+      }
     } catch (error) {
+      if (error instanceof DiscoveryProviderError) throw error
       throw new DiscoveryProviderError(
         'PROVIDER_NORMALIZATION_FAILED',
         'The provider response could not be normalized.',
@@ -93,22 +148,24 @@ export class DiscoveryEngine<TRawResponse = unknown> {
     if (
       !parsed.success ||
       parsed.data.some((item) => item.provider !== providerIdentifier)
-    ) {
+    )
       throw new DiscoveryProviderError(
         'PROVIDER_INVALID_NORMALIZED_RESULT',
         'The provider returned an invalid normalized result.',
         { cause: parsed.success ? undefined : parsed.error }
       )
-    }
 
     const completedAt = new Date()
-    return {
-      provider: providerIdentifier,
-      query: request,
-      startedAt: startedAt.toISOString(),
-      completedAt: completedAt.toISOString(),
-      durationMs: Math.max(0, performance.now() - monotonicStart),
-      items: parsed.data,
-    }
+    return Object.freeze({
+      result: Object.freeze({
+        provider: providerIdentifier,
+        query: request,
+        startedAt: startedAt.toISOString(),
+        completedAt: completedAt.toISOString(),
+        durationMs: Math.max(0, performance.now() - monotonicStart),
+        items: parsed.data,
+      }),
+      diagnostics,
+    })
   }
 }

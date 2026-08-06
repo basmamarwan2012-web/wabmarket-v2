@@ -1,6 +1,8 @@
 import 'server-only'
 
 import type { DiscoveryComposition, DiscoveryCompositionResult } from '@/types/discovery-composition'
+import type { DiscoveryProviderExecutionContext, DiscoveryProviderRequest } from '@/types/discovery-provider'
+import type { DiscoveryEngineDiagnosticResult } from '@/lib/discovery-providers'
 import { DiscoveryEngine, DiscoveryProviderError, DiscoveryProviderRegistry, DynadotDiscoveryProvider, GoogleDiscoveryProvider } from '@/lib/discovery-providers'
 import { DiscoveryOrchestrator } from '@/lib/discovery-orchestrator/orchestrator'
 import { createDefaultProviderDeclaration, createDefaultProviderPolicy } from '@/lib/discovery-orchestrator/provider-configuration'
@@ -31,7 +33,10 @@ const requireDependency = <T>(value: T | null | undefined): T => {
   return value
 }
 
-const buildComposition = (): DiscoveryComposition => {
+const buildComposition = (internalTestCapability?: object): {
+  readonly composition: DiscoveryComposition
+  readonly engineGateway: DormantDiscoveryEngineGateway
+} => {
   const googleProvider = new GoogleDiscoveryProvider()
   const dynadotProvider = new DynadotDiscoveryProvider()
   const providers = Object.freeze([googleProvider, dynadotProvider])
@@ -75,7 +80,10 @@ const buildComposition = (): DiscoveryComposition => {
   const engines = Object.freeze(
     providers.map((provider) => new DiscoveryEngine(provider))
   )
-  const engineGateway = new DormantDiscoveryEngineGateway(engines)
+  const engineGateway = new DormantDiscoveryEngineGateway(
+    engines,
+    internalTestCapability
+  )
 
   const orchestrator = new DiscoveryOrchestrator({
     registry: requireDependency(registry),
@@ -93,14 +101,46 @@ const buildComposition = (): DiscoveryComposition => {
   })
 
   return Object.freeze({
-    registry: new ReadonlyRegistryView(registry.providers),
-    orchestrator,
+    composition: Object.freeze({
+      registry: new ReadonlyRegistryView(registry.providers),
+      orchestrator,
+    }),
+    engineGateway,
+  })
+}
+
+export interface InternalGoogleProviderTestExecutor {
+  execute(
+    request: DiscoveryProviderRequest,
+    context?: Readonly<DiscoveryProviderExecutionContext>
+  ): Promise<DiscoveryEngineDiagnosticResult>
+}
+
+/** Internal direct-path export; intentionally absent from the public barrel. */
+export function createInternalGoogleProviderTestExecutor(): InternalGoogleProviderTestExecutor {
+  const capability = Object.freeze({})
+  const graph = buildComposition(capability)
+  return Object.freeze({
+    execute(
+      request: DiscoveryProviderRequest,
+      context?: Readonly<DiscoveryProviderExecutionContext>
+    ) {
+      return graph.engineGateway.executeProviderForInternalTest(
+        'google',
+        request,
+        capability,
+        context
+      )
+    },
   })
 }
 
 export function createDiscoveryComposition(): DiscoveryCompositionResult {
   try {
-    return Object.freeze({ success: true, composition: buildComposition() })
+    return Object.freeze({
+      success: true,
+      composition: buildComposition().composition,
+    })
   } catch (error) {
     if (error instanceof DiscoveryCompositionError)
       return Object.freeze({ success: false, error: toSafeCompositionError(error) })

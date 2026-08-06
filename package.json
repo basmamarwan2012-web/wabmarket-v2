@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:google-discovery": "node --conditions=react-server --import tsx scripts/test-google-discovery.ts",
     "postinstall": "husky install"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.53.2",
     "recharts": "^2.13.3",
+    "server-only": "0.0.1",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "winston": "^3.16.0",
@@ -51,6 +53,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.9",
     "typescript": "^5.6.3"
   }
 }

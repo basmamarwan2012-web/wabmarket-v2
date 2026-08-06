@@ -1,5 +1,3 @@
-import 'server-only'
-
 import type { DiscoveryProviderCriteria } from '@/types/discovery-provider'
 
 const GOOGLE_LANGUAGE_RESTRICTIONS = Object.freeze({

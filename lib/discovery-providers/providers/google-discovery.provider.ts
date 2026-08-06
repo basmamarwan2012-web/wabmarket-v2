@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { channel } from 'node:diagnostics_channel'
 import { z } from 'zod'
 
 import {
@@ -17,15 +18,36 @@ import {
   buildGoogleBusinessQuery,
   mapGoogleLanguageRestriction,
   normalizeGoogleMaxResults,
-  normalizeGoogleResultUrl,
 } from './google-discovery.helpers'
+import { getGoogleQueryProfile } from './google-query-profile'
+import {
+  applyGoogleResultQualityGate,
+  type GoogleQualityDiagnostics,
+} from './google-result-quality'
 import type {
   GoogleCustomSearchItem,
   GoogleCustomSearchResponse,
 } from './google-discovery.types'
 
 const GOOGLE_TIMEOUT_MS = 10_000
+const GOOGLE_HTTP_DIAGNOSTIC_CHANNEL_NAME =
+  'wabmarket.discovery.google.http-error.manual'
 const supportedModes = Object.freeze(['business_upgrade', 'local_seo'] as const)
+const googleHttpDiagnosticChannel = channel(
+  GOOGLE_HTTP_DIAGNOSTIC_CHANNEL_NAME
+)
+
+type GoogleHttpDiagnosticCategory =
+  | 'api_not_enabled'
+  | 'api_key_invalid'
+  | 'api_key_restricted'
+  | 'custom_search_access_denied'
+  | 'search_engine_invalid'
+  | 'quota_exceeded'
+  | 'rate_limited'
+  | 'invalid_request'
+  | 'service_deprecated'
+  | 'unknown_http_error'
 
 const googleItemSchema = z.object({
   link: z.string(),
@@ -41,6 +63,9 @@ const googleResponseSchema = z.object({
 const googleErrorSchema = z.object({
   error: z
     .object({
+      code: z.number().int().optional(),
+      status: z.string().optional(),
+      message: z.string().optional(),
       errors: z.array(z.object({ reason: z.string() })).optional(),
     })
     .optional(),
@@ -52,6 +77,144 @@ const quotaReasons = new Set([
   'quotaExceeded',
 ])
 const rateLimitReasons = new Set(['rateLimitExceeded', 'userRateLimitExceeded'])
+
+const safeDiagnosticToken = (value: string | undefined) => {
+  const token = value?.trim()
+  return token && /^[A-Za-z0-9_.-]{1,100}$/.test(token) ? token : null
+}
+
+const includesAny = (value: string, terms: readonly string[]) =>
+  terms.some((term) => value.includes(term))
+
+const redactExactSecrets = (
+  value: string | undefined,
+  secrets: readonly (string | null)[]
+) => {
+  let redacted = value ?? ''
+  for (const secret of secrets) {
+    if (secret) redacted = redacted.split(secret).join('[redacted]')
+  }
+  return redacted.toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 1_000)
+}
+
+const classifyGoogleHttpError = (
+  httpStatus: number,
+  googleStatus: string | null,
+  reason: string | null,
+  redactedMessage: string
+): GoogleHttpDiagnosticCategory => {
+  const normalizedStatus = googleStatus?.toLowerCase() ?? ''
+  const normalizedReason = reason?.toLowerCase() ?? ''
+
+  if (
+    quotaReasons.has(reason ?? '') ||
+    includesAny(normalizedReason, ['quota', 'dailylimit']) ||
+    includesAny(redactedMessage, ['quota exceeded', 'daily limit exceeded'])
+  )
+    return 'quota_exceeded'
+  if (
+    httpStatus === 429 ||
+    rateLimitReasons.has(reason ?? '') ||
+    includesAny(normalizedReason, ['ratelimit', 'rate_limit'])
+  )
+    return 'rate_limited'
+  if (
+    includesAny(normalizedReason, ['accessnotconfigured', 'servicedisabled']) ||
+    includesAny(redactedMessage, [
+      'api has not been used',
+      'api is not enabled',
+      'service is disabled',
+      'access not configured',
+    ])
+  )
+    return 'api_not_enabled'
+  if (
+    includesAny(normalizedReason, ['keyinvalid', 'badrequestkeyinvalid']) ||
+    includesAny(redactedMessage, ['api key not valid', 'invalid api key'])
+  )
+    return 'api_key_invalid'
+  if (
+    includesAny(normalizedReason, [
+      'iprefererblocked',
+      'refererblocked',
+      'keyrestricted',
+    ]) ||
+    includesAny(redactedMessage, [
+      'api key restriction',
+      'referer restrictions',
+      'requests from referer',
+      'requests from this ip',
+    ])
+  )
+    return 'api_key_restricted'
+  if (
+    includesAny(redactedMessage, [
+      'custom search engine is invalid',
+      'invalid custom search engine',
+      'invalid search engine',
+      'invalid value for cx',
+    ])
+  )
+    return 'search_engine_invalid'
+  if (
+    includesAny(redactedMessage, [
+      'deprecated',
+      'discontinued',
+      'no longer available',
+    ])
+  )
+    return 'service_deprecated'
+  if (
+    httpStatus === 400 ||
+    normalizedStatus === 'invalid_argument' ||
+    includesAny(normalizedReason, ['invalid', 'badrequest'])
+  )
+    return 'invalid_request'
+  if (
+    httpStatus === 403 ||
+    normalizedStatus === 'permission_denied' ||
+    normalizedReason === 'forbidden'
+  )
+    return 'custom_search_access_denied'
+  return 'unknown_http_error'
+}
+
+const publishGoogleHttpDiagnostic = (
+  httpStatus: number,
+  parsed: z.infer<typeof googleErrorSchema>,
+  requestUrl: URL
+) => {
+  if (!googleHttpDiagnosticChannel.hasSubscribers) return
+
+  try {
+    const googleError = parsed.error
+    const reason = safeDiagnosticToken(googleError?.errors?.[0]?.reason)
+    const googleStatus = safeDiagnosticToken(googleError?.status)
+    const redactedMessage = redactExactSecrets(googleError?.message, [
+      requestUrl.searchParams.get('key'),
+      requestUrl.searchParams.get('cx'),
+    ])
+    const category = classifyGoogleHttpError(
+      httpStatus,
+      googleStatus,
+      reason,
+      redactedMessage
+    )
+
+    googleHttpDiagnosticChannel.publish(
+      Object.freeze({
+        provider: 'google',
+        httpStatus,
+        googleCode: googleError?.code ?? null,
+        googleStatus,
+        reason,
+        category,
+      })
+    )
+  } catch {
+    // Diagnostics must never affect provider execution or error mapping.
+  }
+}
 
 const configurationMessage = (
   reason: Exclude<
@@ -88,8 +251,13 @@ const parseGoogleResponse = (value: unknown): GoogleCustomSearchResponse => {
   }
 }
 
-const mapGoogleHttpError = (status: number, value: unknown) => {
+const mapGoogleHttpError = (
+  status: number,
+  value: unknown,
+  requestUrl: URL
+) => {
   const parsed = googleErrorSchema.safeParse(value)
+  if (parsed.success) publishGoogleHttpDiagnostic(status, parsed.data, requestUrl)
   const reasons = parsed.success
     ? (parsed.data.error?.errors ?? []).map((error) => error.reason)
     : []
@@ -139,9 +307,7 @@ export class GoogleDiscoveryProvider
   }
 
   supports(request: DiscoveryProviderRequest) {
-    if (
-      !supportedModes.includes(request.mode as (typeof supportedModes)[number])
-    )
+    if (!getGoogleQueryProfile(request.mode))
       return false
     const keyword = request.criteria.keyword?.trim()
     const city = request.criteria.city?.trim()
@@ -182,12 +348,23 @@ export class GoogleDiscoveryProvider
         'PROVIDER_UNSUPPORTED_REQUEST',
         'Google Custom Search accepts between 1 and 10 results.'
       )
+    const profile = getGoogleQueryProfile(request.mode)
+    if (!profile)
+      throw new DiscoveryProviderError(
+        'PROVIDER_UNSUPPORTED_REQUEST',
+        'Google query profile is unavailable for this mode.'
+      )
     const requestUrl = configuration.credentials.createRequestUrl({
       query: buildGoogleBusinessQuery(request.criteria),
       maxResults,
       languageRestriction: mapGoogleLanguageRestriction(
         request.criteria.language
       ),
+      exactTerms: profile.exactTerms,
+      excludeTerms: profile.excludeTerms,
+      orTerms: profile.orTerms,
+      safe: profile.safe,
+      filter: profile.filter,
     })
 
     const controller = new AbortController()
@@ -218,9 +395,10 @@ export class GoogleDiscoveryProvider
             'Google Custom Search returned an invalid response.',
             { cause: error }
           )
-        throw mapGoogleHttpError(response.status, null)
+        throw mapGoogleHttpError(response.status, null, requestUrl)
       }
-      if (!response.ok) throw mapGoogleHttpError(response.status, value)
+      if (!response.ok)
+        throw mapGoogleHttpError(response.status, value, requestUrl)
       return parseGoogleResponse(value)
     } catch (error) {
       if (error instanceof DiscoveryProviderError) throw error
@@ -249,19 +427,40 @@ export class GoogleDiscoveryProvider
 
   normalize(
     response: GoogleCustomSearchResponse,
-    _request: DiscoveryProviderRequest
+    request: DiscoveryProviderRequest
   ): readonly DiscoveryProviderItem[] {
-    return response.items.map((item) => {
-      const resultUrl = normalizeGoogleResultUrl(item.link)
+    return this.normalizeWithDiagnostics(response, request).items
+  }
+
+  normalizeWithDiagnostics(
+    response: GoogleCustomSearchResponse,
+    request: DiscoveryProviderRequest
+  ): {
+    readonly items: readonly DiscoveryProviderItem[]
+    readonly diagnostics: GoogleQualityDiagnostics
+  } {
+    const profile = getGoogleQueryProfile(request.mode)
+    if (!profile)
+      throw new DiscoveryProviderError(
+        'PROVIDER_UNSUPPORTED_REQUEST',
+        'Google query profile is unavailable for this mode.'
+      )
+    const quality = applyGoogleResultQualityGate(
+      response.items,
+      request.criteria,
+      profile
+    )
+    const items = quality.accepted.map((accepted) => {
+      const item = accepted.item
       return {
         provider: 'google',
         sourceRecordId: item.cacheId,
-        sourceUrl: resultUrl?.website ?? null,
+        sourceUrl: accepted.website,
         source: 'google_custom_search',
         sourceTitle: item.title,
-        currentDomain: resultUrl?.currentDomain ?? null,
+        currentDomain: accepted.currentDomain,
         candidateDomain: null,
-        website: resultUrl?.website ?? null,
+        website: accepted.website,
         businessName: null,
         city: null,
         country: null,
@@ -270,8 +469,12 @@ export class GoogleDiscoveryProvider
           snippet: item.snippet,
           displayLink: item.displayLink,
           formattedUrl: item.formattedUrl,
+          qualityScore: accepted.qualityScore,
+          positiveSignals: accepted.positiveSignals,
+          negativeSignals: accepted.negativeSignals,
         }),
       }
     })
+    return Object.freeze({ items: Object.freeze(items), diagnostics: quality.diagnostics })
   }
 }
