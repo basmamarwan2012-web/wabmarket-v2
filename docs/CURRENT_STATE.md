@@ -302,6 +302,28 @@ The AI engine must generate:
   canonical discovery routes while preserving query parameters and IDs. These
   redirects should be removed when real opportunity child routes are built.
 
+## Phase C.2.0 discovery provider architecture
+
+- A dormant, server-only provider plugin contract now separates provider search
+  criteria from future execution context such as tenant, correlation,
+  cancellation, and deadline metadata.
+- Canonical contracts define extensible provider identifiers, provider-neutral
+  search modes, immutable capabilities, acquisition statuses, strict normalized
+  items, and timed provider results.
+- `DiscoveryEngine` accepts a provider through constructor injection, verifies
+  support, measures duration monotonically, invokes search and normalization,
+  and rejects non-canonical output. It does not retry, persist, authorize,
+  update lifecycle state, score domains, or generate opportunities.
+- `DiscoveryProviderRegistry` is instance-scoped, rejects duplicate providers,
+  resolves identifiers without provider-specific switches, and exposes readonly
+  provider and identifier lists. No global registry or engine is instantiated.
+- Google and Dynadot provider classes are explicit stubs. They read no
+  credentials, make no network or SDK calls, and throw
+  `PROVIDER_NOT_IMPLEMENTED` from `search()`.
+- The architecture is not connected to APIs, Firestore, discovery lifecycle,
+  UI, or legacy integrations. No search occurs and no opportunity is generated.
+  Phase C.2.1 will implement the first real provider behind these contracts.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

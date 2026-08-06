@@ -165,3 +165,20 @@ critical
   temporary query-preserving permanent redirects to `/admin/discovery`.
 - Added no API, schema, lifecycle, audit, permission, Firebase, external
   provider, or opportunity-generation behavior.
+
+# Phase C.2.0 - Discovery provider architecture
+
+- Added server-only provider contracts, capability metadata, extensible search
+  modes, acquisition statuses, execution context separation, and strict
+  canonical normalized results.
+- Added a constructor-injected Discovery Engine with support validation,
+  monotonic duration measurement, safe provider-error wrapping, and normalized
+  item validation.
+- Added an instance-scoped provider registry with duplicate and unknown-provider
+  errors and no provider-specific switches or global mutable state.
+- Added dormant Google and Dynadot provider classes whose search methods throw
+  `PROVIDER_NOT_IMPLEMENTED`; neither reads credentials nor performs network or
+  SDK calls.
+- The architecture is not wired to APIs, lifecycle, Firestore, UI, or legacy
+  services. It performs no search and generates no opportunities. Phase C.2.1
+  remains the first real-provider integration phase.
