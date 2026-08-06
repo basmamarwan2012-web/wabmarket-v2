@@ -379,6 +379,31 @@ The AI engine must generate:
   performs no selection, reservation, statistics recording, or provider call.
   No provider is executable after this phase.
 
+## Phase C.2.0.5-C dormant persistence contracts
+
+- Storage-neutral, snake_case document contracts now exist independently for
+  platform provider configuration, tenant provider settings, immutable usage
+  snapshots, append-only statistics events, quota reservations, budget
+  reservations, health snapshots, and cache metadata.
+- Repository boundaries are server-only interfaces with explicit immutable
+  tenant context. Tenant UID is injected by a trusted server boundary rather
+  than duplicated in documents; repository context carries no role or
+  client-submitted authorization data.
+- Reservation repositories expose only the future transitions `reserved` to
+  `committed`, `released`, or `expired`. Persistence documents contain token
+  digests/references, never raw runtime reservation tokens; future
+  implementations must securely transform and compare tokens and never log the
+  raw value.
+- Usage snapshots cannot be updated and statistics events are append-only.
+  Corrections will require new snapshots, compensating events, or an explicit
+  future versioned replacement policy.
+- Cache documents contain compatibility and invalidation metadata only. No
+  cached result payload is defined and metadata cannot currently serve a cache
+  hit.
+- These are contracts only: no data is stored, no repository is implemented or
+  instantiated, and no new Firestore collection exists. Runtime-to-persistence
+  validation and mappers remain future work.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

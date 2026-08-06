@@ -214,3 +214,16 @@ critical
 - No provider execution, persistence, API/UI integration, external access,
   pricing implementation, cache, monitoring, or orchestrator connection was
   added. All providers remain inactive.
+
+# Phase C.2.0.5-C - Dormant persistence contracts
+
+- Added storage-neutral, versioned persistence document contracts for provider
+  configuration, tenant restrictions, usage snapshots, statistics events,
+  quota and budget reservations, health history, and cache metadata.
+- Added server-only repository interfaces with trusted tenant context,
+  domain-specific methods, bounded history reads, and explicit reservation
+  terminal transitions.
+- Kept usage snapshots immutable, statistics append-only, cached payloads out
+  of scope, and raw reservation tokens out of persistence documents.
+- Added no database implementation, Firebase/Firestore integration, storage,
+  runtime mapper, collection, API/UI integration, or provider execution.
