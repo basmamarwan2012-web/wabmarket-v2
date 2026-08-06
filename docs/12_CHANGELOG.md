@@ -136,3 +136,32 @@ critical
   cancellation.
 - Added reduced-motion behavior. No API, Firestore, authentication, RBAC,
   pagination, or business-permission behavior changed.
+
+# Phase C.1 - Discovery Engine Foundation
+
+- Added tenant-scoped discovery job models, snake_case persistence mapper,
+  validation, lifecycle transition engine, opaque cursor pagination, RBAC, and
+  structured APIs.
+- Added atomic discovery/activity/timeline/log transactions for creation,
+  processing, manual progress, completion, failure, and cancellation.
+- Added Discovery Jobs list, create, and detail routes under the Opportunities
+  product navigation with Phase B.5 loading, toast, progress, and skeleton UX.
+- Added type-only Opportunity contracts without persistence, APIs, scoring, or
+  generated records.
+- Added tenant discovery reads and denied direct client writes in Firestore
+  rules. Firebase Admin writes remain authorized by server API checks.
+- No external search, AI, BullMQ, Redis, crawler, email, lead-generation, or
+  background processing was implemented.
+
+# Phase C.1.5 - Discovery UX and product structure
+
+- Established `/admin/discovery` as the canonical Domain Discovery route and
+  separated it from the future-results Opportunities destination.
+- Renamed user-facing discovery concepts to Domain Search terminology and added
+  friendly status labels, badges, result counts, product copy, and empty states.
+- Renamed Domains navigation to Portfolio and added the exact product navigation
+  order, including a minimal unavailable Campaigns page.
+- Converted former discovery child routes below `/admin/opportunities` into
+  temporary query-preserving permanent redirects to `/admin/discovery`.
+- Added no API, schema, lifecycle, audit, permission, Firebase, external
+  provider, or opportunity-generation behavior.

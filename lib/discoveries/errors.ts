@@ -1,0 +1,11 @@
+export class DiscoveryError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly status: number,
+    public readonly issues?: Record<string, string[]>
+  ) {
+    super(message)
+    this.name = 'DiscoveryError'
+  }
+}

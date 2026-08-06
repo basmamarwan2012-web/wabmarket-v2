@@ -32,6 +32,30 @@ domain_name
 
 # Collections
 
+## Phase C.1 canonical Discovery Jobs schema
+
+Discovery orchestration records are tenant-scoped at
+`users/{uid}/discoveries/{discoveryId}`. They are separate from generated
+opportunities. API and TypeScript fields use camelCase; Firestore uses:
+
+```text
+id, keyword, city, state, country, language, max_results, status, progress,
+results_count, error, started_at, completed_at, created_at, updated_at,
+created_by, updated_by
+```
+
+Statuses are `queued`, `processing`, `completed`, `failed`, and `cancelled`.
+Progress is server-derived as 0, 25, 50, 75, or 100. Documents are never hard
+deleted; `DELETE` transitions queued/processing jobs to `cancelled`.
+
+Every creation and accepted transition atomically creates records in the
+tenant's `activities`, `timelines`, and `logs` collections using
+`discovery_id`. Direct client writes to discoveries and audits are denied.
+
+`users/{uid}/opportunities` remains reserved for future generated opportunity
+records. Phase C.1 defines Opportunity TypeScript types only and writes no
+opportunity documents.
+
 ## Phase B canonical Owned Domains schema
 
 Path: `users/{uid}/owned_domains/{domainId}`. TypeScript and API fields use

@@ -266,6 +266,42 @@ The AI engine must generate:
 
 # Current development phase
 
+## Phase C.1 Discovery Engine Foundation
+
+- Discovery jobs are stored below `users/{uid}/discoveries` with canonical
+  snake_case persistence, mapper-based camelCase APIs, verified sessions, and
+  server-side RBAC.
+- `/admin/discovery` presents the real Domain Discovery search workflow.
+  `/admin/opportunities` is reserved for future generated opportunity results
+  and currently contains no data or lifecycle controls.
+- Creation, transition, and cancellation atomically write the discovery plus
+  activity, timeline, and log records. Direct client writes are denied.
+- The list uses bounded tenant-bound cursor pagination ordered by creation date
+  descending. No discovery filters, search, or composite indexes are included.
+- Progress is manually advanced through authenticated lifecycle actions for
+  architectural validation: queued 0, processing 25/50/75, completed 100.
+  Failure stores a safe server message; cancellation never deletes a document.
+- Completed, failed, and cancelled jobs are terminal. Opportunity models are
+  type-only and no opportunity records are written.
+- No external search, AI, queue, timer, crawler, email, lead, or scoring process
+  exists in Phase C.1. Phase C.2 will connect the first real provider behind the
+  existing trusted repository/service boundary.
+
+## Phase C.1.5 discovery product structure
+
+- Navigation now distinguishes Portfolio (`/admin/domains`), Domain Discovery
+  (`/admin/discovery`), and future Opportunities (`/admin/opportunities`).
+- Domain Discovery uses customer-facing Domain Search terminology and
+  presentation labels while backend statuses and API contracts remain intact.
+- Opportunities is a polished empty destination with no API calls, fake
+  results, scores, or discovery lifecycle controls.
+- Campaigns has a minimal unavailable placeholder so the declared navigation
+  does not lead to a missing route; no campaign functionality was added.
+- Temporary compatibility debt: `/admin/opportunities/new` and
+  `/admin/opportunities/{discoveryId}` permanently redirect internally to the
+  canonical discovery routes while preserving query parameters and IDs. These
+  redirects should be removed when real opportunity child routes are built.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

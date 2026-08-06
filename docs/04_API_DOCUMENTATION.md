@@ -106,6 +106,32 @@ DOMAIN DISCOVERY API
 
 ############################################################
 
+## Phase C.1 Discovery Jobs API
+
+All routes verify the Firebase Admin session and derive tenant UID, role,
+actor, progress, and timestamps server-side.
+
+- `GET /api/discoveries?pageSize=20&order=desc&cursor=...` returns bounded
+  cursor pagination ordered only by `created_at DESC`. Cursors are opaque and
+  bound to tenant, order, and page size; mismatches return HTTP 400.
+- `POST /api/discoveries` accepts `keyword`, `city`, optional `state`,
+  `country`, optional `language`, and `maxResults`; it creates a queued job at
+  0%.
+- `GET /api/discoveries/{discoveryId}` returns tenant-owned orchestration
+  metadata.
+- `PATCH /api/discoveries/{discoveryId}` accepts only status `processing`,
+  `completed`, or `failed`. Progress is never accepted from clients.
+- `DELETE /api/discoveries/{discoveryId}` cancels queued/processing jobs and
+  never deletes the document. Terminal or repeated cancellation returns 409.
+
+The repeated `status="processing"` contract advances 25 to 50 to 75 percent
+for Phase C.1 simulation. At 75%, another processing request returns 409. A
+future trusted worker will replace manual advancement without changing the
+public read model.
+
+Phase C.1 performs no external search, queue processing, AI analysis, or
+opportunity generation.
+
 ## Phase B Owned Domains API
 
 The following server-session APIs are authoritative for owned domains:

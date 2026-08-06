@@ -74,6 +74,11 @@ service cloud.firestore {
         allow read, write: if false;
       }
 
+      match /discoveries/{discoveryId} {
+        allow read: if isOwner(userId);
+        allow create, update, delete: if false;
+      }
+
       match /opportunities/{opportunityId} {
         allow read: if isOwner(userId);
         allow create, update, delete: if isOwner(userId)
