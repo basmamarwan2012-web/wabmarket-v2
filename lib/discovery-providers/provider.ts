@@ -14,6 +14,14 @@ export const DISCOVERY_PROVIDER_ERROR_CODES = [
   'PROVIDER_INVALID_CONFIGURATION',
   'PROVIDER_UNSUPPORTED_REQUEST',
   'PROVIDER_NOT_IMPLEMENTED',
+  'PROVIDER_CONFIGURATION_MISSING',
+  'PROVIDER_HTTP_ERROR',
+  'PROVIDER_TIMEOUT',
+  'PROVIDER_CANCELLED',
+  'PROVIDER_INVALID_RESPONSE',
+  'PROVIDER_QUOTA_EXCEEDED',
+  'PROVIDER_RATE_LIMITED',
+  'PROVIDER_NETWORK_ERROR',
   'PROVIDER_EXECUTION_FAILED',
   'PROVIDER_NORMALIZATION_FAILED',
   'PROVIDER_INVALID_NORMALIZED_RESULT',
@@ -23,7 +31,7 @@ export type DiscoveryProviderErrorCode =
   (typeof DISCOVERY_PROVIDER_ERROR_CODES)[number]
 
 export class DiscoveryProviderError extends Error {
-  public readonly cause?: unknown
+  private readonly internalCause?: unknown
 
   constructor(
     public readonly code: DiscoveryProviderErrorCode,
@@ -32,7 +40,7 @@ export class DiscoveryProviderError extends Error {
   ) {
     super(message)
     this.name = 'DiscoveryProviderError'
-    this.cause = options?.cause
+    this.internalCause = options?.cause
   }
 }
 

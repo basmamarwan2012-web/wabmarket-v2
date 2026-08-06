@@ -430,6 +430,31 @@ The AI engine must generate:
 - This is the final dormant infrastructure phase before the first explicitly
   approved real-provider integration.
 
+## Phase C.2.1-A disconnected Google web-search adapter
+
+- The Google provider adapter now supports one native-fetch Google Custom
+  Search JSON API request for `business_upgrade` and `local_seo`, with strict
+  keyword/city/country validation, a maximum of 10 results, an explicit
+  `lang_*` allowlist, caller cancellation, and a 10-second timeout.
+- Configuration is loaded lazily only from the server-only Google configuration
+  boundary. Provider construction, registry composition, builds, and startup do
+  not read Google credentials or make requests. No application route executes
+  this adapter, so Wabmarket UI cannot incur Google API cost.
+- Normalized records are unverified web results, not verified businesses. Page
+  URLs populate `website` and `currentDomain`; Google titles populate
+  `sourceTitle`. `businessName`, `candidateDomain`, location facts, and
+  acquisition status remain null. Qualification, directory exclusion,
+  deduplication, and company verification remain future work.
+- Google Custom Search is a temporary replaceable provider, not Wabmarket's
+  permanent discovery foundation. It is closed to new customers; existing
+  eligible customers must migrate before its January 1, 2027 discontinuation.
+  Deployment requires a project that already has legitimate access. Open
+  Discovery remains the planned free fallback, and replacing Google must not
+  change canonical downstream provider contracts.
+- The dormant composition gateway remains unchanged and prevents product-flow
+  execution. There is still no orchestration, API/UI integration, persistence,
+  opportunity generation, quota/budget tracking, or background processing.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

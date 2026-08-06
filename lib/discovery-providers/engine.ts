@@ -17,21 +17,24 @@ const itemSchema = z
     sourceRecordId: z.string().nullable(),
     sourceUrl: z.string().url().nullable(),
     source: z.string().nullable(),
+    sourceTitle: z.string().nullable(),
     currentDomain: z.string().nullable(),
     candidateDomain: z.string().nullable(),
     website: z.string().url().nullable(),
     businessName: z.string().nullable(),
     city: z.string().nullable(),
     country: z.string().nullable(),
-    acquisitionStatus: z.enum([
-      'available',
-      'registered',
-      'premium',
-      'auction',
-      'closeout',
-      'expired',
-      'unknown',
-    ]),
+    acquisitionStatus: z
+      .enum([
+        'available',
+        'registered',
+        'premium',
+        'auction',
+        'closeout',
+        'expired',
+        'unknown',
+      ])
+      .nullable(),
     metadata: z.record(z.unknown()),
   })
   .strict()
@@ -66,11 +69,7 @@ export class DiscoveryEngine<TRawResponse = unknown> {
     try {
       rawResponse = await this.provider.search(request, context)
     } catch (error) {
-      if (
-        error instanceof DiscoveryProviderError &&
-        error.code === 'PROVIDER_NOT_IMPLEMENTED'
-      )
-        throw error
+      if (error instanceof DiscoveryProviderError) throw error
       throw new DiscoveryProviderError(
         'PROVIDER_EXECUTION_FAILED',
         'The provider search failed.',

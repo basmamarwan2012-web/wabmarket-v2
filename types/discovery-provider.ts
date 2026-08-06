@@ -94,13 +94,14 @@ export interface DiscoveryProviderItem {
   sourceRecordId: string | null
   sourceUrl: string | null
   source: string | null
+  sourceTitle: string | null
   currentDomain: string | null
   candidateDomain: string | null
   website: string | null
   businessName: string | null
   city: string | null
   country: string | null
-  acquisitionStatus: DiscoveryAcquisitionStatus
+  acquisitionStatus: DiscoveryAcquisitionStatus | null
   /** Untrusted provider data; never use directly for authorization or rendering. */
   metadata: Readonly<Record<string, unknown>>
 }

@@ -242,3 +242,21 @@ critical
 - No API/lifecycle integration, persistence, environment access, network call,
   provider execution, timer, worker, or background work was added. Registered
   providers remain disabled.
+
+# Phase C.2.1-A - Disconnected Google web-search adapter
+
+- Replaced the Google provider stub with a native-fetch Custom Search JSON API
+  adapter supporting one request, 1-10 results, allowlisted language
+  restrictions, caller cancellation, and a 10-second timeout.
+- Added lazy server-only configuration and sanitized mappings for missing
+  configuration, HTTP failure, timeout, cancellation, invalid response, quota,
+  throttling, and network failure.
+- Normalized Google links as current websites/domains and titles as source
+  titles. Candidate domains, verified business names, location facts, and
+  acquisition availability are not inferred.
+- The adapter remains disconnected from composition execution, APIs, UI,
+  lifecycle, persistence, and opportunity generation. No product route can
+  issue a Google request or incur Google API cost.
+- Documented Google Custom Search as temporary, closed to new customers, and
+  scheduled for discontinuation for existing eligible customers on January 1,
+  2027. Open Discovery remains the planned free fallback.
