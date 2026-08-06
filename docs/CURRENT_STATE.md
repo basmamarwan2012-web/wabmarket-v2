@@ -596,3 +596,38 @@ Continue only from the current state of the repository.
   lifecycle processing, persistence, orchestration, or internal test tooling.
 - The next Open Discovery phase must select and implement the first real free
   source before this provider can return data.
+
+## Phase C.2.2-B isolated Overpass transport investigation
+
+- Open Discovery now has a server-only OpenStreetMap Overpass investigation
+  boundary for `business_upgrade` requests only. The earlier helper's
+  `local_seo` mode remains a future planning boundary and is not advertised or
+  accepted by the provider's authoritative executable capabilities.
+- The boundary builds deterministic Overpass QL from normalized keyword, city,
+  optional state, and country criteria. User values are escaped separately for
+  quoted QL strings and literal POSIX ERE matching; they cannot supply tag
+  keys, operators, statements, timeouts, limits, or output clauses.
+- The investigation uses exact administrative-area names, a fixed allowlist of
+  text-bearing tags (`name`, `brand`, `operator`, and `description`), and
+  requires an explicit website-oriented tag. This intentionally favors a
+  narrow signal and cannot provide complete category or business coverage.
+- Area-name matching can resolve no area, multiple areas, or a different area
+  with the same name. No ISO code, admin level, geographic identity, or
+  resolved location is inferred, and the query never falls back to an
+  unbounded global search.
+- The transport permits exactly one URL-encoded native-fetch POST to one fixed
+  endpoint, with a 10-second Overpass server timeout, a 12-second client
+  timeout, and a code-owned maximum of 50 raw elements. There is no geocoding,
+  retry, pagination, batching, alternate endpoint, or parallel request.
+- Successful responses are structurally validated and copied into a narrow raw
+  node/way/relation model; empty element arrays are valid. Non-success or
+  malformed responses map to sanitized provider-neutral errors without
+  reading, logging, persisting, or exposing raw error bodies.
+- The transport remains disconnected from composition, product APIs, UI,
+  lifecycle processing, persistence, and opportunity generation. `normalize()`
+  still returns a frozen empty canonical array, so no canonical discovery
+  result is created and no product workflow can issue an Overpass request.
+- Public Overpass instances have resource and rate limits. This investigation
+  does not establish production reliability, data completeness, or suitability
+  as Wabmarket's final discovery source. A future controlled manual-testing
+  phase must evaluate real coverage before normalization or integration.

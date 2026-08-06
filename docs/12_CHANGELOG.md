@@ -305,3 +305,29 @@ critical
   inactive, and is not connected to composition, orchestration, APIs, UI,
   lifecycle, persistence, or testing. A future phase must select the first real
   free open-data source.
+
+# Phase C.2.2-B - Isolated Overpass transport investigation
+
+- Added deterministic, injection-resistant Overpass QL construction for the
+  currently executable `business_upgrade` mode. The query uses conservative
+  exact-name administrative-area nesting, four allowlisted text tags, and a
+  website-tag requirement without speculative keyword/category mappings.
+- Added one server-only native-fetch POST boundary with URL-encoded form data,
+  fixed endpoint configuration, a 10-second server timeout, a 12-second client
+  timeout, and a deterministic 50-element ceiling. No geocoder, retry,
+  pagination, batching, endpoint rotation, or secondary request was added.
+- Added narrow raw Overpass types and structural validation for node, way, and
+  relation records, finite IDs/coordinates, string tags, ignored unknown
+  fields, and valid empty responses.
+- Added sanitized mappings for unsupported input, caller cancellation, client
+  or HTTP 504 timeout, HTTP 429 throttling, other HTTP failures, malformed
+  successful responses, and network failures. Raw HTML/JSON error bodies,
+  query text, endpoints, and arbitrary provider payloads are not exposed.
+- Narrowed the provider's authoritative executable capability from the earlier
+  future-planning mode set to `business_upgrade` only. Free-text matching and
+  exact area names remain incomplete and potentially ambiguous.
+- Kept normalization frozen and empty and left the provider unregistered. No
+  composition, product API/UI, lifecycle, Firebase, persistence, opportunity,
+  Google, or Dynadot integration changed; no product path executes Overpass.
+  Controlled manual coverage testing remains a future phase, and this work is
+  not a production-readiness claim.
