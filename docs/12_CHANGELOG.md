@@ -227,3 +227,18 @@ critical
   of scope, and raw reservation tokens out of persistence documents.
 - Added no database implementation, Firebase/Firestore integration, storage,
   runtime mapper, collection, API/UI integration, or provider execution.
+
+# Phase C.2.0.6 - Dormant discovery composition
+
+- Added a server-only composition factory that creates a fresh, constructor-
+  injected discovery graph on every call and returns a typed frozen container.
+- Registered the dormant Google and Dynadot adapters without credential reads,
+  provider-method calls, activation, or capability duplication.
+- Added a read-only provider metadata view, pure eligibility wrapper, inactive
+  policy manager, dormant supporting services, and an engine gateway that
+  blocks before any provider or policy execution.
+- Kept raw engines, provider adapters, mutable registry implementation, and
+  internal construction services out of the public composition API.
+- No API/lifecycle integration, persistence, environment access, network call,
+  provider execution, timer, worker, or background work was added. Registered
+  providers remain disabled.

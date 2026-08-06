@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { DiscoveryProviderCategory, DiscoveryProviderRequest } from '@/types/discovery-provider'
+import type { DiscoveryProviderCategory, DiscoveryProviderExecutionContext, DiscoveryProviderIdentifier, DiscoveryProviderRequest, DiscoveryProviderResult } from '@/types/discovery-provider'
 import type { SafeOrchestrationResult } from '@/types/discovery-orchestrator'
 import type { DiscoveryProviderRegistry } from '@/lib/discovery-providers'
 import type { AcquisitionOfferAggregator } from './acquisition-offer-aggregator'
@@ -27,6 +27,15 @@ export interface DiscoveryOrchestratorDependencies {
   failoverManager: FailoverManager
   acquisitionOfferAggregator: AcquisitionOfferAggregator
   requestFingerprint: RequestFingerprint
+  engineGateway: DiscoveryEngineGateway
+}
+
+export interface DiscoveryEngineGateway {
+  execute(
+    providerIdentifier: DiscoveryProviderIdentifier,
+    request: DiscoveryProviderRequest,
+    context?: Readonly<DiscoveryProviderExecutionContext>
+  ): Promise<DiscoveryProviderResult>
 }
 
 export class DiscoveryOrchestrator {

@@ -404,6 +404,32 @@ The AI engine must generate:
   instantiated, and no new Firestore collection exists. Runtime-to-persistence
   validation and mappers remain future work.
 
+## Phase C.2.0.6 dormant discovery composition
+
+- `createDiscoveryComposition()` is the server-only canonical construction
+  boundary for production discovery runtime graphs. Each call creates fresh
+  Google and Dynadot adapter instances, a new registry, fresh inactive policy
+  data, new managers, selector, eligibility wrapper, provider-bound engines,
+  dormant gateway, orchestrator, and frozen public container.
+- Registration derives declarations from adapter-authored capabilities and does
+  not call provider support, search, or normalization methods. It reads no
+  credentials and does not activate either provider. Default settings remain
+  disabled with null priority/weight, free-only mode, paid providers disabled,
+  zero paid budgets, emergency stop enabled, and fallback/aggregation disabled.
+- Raw providers, engines, mutable registry implementation, dormant managers,
+  and construction helpers are private. The public registry exposes immutable
+  metadata reads only; the public container exposes the registry view and
+  dormant orchestrator without a generic service locator.
+- The engine gateway rejects with `ORCHESTRATOR_DORMANT` before provider
+  resolution, eligibility, cache, health, quota, budget, statistics, support,
+  search, or normalization work. Composition itself performs no provider
+  request, health probe, timer, persistence operation, or external access.
+- No API route uses the composition yet. Production integrations must assemble
+  full runtime graphs through the composition root, while isolated tests and
+  tooling may still construct individual pure units directly.
+- This is the final dormant infrastructure phase before the first explicitly
+  approved real-provider integration.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic
