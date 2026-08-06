@@ -24,6 +24,22 @@ export const DISCOVERY_SEARCH_MODES = [
 
 export type DiscoverySearchMode = (typeof DISCOVERY_SEARCH_MODES)[number]
 
+export const DISCOVERY_PROVIDER_CATEGORIES = [
+  'business_discovery',
+  'domain_discovery',
+  'registration',
+  'aftermarket',
+  'auction',
+  'closeout',
+  'backorder',
+  'premium',
+  'portfolio_sync',
+  'availability_verification',
+] as const
+
+export type DiscoveryProviderCategory =
+  (typeof DISCOVERY_PROVIDER_CATEGORIES)[number]
+
 export interface DiscoveryProviderCriteria {
   keyword?: string | null
   city?: string | null
@@ -54,9 +70,14 @@ export interface DiscoveryProviderCapabilities {
   readonly identifier: DiscoveryProviderIdentifier
   readonly displayName: string
   readonly supportedSearchModes: readonly DiscoverySearchMode[]
-  readonly supportsAvailability: boolean
-  readonly supportsAuctions: boolean
-  readonly supportsBusinessDiscovery: boolean
+  readonly categories: readonly DiscoveryProviderCategory[]
+  readonly operations: Readonly<{
+    registrationPricing: boolean
+    renewalPricing: boolean
+    buyNowInventory: boolean
+    brokerage: boolean
+    batchRequests: boolean
+  }>
 }
 
 export type DiscoveryAcquisitionStatus =

@@ -15,9 +15,14 @@ export class GoogleDiscoveryProvider implements DiscoveryProvider<unknown> {
     identifier: 'google',
     displayName: 'Google',
     supportedSearchModes: supportedModes,
-    supportsAvailability: false,
-    supportsAuctions: false,
-    supportsBusinessDiscovery: true,
+    categories: Object.freeze(['business_discovery'] as const),
+    operations: Object.freeze({
+      registrationPricing: false,
+      renewalPricing: false,
+      buyNowInventory: false,
+      brokerage: false,
+      batchRequests: false,
+    }),
   })
 
   name() {

@@ -23,9 +23,20 @@ export class DynadotDiscoveryProvider implements DiscoveryProvider<unknown> {
     identifier: 'dynadot',
     displayName: 'Dynadot',
     supportedSearchModes: supportedModes,
-    supportsAvailability: true,
-    supportsAuctions: true,
-    supportsBusinessDiscovery: false,
+    categories: Object.freeze([
+      'registration',
+      'auction',
+      'closeout',
+      'premium',
+      'availability_verification',
+    ] as const),
+    operations: Object.freeze({
+      registrationPricing: false,
+      renewalPricing: false,
+      buyNowInventory: false,
+      brokerage: false,
+      batchRequests: false,
+    }),
   })
 
   name() {

@@ -324,6 +324,35 @@ The AI engine must generate:
   UI, or legacy integrations. No search occurs and no opportunity is generated.
   Phase C.2.1 will implement the first real provider behind these contracts.
 
+## Phase C.2.0.5-A dormant orchestration foundation
+
+- Added server-only, constructor-injected contracts for provider selection,
+  policy, cache, quota, budget, health, statistics, failover, request
+  fingerprinting, and acquisition-offer aggregation. This phase creates
+  contracts, not working orchestration; execution boundaries throw the typed
+  `ORCHESTRATOR_DORMANT` error.
+- Providers remain inactive. The default policy is a fresh immutable object
+  with `enabled=false`, free-only use, paid providers disabled, zero daily and
+  monthly request-cost budgets, emergency stop enabled, and fallback and
+  aggregation disabled. Registration never activates a provider, and no API
+  request can incur cost.
+- Priority fallback is reserved for business/domain discovery. Parallel
+  aggregation is reserved for acquisition intelligence and is designed to
+  preserve partial successes and every legitimate registration, buy-now,
+  auction, closeout, backorder, premium, or brokerage path.
+- Registration availability and acquisition availability are separate. A
+  registered result from one source does not mean a domain cannot be acquired
+  elsewhere. Future registration aggregation will use conservative consensus
+  semantics rather than treating one response as certainty.
+- Provider-request cost is separate from a domain registration, renewal,
+  auction, buy-now, backorder, or brokerage price. No prices are fabricated and
+  no currency conversion is performed.
+- Real provider execution, free-quota tracking, atomic usage reservations,
+  cache implementation, budget and health persistence, statistics storage,
+  failover execution, and parallel execution remain future work. Partial
+  acquisition-provider success is represented by typed provider coverage but
+  is not executed in this phase.
+
 Phase B Owned Domains is implemented with server-session APIs, canonical
 snake_case Firestore persistence, legacy camelCase read mapping, transactional
 name reservations, soft-delete trash/restore, bounded audit history, atomic

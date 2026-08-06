@@ -182,3 +182,19 @@ critical
 - The architecture is not wired to APIs, lifecycle, Firestore, UI, or legacy
   services. It performs no search and generates no opportunities. Phase C.2.1
   remains the first real-provider integration phase.
+
+# Phase C.2.0.5-A - Dormant discovery and acquisition orchestration
+
+- Added server-only orchestration contracts for priority fallback and parallel
+  acquisition aggregation with explicit constructor-injected dependencies.
+- Added provider categories, policy and eligibility boundaries, typed quota,
+  budget, health, cache, fingerprint, statistics, and failover contracts.
+- Added canonical acquisition offers and intelligence that keep registration
+  availability separate from acquisition availability, preserve all channels,
+  and support partial provider success through typed coverage diagnostics.
+- Added immutable safe defaults that disable every provider and make paid
+  request execution impossible. Provider-request cost remains separate from
+  domain acquisition price.
+- This phase contains no working orchestration, external access, provider
+  execution, persistence, fake results, pricing, cache, quotas, budgets, or
+  failover. Real tracking and execution remain future phases.
