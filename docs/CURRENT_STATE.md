@@ -933,3 +933,34 @@ Continue only from the current state of the repository.
   This foundation calculates no score, numeric weight, total, FlipScore,
   ranking, opportunity classification, or recommendation and has no network,
   AI, provider, persistence, API, or UI integration.
+
+## Phase G.2.2-F2 FlipScore weight policy
+
+- Added immutable numeric policy metadata over the F1 policy model. Dimension
+  allocations are fixed at 50 for `NEED`, 30 for `IMPACT`, and 20 for
+  `CONFIDENCE`; module initialization fails unless the global allocation totals
+  100.
+- Rule numbers are magnitudes only. They do not add points, subtract points,
+  indicate positive opportunity contribution, normalize active rules, or
+  calculate FlipScore. Direction remains exclusively owned by each F1 rule's
+  `OPPORTUNITY`, `PROTECTIVE`, or `INFORMATIONAL` effect.
+- `unrelated_domain` owns 30 NEED magnitude and `keyword_only_domain` owns 12.
+  `strong_brand_mismatch` is explicit explanation-only metadata with magnitude
+  zero. NEED retains eight unallocated units because no new or overlapping rule
+  was invented merely to fill the dimension cap.
+- IMPACT magnitudes are eight for non-`.com`, eight for hyphen, four for a
+  domain legal suffix, and ten for keyword repetition. CONFIDENCE magnitudes
+  are twelve for strong branding and eight for compact branding.
+- Strong and compact branding remain protective evidence. Their magnitudes are
+  not positive opportunity points; a future engine must interpret their F1
+  effect before applying any direction or normalization.
+- The two brand-mismatch rules share an explicit overlap group. Validation
+  prevents multiple positive magnitudes within an overlap group and also
+  enforces unique known rule IDs, known allowed dimensions, finite non-negative
+  magnitudes, zero magnitude for explanation-only rules, and complete one-to-one
+  coverage of an F1 policy.
+- F2 returns only deeply immutable dimension allocation, rule magnitude, and
+  maximum-magnitude normalization metadata. It performs no runtime scoring,
+  addition, subtraction, ranking, business priority, recommendation, or
+  opportunity classification and adds no network, AI, provider, persistence,
+  API, or UI integration.

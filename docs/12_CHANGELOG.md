@@ -587,3 +587,29 @@ critical
 - Added no overall priority, score, numeric weight, total, FlipScore, ranking,
   opportunity classification, AI, networking, provider, persistence, API, UI,
   lifecycle, or recommendation behavior.
+
+# Phase G.2.2-F2 - FlipScore weight policy
+
+- Added three isolated pure TypeScript modules defining immutable dimension
+  allocations, single-dimension rule magnitudes, overlap metadata, validation
+  helpers, and an F1-policy compatibility boundary.
+- Fixed the global allocations at NEED 50, IMPACT 30, and CONFIDENCE 20 with a
+  module-initialization invariant requiring a total of 100.
+- Configured NEED magnitude 30 for unrelated domains and 12 for keyword-only
+  domains. Kept strong brand mismatch explanation-only at zero in the same
+  explicit overlap group as unrelated domains, leaving eight NEED units
+  deliberately unallocated rather than inventing another rule.
+- Configured IMPACT magnitudes of eight for non-`.com`, eight for hyphen, four
+  for domain legal suffixes, and ten for repeated primary keywords. Configured
+  protective CONFIDENCE magnitudes of twelve for strong branding and eight for
+  compact branding.
+- Defined magnitude as directionless policy metadata. F1 effect remains the
+  sole direction authority, so protective magnitudes are not positive
+  opportunity contributions and no active-rule arithmetic occurs in F2.
+- Added initialization validation for global allocation, known unique rule
+  IDs, known dimensions, finite non-negative magnitudes, dimension caps,
+  explanation-only zeroes, and overlap groups. Added F1 compatibility checks
+  for complete one-to-one rule coverage and allowed owning dimensions.
+- Added no scoring, addition, subtraction, active-rule normalization, overall
+  priority, FlipScore, ranking, recommendation, opportunity classification,
+  networking, AI, provider, persistence, API, UI, or lifecycle behavior.
