@@ -613,3 +613,33 @@ critical
 - Added no scoring, addition, subtraction, active-rule normalization, overall
   priority, FlipScore, ranking, recommendation, opportunity classification,
   networking, AI, provider, persistence, API, UI, or lifecycle behavior.
+
+# Phase G.2.2-F3 - FlipScore engine v1
+
+- Added three isolated pure TypeScript modules for immutable score output,
+  deterministic scoring helpers, explicit activation constraints, priority
+  thresholds, stable reasons, and the FlipScore v1 calculation.
+- Rejected largest-single-rule normalization. NEED and IMPACT now normalize
+  against their maximum simultaneously active positive opportunity magnitude
+  after overlap and explicit mutual-exclusivity constraints.
+- Declared unrelated, keyword-only, and explanation-only strong mismatch as one
+  mutually exclusive NEED family, yielding maximum simultaneous magnitude 30.
+  Declared the four distinct IMPACT weaknesses independently coexistent,
+  yielding maximum simultaneous magnitude 30. Uncovered positive rules fail
+  closed instead of being combined speculatively.
+- Added dimension normalization using
+  `round(allocation * active / maximumSimultaneous)`, with per-dimension clamps.
+  This preserves non-`.com` as IMPACT eight, non-`.com` plus hyphen as sixteen,
+  all IMPACT weaknesses as thirty, unrelated NEED as fifty, and keyword-only
+  NEED as twenty.
+- Added the v1 confidence rule: zero without positive opportunity evidence;
+  otherwise twenty minus active protective CONFIDENCE magnitude, clamped to
+  0â€“20. Protective rules never create opportunity points.
+- Added the clamped NEED + IMPACT + CONFIDENCE FlipScore and version-one LOW,
+  MEDIUM, HIGH, and CRITICAL thresholds. Active F1 messages are deduplicated in
+  stable order without exposing rule IDs or implementation property names.
+- Documented that v1 is deterministic and explainable but not statistically
+  calibrated. Magnitudes, allocations, and thresholds remain future
+  calibration points independent of upstream analysis contracts.
+- Added no provider, Google, Dynadot, DNS, availability, candidate generation,
+  AI, network, persistence, API, UI, ranking, or recommendation integration.

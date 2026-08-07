@@ -964,3 +964,36 @@ Continue only from the current state of the repository.
   addition, subtraction, ranking, business priority, recommendation, or
   opportunity classification and adds no network, AI, provider, persistence,
   API, or UI integration.
+
+## Phase G.2.2-F3 FlipScore engine v1
+
+- Added the first pure deterministic scoring engine over only the immutable F1
+  policy and F2 magnitude policy. It returns frozen NEED, IMPACT, CONFIDENCE,
+  FlipScore, priority, and active human-readable reasons without importing
+  analyzers, providers, persistence, APIs, or UI code.
+- Opportunity dimensions normalize active positive magnitude against the
+  maximum magnitude that can be simultaneously active under explicit v1
+  constraints. The alignment rules form one mutually exclusive NEED family,
+  producing a safe maximum of 30; the four explicitly independent IMPACT rules
+  may coexist, producing a safe maximum of 30. The engine fails closed if a
+  positive opportunity rule lacks explicit coexistence coverage.
+- The formula is
+  `round(allocation * activeMagnitude / maximumSimultaneousMagnitude)`, clamped
+  to the dimension allocation. Consequently unrelated-domain magnitude 30
+  yields NEED 50, keyword-only magnitude 12 yields NEED 20, non-`.com`
+  magnitude eight yields IMPACT eight, and all four IMPACT rules yield 30.
+- CONFIDENCE represents trust in the opportunity assessment. Without any
+  positive-magnitude opportunity evidence it is zero. Otherwise it begins at
+  20 and active protective CONFIDENCE magnitude reduces it, clamped to zero.
+  Protective evidence never creates opportunity points.
+- FlipScore v1 is the clamped sum of NEED, IMPACT, and CONFIDENCE. Priorities
+  are LOW for 0â€“24, MEDIUM for 25â€“49, HIGH for 50â€“74, and CRITICAL for
+  75â€“100. Reasons contain only deduplicated active F1 messages in stable F1
+  order, including protective explanations where active.
+- The v1 policy is deterministic and explainable but not statistically
+  calibrated. Future calibration may change magnitudes, allocations, and
+  thresholds without changing analyzer, comparator, signal, or composition
+  contracts.
+- No candidate generation, availability lookup, DNS, Dynadot, Google, AI,
+  network access, persistence, API, UI, ranking, or recommendation integration
+  was added.
