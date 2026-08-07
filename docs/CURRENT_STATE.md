@@ -841,3 +841,25 @@ Continue only from the current state of the repository.
 - No numeric score, similarity percentage, edit distance, token-overlap score,
   FlipScore, candidate generation, availability lookup, provider integration,
   network access, persistence, API, UI, or opportunity generation was added.
+
+## Phase G.2.2-C weakness signals engine
+
+- Added a pure immutable signal projection that consumes only an existing
+  `DomainOpportunityAnalysis` and `BrandDomainComparison`. It performs no new
+  normalization, provider lookup, inference, persistence, or external work.
+- Domain-quality signals expose non-`.com`, hyphen, digit, and analyzer-provided
+  subdomain facts. The subdomain value retains the analyzer's documented
+  non-PSL-aware limitation.
+- Brand alignment maps the comparator classification to exactly one mutually
+  exclusive boolean: branded, partially branded, generic keyword, or unrelated.
+- Business naming exposes only the existing legal-suffix fact.
+- Domain composition exposes compact brand, keyword-only, and city-only facts.
+  Compact brand requires comparator-confirmed brand alignment and exactly one
+  domain token that is not itself an exact individual business token. It does
+  not perform substring matching or reconstruct unknown words.
+- Keyword-only and city-only signals rely exclusively on the comparator's
+  explicit primary-keyword and city evidence. They remain false whenever the
+  corresponding trustworthy evidence is absent or brand evidence is present.
+- Signals have no weights, severity, score, opportunity classification,
+  FlipScore, candidate generation, AI, network, Google, Dynadot, persistence,
+  provider, API, or UI integration.

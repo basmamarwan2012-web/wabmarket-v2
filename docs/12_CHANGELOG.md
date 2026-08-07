@@ -503,3 +503,24 @@ critical
 - Added no score, similarity metric, edit distance, FlipScore, candidate domain,
   availability lookup, network access, AI, provider integration, persistence,
   API, UI, lifecycle, or opportunity generation.
+
+# Phase G.2.2-C - Weakness signals engine
+
+- Added three isolated pure TypeScript modules defining signal types, trusted
+  derivation helpers, and one immutable grouped signal result.
+- Added domain-quality facts for non-`.com`, hyphen, digit, and analyzer-provided
+  subdomain state without introducing new public-suffix interpretation.
+- Added a mutually exclusive one-of-four projection of the existing comparator
+  classification into branded, partially branded, generic-keyword, and
+  unrelated booleans.
+- Added the existing business legal-suffix fact plus conservative compact-brand,
+  keyword-only, and city-only domain-composition facts.
+- Compact-brand detection requires existing comparator brand evidence, a
+  branded/partially-branded classification, and one compact token distinct from
+  any exact individual business token. It performs no arbitrary substring
+  inference.
+- Keyword-only and city-only facts use only explicit comparator evidence and
+  remain false when brand evidence or the opposite context evidence is present.
+- Added no weights, severity, score, opportunity classification, FlipScore,
+  candidates, availability, AI, networking, Google, Dynadot, persistence,
+  provider integration, API, UI, or lifecycle behavior.
