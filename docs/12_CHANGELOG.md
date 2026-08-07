@@ -539,3 +539,28 @@ critical
   if a future phase introduces a distinct domain-specific legal-suffix signal.
 - Added no severity math, score, FlipScore, candidates, availability, AI,
   networking, providers, persistence, API, UI, lifecycle, or opportunity logic.
+
+# Phase G.2.2-E - Domain composition intelligence
+
+- Added three isolated pure TypeScript modules for immutable composition types,
+  controlled token recognition, and deterministic fact projection over the
+  existing domain analyzer output.
+- Added explicit `primaryKeyword` and `city` context. Both use existing
+  deterministic normalization and are never inferred from business-token
+  position, provider metadata, domain text, fuzzy matching, stemming,
+  translation, or AI.
+- Added controlled facts for domain occurrences of `llc`, `inc`, `corp`,
+  `company`, and `co`; primary-keyword and city presence; repeated keyword,
+  city, and known business tokens; compact business domains; and repeated
+  explicit-keyword sequences.
+- Compact-label recognition requires a complete segmentation into known
+  business, explicit context, or controlled legal tokens. Longest-first token
+  selection and the full-label requirement prevent substring coincidences such
+  as `art` in `cart`, `co` in `company`, and `inc` in `prince`.
+- Defined compact brand domains only as full stems matching ordered contiguous
+  sequences of at least two known non-legal business tokens. Defined keyword
+  stuffing only as more than one deterministic occurrence of the explicit
+  normalized keyword sequence.
+- Added no weakness or importance classification, numeric weight, score,
+  FlipScore, candidate generation, availability, networking, AI, provider,
+  persistence, API, UI, lifecycle, or opportunity behavior.

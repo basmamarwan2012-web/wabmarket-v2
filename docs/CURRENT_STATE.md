@@ -883,3 +883,28 @@ Continue only from the current state of the repository.
 - Importance labels are metadata, not numeric weights, severity math, totals,
   scores, FlipScore, or opportunity decisions. No new inference, provider,
   network, AI, persistence, API, or UI behavior was added.
+
+## Phase G.2.2-E domain composition intelligence
+
+- Added a pure immutable domain-composition projection over an existing
+  `DomainOpportunityAnalysis` plus explicit `primaryKeyword` and `city`
+  context. Keyword and city are normalized with the existing deterministic
+  business-text normalization and are never inferred from token position,
+  provider type, business-name heuristics, or hostname contents.
+- Domain business-term facts are limited to controlled evidence for `llc`,
+  `inc`, `corp`, `company`, and `co`. Exact tokens and compact labels are
+  recognized only when the entire label can be segmented into known business,
+  context, or controlled legal tokens; arbitrary substring matches such as
+  `art` in `cart`, `co` in `company`, or `inc` in `prince` are rejected.
+- Context facts expose only explicit primary-keyword and city presence.
+  Repetition facts expose repeated keyword sequences, city sequences, and
+  known business tokens without semantic splitting, fuzzy matching, stemming,
+  translation, or inferred word boundaries.
+- `compactBrandDomain` requires the complete domain stem to equal an ordered,
+  contiguous concatenation of at least two known non-legal business tokens.
+  `keywordStuffedDomain` is true only when the explicit normalized keyword
+  sequence occurs more than once.
+- These outputs are deterministic facts only. They do not assign weakness,
+  importance, numeric weights, scores, FlipScore, availability, candidate
+  domains, or opportunity classifications and have no network, AI, provider,
+  persistence, API, or UI integration.
