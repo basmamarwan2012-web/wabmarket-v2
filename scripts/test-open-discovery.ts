@@ -1,6 +1,9 @@
 import { channel } from 'node:diagnostics_channel'
 import { parseArgs } from 'node:util'
-import type { OpenDiscoveryTimeoutDiagnostic } from '../lib/discovery-testing/open-discovery-test.types'
+import type {
+  OpenDiscoveryManualTestResult,
+  OpenDiscoveryTimeoutDiagnostic,
+} from '../lib/discovery-testing/open-discovery-test.types'
 
 const options = {
   'confirm-live-overpass-request': { type: 'boolean' as const },
@@ -152,13 +155,21 @@ async function main() {
   try {
     timeoutChannel.subscribe(receiveTimeoutDiagnostic)
     diagnosticSubscribed = true
+    const { resolveOpenDiscoveryOverpassRetrievalMetadata } =
+      await import('../lib/discovery-providers/providers/open-discovery.overpass.query')
+    const retrievalMetadata =
+      resolveOpenDiscoveryOverpassRetrievalMetadata(keyword)
     const { executeOpenDiscoveryTest } =
       await import('../lib/discovery-testing/open-discovery-test.service')
     const result = await executeOpenDiscoveryTest({
       mode: 'business_upgrade',
       criteria: { keyword, city, state, country },
     })
-    console.log(JSON.stringify(result))
+    const diagnostic = Object.freeze({
+      ...result,
+      ...retrievalMetadata,
+    }) satisfies OpenDiscoveryManualTestResult
+    console.log(JSON.stringify(diagnostic))
   } catch (error: unknown) {
     const safeError = toSafeExecutionError(error)
     const safeTimeoutDiagnostic =

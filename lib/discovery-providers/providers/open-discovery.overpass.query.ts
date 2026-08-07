@@ -6,6 +6,8 @@ import {
   normalizeOpenDiscoveryKeyword,
   normalizeOpenDiscoveryLocation,
 } from './open-discovery.helpers'
+import { resolveOpenDiscoveryTaxonomy } from './open-discovery.taxonomy'
+import type { OpenDiscoveryTaxonomyEntry } from './open-discovery.taxonomy.types'
 
 export const OPEN_DISCOVERY_OVERPASS_SUPPORTED_MODES = Object.freeze([
   'business_upgrade',
@@ -13,7 +15,16 @@ export const OPEN_DISCOVERY_OVERPASS_SUPPORTED_MODES = Object.freeze([
 
 export const OPEN_DISCOVERY_OVERPASS_SERVER_TIMEOUT_SECONDS = 20
 export const OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT = 25
-export const OPEN_DISCOVERY_OVERPASS_SEARCH_BRANCH_COUNT = 4
+export const OPEN_DISCOVERY_OVERPASS_STRUCTURED_BRANCH_COUNT = 2
+export const OPEN_DISCOVERY_OVERPASS_TEXT_FALLBACK_BRANCH_COUNT = 4
+
+export type OpenDiscoveryOverpassRetrievalStrategy =
+  'taxonomy_structured' | 'text_fallback'
+
+export interface OpenDiscoveryOverpassRetrievalMetadata {
+  readonly retrievalStrategy: OpenDiscoveryOverpassRetrievalStrategy
+  readonly taxonomyEntryId: string | null
+}
 
 export interface OpenDiscoveryOverpassCriteria {
   readonly keyword: string
@@ -62,7 +73,24 @@ const escapeOverpassQuotedString = (value: string) =>
 const escapePosixExtendedRegularExpressionLiteral = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const buildBusinessMatchStatements = (
+const TEXT_FALLBACK_RETRIEVAL_METADATA = Object.freeze({
+  retrievalStrategy: 'text_fallback',
+  taxonomyEntryId: null,
+}) satisfies OpenDiscoveryOverpassRetrievalMetadata
+
+export const resolveOpenDiscoveryOverpassRetrievalMetadata = (
+  keyword: unknown
+): OpenDiscoveryOverpassRetrievalMetadata => {
+  const taxonomyResolution = resolveOpenDiscoveryTaxonomy(keyword)
+  if (!taxonomyResolution.matched) return TEXT_FALLBACK_RETRIEVAL_METADATA
+
+  return Object.freeze({
+    retrievalStrategy: 'taxonomy_structured',
+    taxonomyEntryId: taxonomyResolution.entry.id,
+  })
+}
+
+const buildTextFallbackMatchStatements = (
   keywordExpression: string,
   areaName: string
 ) => `
@@ -71,14 +99,34 @@ const buildBusinessMatchStatements = (
       node(area.${areaName})["brand"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
       way(area.${areaName})["brand"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];`
 
+const buildStructuredMatchStatements = (
+  entry: OpenDiscoveryTaxonomyEntry,
+  areaName: string
+) => {
+  if (entry.selectors.length !== 1) {
+    throw new Error(
+      `Open Discovery taxonomy selector combination is undefined: ${entry.id}`
+    )
+  }
+
+  const selector = entry.selectors[0]
+  const selectorKey = escapeOverpassQuotedString(selector.key)
+  const selectorValue = escapeOverpassQuotedString(selector.value)
+  const selectorFilter = `["${selectorKey}"="${selectorValue}"]`
+
+  return `
+      node(area.${areaName})${selectorFilter}[~"^(website|contact:website|url|contact:url)$"~"."];
+      way(area.${areaName})${selectorFilter}[~"^(website|contact:website|url|contact:url)$"~"."];`
+}
+
 const buildGuardedCitySearch = (
   parentAreaName: string,
   city: string,
-  keywordExpression: string
+  businessMatchStatements: string
 ) => `area(area.${parentAreaName})["boundary"="administrative"]["name"="${city}"]->.cityAreas;
   if (.cityAreas.count(deriveds) == 1)
   {
-    (${buildBusinessMatchStatements(keywordExpression, 'cityAreas')}
+    (${businessMatchStatements}
     )->.results;
   }`
 
@@ -93,14 +141,31 @@ export const buildOpenDiscoveryOverpassQuery = (
   const keywordExpression = escapeOverpassQuotedString(
     escapePosixExtendedRegularExpressionLiteral(criteria.keyword)
   )
+  const retrievalMetadata = resolveOpenDiscoveryOverpassRetrievalMetadata(
+    criteria.keyword
+  )
+  const taxonomyResolution = resolveOpenDiscoveryTaxonomy(criteria.keyword)
+  const retrievalIsConsistent = taxonomyResolution.matched
+    ? retrievalMetadata.retrievalStrategy === 'taxonomy_structured' &&
+      taxonomyResolution.entry.id === retrievalMetadata.taxonomyEntryId
+    : retrievalMetadata.retrievalStrategy === 'text_fallback' &&
+      retrievalMetadata.taxonomyEntryId === null
+
+  if (!retrievalIsConsistent) {
+    throw new Error('Open Discovery retrieval metadata is inconsistent.')
+  }
+
+  const businessMatchStatements = taxonomyResolution.matched
+    ? buildStructuredMatchStatements(taxonomyResolution.entry, 'cityAreas')
+    : buildTextFallbackMatchStatements(keywordExpression, 'cityAreas')
 
   const guardedLocationSearch = state
     ? `area(area.countryAreas)["boundary"="administrative"]["name"="${state}"]->.stateAreas;
   if (.stateAreas.count(deriveds) == 1)
   {
-    ${buildGuardedCitySearch('stateAreas', city, keywordExpression)}
+    ${buildGuardedCitySearch('stateAreas', city, businessMatchStatements)}
   }`
-    : buildGuardedCitySearch('countryAreas', city, keywordExpression)
+    : buildGuardedCitySearch('countryAreas', city, businessMatchStatements)
 
   return `[out:json][timeout:${OPEN_DISCOVERY_OVERPASS_SERVER_TIMEOUT_SECONDS}];
 area["boundary"="administrative"]["name"="${country}"]->.countryAreas;

@@ -1,4 +1,5 @@
 import type { DiscoveryProviderRequest } from '@/types/discovery-provider'
+import type { OpenDiscoveryOverpassRetrievalMetadata } from '@/lib/discovery-providers/providers/open-discovery.overpass.query'
 
 export interface OpenDiscoveryTestRequest extends DiscoveryProviderRequest {
   readonly mode: 'business_upgrade'
@@ -21,6 +22,9 @@ export interface OpenDiscoveryTestResult {
   readonly recordsWithCoordinates: number
   readonly durationMs: number
 }
+
+export interface OpenDiscoveryManualTestResult
+  extends OpenDiscoveryTestResult, OpenDiscoveryOverpassRetrievalMetadata {}
 
 export type OpenDiscoveryTimeoutDiagnosticCategory =
   | 'client_timeout'

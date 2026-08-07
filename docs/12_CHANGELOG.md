@@ -400,3 +400,26 @@ critical
 - Added no taxonomy/query connection, network or environment access, provider
   execution, API/UI/lifecycle integration, persistence, canonical result, or
   opportunity behavior. Structured-selector retrieval remains a future phase.
+
+# Phase C.2.2-E - Taxonomy-aware Overpass query integration
+
+- Connected the approved code-owned taxonomy to the isolated Overpass query
+  planner after the optimized name/brand investigation completed successfully
+  with zero elements.
+- Added exactly two internal retrieval strategies. Approved aliases use
+  `taxonomy_structured`; unknown keywords use `text_fallback` without fuzzy
+  matching, inference, or guessed selectors.
+- Roofing now resolves through the `roofer` entry to `craft=roofer`. Its
+  structured scan contains exactly two website-bearing branches for nodes and
+  ways and does not require roofing text in the OSM name or brand.
+- Preserved the four node/way name/brand branches for text fallback, the fixed
+  website-key allowlist, all unique-area count guards, the 20/28-second
+  server/client timeouts, the 25-element ceiling, tags/center output, and the
+  single-request transport boundary.
+- Added safe manual diagnostics for retrieval strategy and taxonomy entry ID
+  without exposing selector keys/values, query text, tags, URLs, coordinates,
+  endpoints, or response payloads.
+- Left canonical normalization frozen and empty and added no product API/UI,
+  lifecycle, persistence, Firebase, composition, orchestration, Google,
+  Dynadot, or opportunity integration. Open Discovery remains an isolated
+  engineering investigation.

@@ -715,7 +715,34 @@ Continue only from the current state of the repository.
 - The taxonomy is a retrieval hint only. It does not verify business identity,
   website ownership, acquisition availability, opportunity quality, or
   FlipScore.
-- This taxonomy is not connected to the live Overpass query. A future phase may
-  use structured selectors for matched keywords and retain conservative
-  name/brand retrieval for unmatched terms, but that branching is not
-  implemented here.
+- The taxonomy is connected only to the isolated Overpass investigation query.
+  It remains disconnected from product workflows, canonical normalization,
+  opportunities, and persistence.
+
+## Phase C.2.2-E taxonomy-aware Overpass query integration
+
+- The optimized name/brand-only live investigation completed successfully but
+  returned zero elements. Approved taxonomy keywords now select the
+  `taxonomy_structured` retrieval strategy; all unknown keywords select only
+  `text_fallback` and are never assigned a guessed category.
+- Roofing and the other approved roofer aliases resolve through the code-owned
+  `roofer` entry to `craft=roofer`. The structured query uses exactly two
+  branches—node and way—and does not require the keyword to appear in `name` or
+  `brand`.
+- Structured selector keys and values originate only from approved immutable
+  taxonomy entries and are escaped by the query builder. Runtime callers cannot
+  submit selectors, regular expressions, QL fragments, operators, area IDs, or
+  admin levels.
+- Unknown terms retain the four conservative text branches for node/way
+  `name`/`brand` matching. Both retrieval strategies require a non-empty
+  allowlisted website-oriented tag.
+- Existing unique-country, optional-state, and city area guards remain
+  fail-closed. The 20-second server timeout, 28-second client timeout,
+  25-element output ceiling, one-request boundary, and tags/center output are
+  unchanged.
+- The manual engineering CLI reports only `retrievalStrategy` and
+  `taxonomyEntryId` in addition to existing aggregate diagnostics; it does not
+  reveal selectors or query text.
+- Open Discovery remains investigation-only. `normalize()` still returns no
+  canonical items, and no API, UI, lifecycle, database, opportunity,
+  composition, or orchestration integration was added.
