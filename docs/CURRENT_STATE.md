@@ -786,3 +786,32 @@ Continue only from the current state of the repository.
   configuration plus a future persistent Wabmarket quota/usage policy. This
   phase adds no counters, automatic paid overage, production scheduling, API,
   UI, lifecycle, opportunity, composition, or orchestrator integration.
+
+## Phase G.2.2-A domain opportunity analyzer foundation
+
+- Added a standalone, pure TypeScript analyzer that accepts both a business
+  name and a hostname. It is not connected to Google Places, another provider,
+  APIs, UI, lifecycle processing, persistence, or opportunity generation.
+- Business names are normalized deterministically with Unicode NFKC,
+  lowercasing, punctuation/separator replacement, trimming, and whitespace
+  collapsing. Raw normalized tokens remain available without stemming,
+  translation, synonym inference, fuzzy matching, or silent generic-term
+  removal.
+- Common trailing legal suffixes are reported as facts for `llc`, `inc`,
+  `corp`, `corporation`, `ltd`, `limited`, `company`, and `co`. Base business
+  tokens are preserved, while a separately named filtered token list omits only
+  detected trailing suffix tokens. Legal suffixes are not weaknesses or scores.
+- Hostname normalization lowercases, removes one trailing dot and exactly one
+  leading `www.`, validates labels conservatively, and preserves all other
+  subdomains. It performs no DNS, HTTP, registrar, or public-suffix lookup.
+- Hostnames expose factual labels, the rightmost label, immediate-left label,
+  candidate subdomain labels, length, domain tokens, digit and hyphen presence,
+  and `.com`/non-`.com` facts. Concatenated words are never semantically split.
+- Public Suffix List resolution is explicitly unavailable. For names such as
+  `example.co.uk`, the rightmost and immediate-left labels are only factual
+  positions; the analyzer does not claim an authoritative registrable domain,
+  public suffix, eTLD+1, or subdomain classification.
+- The only weakness fact retained is the existing basic diagnostic:
+  `isNonDotCom || hasHyphen`. No similarity, overlap, edit distance, scoring,
+  FlipScore, candidate generation, availability, AI, or recommendation logic
+  exists in this phase.

@@ -459,3 +459,27 @@ critical
   lifecycle, persistence, Firebase, opportunities, campaigns, background work,
   quota counters, and billing. External Google Cloud quota limits and future
   persistent Wabmarket usage protection remain required for zero-cost control.
+
+# Phase G.2.2-A - Domain opportunity analyzer foundation
+
+- Added five isolated pure TypeScript modules for deterministic business-name
+  normalization, hostname normalization and label parsing, separate business
+  and domain tokenization, fact rules, and immutable analysis composition.
+- The analyzer requires both business name and domain input. Business tokens
+  preserve generic terms and legal suffixes, while a separately exposed
+  filtered list removes only conservatively detected trailing legal suffixes.
+- Added factual detection for trailing `llc`, `inc`, `corp`, `corporation`,
+  `ltd`, `limited`, `company`, and `co` business-name suffixes without treating
+  them as weaknesses.
+- Added conservative hostname facts for labels, rightmost and immediate-left
+  positions, candidate subdomain labels, length, `.com`, non-`.com`, hyphen,
+  numeric characters, and the existing basic weakness boolean.
+- Kept compound domain labels intact unless an explicit dot, hyphen, or
+  alphabetic/numeric boundary exists. No semantic word segmentation is
+  fabricated.
+- Explicitly reports that Public Suffix List resolution and authoritative
+  eTLD+1 parsing are unavailable. Multi-label suffixes such as `co.uk` are not
+  presented as authoritative registrable-domain splits.
+- Added no score, similarity, token-overlap judgment, FlipScore, candidate
+  domain, availability check, AI, provider call, network access, persistence,
+  API, UI, lifecycle, composition, or opportunity generation.
