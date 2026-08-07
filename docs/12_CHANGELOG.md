@@ -564,3 +564,26 @@ critical
 - Added no weakness or importance classification, numeric weight, score,
   FlipScore, candidate generation, availability, networking, AI, provider,
   persistence, API, UI, lifecycle, or opportunity behavior.
+
+# Phase G.2.2-F1 - FlipScore policy foundation
+
+- Added three isolated pure TypeScript modules defining typed opportunity
+  dimensions, rule priorities, semantic effects, explanation categories,
+  immutable rule construction, and deterministic policy projection.
+- Added the dimensions `NEED`, `IMPACT`, and `CONFIDENCE` and separated every
+  rule into `OPPORTUNITY`, `PROTECTIVE`, or `INFORMATIONAL` effect semantics.
+  Protective and informational rules always carry `priority: null`.
+- Added opportunity explanations for brand mismatch, non-`.com`, hyphen,
+  keyword-only, unrelated, domain legal-suffix, and repeated-keyword evidence.
+  Added protective explanations for strong and compact branded domains without
+  presenting positive evidence as opportunity urgency.
+- Made generic brand mismatch, keyword-only, and unrelated explanations
+  mutually exclusive where they represent the same underlying alignment gap.
+  Distinct domain-shape facts may still produce separate explanations because
+  they describe different evidence.
+- Derived the domain legal-suffix explanation only from controlled
+  domain-composition facts, never from the business-name legal-suffix signal.
+  Neutral importance is not coerced into a low priority.
+- Added no overall priority, score, numeric weight, total, FlipScore, ranking,
+  opportunity classification, AI, networking, provider, persistence, API, UI,
+  lifecycle, or recommendation behavior.

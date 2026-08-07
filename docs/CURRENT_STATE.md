@@ -908,3 +908,28 @@ Continue only from the current state of the repository.
   importance, numeric weights, scores, FlipScore, availability, candidate
   domains, or opportunity classifications and have no network, AI, provider,
   persistence, API, or UI integration.
+
+## Phase G.2.2-F1 FlipScore policy foundation
+
+- Added a pure immutable policy projection that consumes only existing signal
+  importance metadata, domain-composition facts, domain signals, and comparator
+  output. It defines the dimensions `NEED`, `IMPACT`, and `CONFIDENCE` without
+  assigning any numeric values.
+- Every explanation rule declares one semantic effect: `OPPORTUNITY` for
+  weakness evidence, `PROTECTIVE` for positive brand evidence, or
+  `INFORMATIONAL` for context-only future rules. Only opportunity rules carry
+  a `CRITICAL`, `HIGH`, `MEDIUM`, or `LOW` rule priority; protective and
+  informational rules always use `null`.
+- Added concise explanation policies for brand mismatch, non-`.com` domains,
+  hyphenated domains, keyword-only domains, unrelated domains, strong and
+  compact branding, domain-contained legal suffixes, and repeated primary
+  keywords. Generic mismatch, keyword-only, and unrelated-brand rules are
+  mutually suppressed where needed so one underlying brand condition does not
+  emit redundant user-facing explanations.
+- Domain legal-suffix policy reads only the domain-composition facts. It does
+  not reuse the separate business-name legal-suffix signal. Existing neutral
+  importance is never converted into an artificial low priority.
+- Rule priority is explanation metadata, not an overall business priority.
+  This foundation calculates no score, numeric weight, total, FlipScore,
+  ranking, opportunity classification, or recommendation and has no network,
+  AI, provider, persistence, API, or UI integration.
