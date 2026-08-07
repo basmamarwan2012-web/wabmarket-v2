@@ -863,3 +863,23 @@ Continue only from the current state of the repository.
 - Signals have no weights, severity, score, opportunity classification,
   FlipScore, candidate generation, AI, network, Google, Dynadot, persistence,
   provider, API, or UI integration.
+
+## Phase G.2.2-D signal importance foundation
+
+- Added a pure immutable importance projection that consumes only the existing
+  grouped signal object. Every signal retains its active boolean and receives
+  one typed label: `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, or `NEUTRAL`.
+- Inactive signals always receive `NEUTRAL`. Active non-`.com` and hyphen facts
+  are `HIGH`; digits are `MEDIUM`; structural subdomain state remains
+  `NEUTRAL` until future hosted-platform or contextual analysis exists.
+- Brand alignment maps active partial branding to `MEDIUM`, generic keyword to
+  `HIGH`, unrelated to `CRITICAL`, and branded to `NEUTRAL`.
+- Keyword-only and city-only composition facts are `HIGH` when active. Compact
+  brand domains remain `NEUTRAL`.
+- `containsLegalSuffix` describes the business name, not the domain, and remains
+  `NEUTRAL`. Legal-suffix importance can become meaningful only if a future
+  analyzer introduces a separate, trustworthy domain-specific legal-suffix
+  signal.
+- Importance labels are metadata, not numeric weights, severity math, totals,
+  scores, FlipScore, or opportunity decisions. No new inference, provider,
+  network, AI, persistence, API, or UI behavior was added.

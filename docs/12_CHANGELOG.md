@@ -524,3 +524,18 @@ critical
 - Added no weights, severity, score, opportunity classification, FlipScore,
   candidates, availability, AI, networking, Google, Dynadot, persistence,
   provider integration, API, UI, or lifecycle behavior.
+
+# Phase G.2.2-D - Signal importance foundation
+
+- Added three isolated pure TypeScript modules for importance types, immutable
+  metadata construction, and a grouped projection over the existing signals.
+- Added only the enum labels `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, and `NEUTRAL`;
+  inactive signals always resolve to neutral metadata.
+- Applied the approved fixed active-signal mapping without numeric weights,
+  aggregation, totals, or opportunity classification.
+- Kept active subdomain state neutral because a structural subdomain alone is
+  not a weakness without future hosted-platform or contextual detection.
+- Kept the business-name legal-suffix fact neutral. Importance may change only
+  if a future phase introduces a distinct domain-specific legal-suffix signal.
+- Added no severity math, score, FlipScore, candidates, availability, AI,
+  networking, providers, persistence, API, UI, lifecycle, or opportunity logic.
