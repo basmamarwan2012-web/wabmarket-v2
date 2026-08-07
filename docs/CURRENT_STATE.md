@@ -815,3 +815,29 @@ Continue only from the current state of the repository.
   `isNonDotCom || hasHyphen`. No similarity, overlap, edit distance, scoring,
   FlipScore, candidate generation, availability, AI, or recommendation logic
   exists in this phase.
+
+## Phase G.2.2-B brand-to-domain comparison foundation
+
+- Added an isolated pure comparator over the existing immutable domain-analysis
+  result. Primary keyword and city are explicit caller-supplied comparison
+  context and are never inferred from providers, AI, location services, or
+  business-name semantics.
+- Comparison keeps exact-token matching and adds controlled whole-stem compact
+  matching. Compact forms are generated only from ordered contiguous sequences
+  of already-known normalized business, keyword, and city tokens; arbitrary
+  hostname substrings are never searched or semantically segmented.
+- The immutable result exposes only `containsBrandWord`,
+  `containsPrimaryKeyword`, `containsCity`, `allTokensPresent`,
+  `zeroBrandTokens`, `onlyGenericTokens`, and one classification: `BRANDED`,
+  `PARTIALLY_BRANDED`, `GENERIC_KEYWORD`, or `UNRELATED`.
+- Brand candidates exclude explicit keyword/city context and a small immutable
+  non-brand token set containing the previously documented generic terms and
+  legal suffixes. Generic terms remain tokens and are not independently
+  classified as weaknesses.
+- `BRANDED` requires a distinctive brand token plus complete non-legal business
+  token coverage. `PARTIALLY_BRANDED` requires a controlled exact or compact
+  brand match with incomplete coverage. Context-only keyword/city matches remain
+  `GENERIC_KEYWORD`; all other comparisons are `UNRELATED`.
+- No numeric score, similarity percentage, edit distance, token-overlap score,
+  FlipScore, candidate generation, availability lookup, provider integration,
+  network access, persistence, API, UI, or opportunity generation was added.

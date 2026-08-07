@@ -483,3 +483,23 @@ critical
 - Added no score, similarity, token-overlap judgment, FlipScore, candidate
   domain, availability check, AI, provider call, network access, persistence,
   API, UI, lifecycle, composition, or opportunity generation.
+
+# Phase G.2.2-B - Brand-to-domain comparison foundation
+
+- Added three standalone pure TypeScript modules for comparison types, exact
+  token and controlled whole-stem compact helpers, and deterministic
+  classification over an existing immutable domain-analysis result.
+- Requires explicit primary-keyword and city context and reuses the existing
+  tokenizer output. No provider criteria, location, synonym, or semantic intent
+  is inferred.
+- Added only six boolean facts: brand-word, primary-keyword, city, complete
+  business-token, zero-brand-token, and generic-only-token detection.
+- Added exactly four immutable classifications: `BRANDED`,
+  `PARTIALLY_BRANDED`, `GENERIC_KEYWORD`, and `UNRELATED`.
+- Preserved the tokenizer unchanged while recognizing concatenated domains only
+  when the entire normalized stem equals an ordered sequence generated from
+  known business/context tokens. No arbitrary substring matching or semantic
+  word inference was added, and context-only matches remain generic.
+- Added no score, similarity metric, edit distance, FlipScore, candidate domain,
+  availability lookup, network access, AI, provider integration, persistence,
+  API, UI, lifecycle, or opportunity generation.
