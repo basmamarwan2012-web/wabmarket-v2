@@ -607,17 +607,18 @@ Continue only from the current state of the repository.
   optional state, and country criteria. User values are escaped separately for
   quoted QL strings and literal POSIX ERE matching; they cannot supply tag
   keys, operators, statements, timeouts, limits, or output clauses.
-- The investigation uses exact administrative-area names, a fixed allowlist of
-  text-bearing tags (`name`, `brand`, `operator`, and `description`), and
-  requires an explicit website-oriented tag. This intentionally favors a
-  narrow signal and cannot provide complete category or business coverage.
+- The investigation uses exact administrative-area names, the `name` and
+  `brand` text-bearing tags, and requires an explicit website-oriented tag.
+  This intentionally favors a narrow signal and cannot provide complete
+  category or business coverage; legitimate OSM businesses without website
+  tags are excluded.
 - Area-name matching can resolve no area, multiple areas, or a different area
   with the same name. No ISO code, admin level, geographic identity, or
   resolved location is inferred, and the query never falls back to an
   unbounded global search.
 - The transport permits exactly one URL-encoded native-fetch POST to one fixed
-  endpoint, with a 10-second Overpass server timeout, a 12-second client
-  timeout, and a code-owned maximum of 50 raw elements. There is no geocoding,
+  endpoint, with a 20-second Overpass server timeout, a 28-second client
+  timeout, and a code-owned maximum of 25 raw elements. There is no geocoding,
   retry, pagination, batching, alternate endpoint, or parallel request.
 - Successful responses are structurally validated and copied into a narrow raw
   node/way/relation model; empty element arrays are valid. Non-success or
@@ -631,3 +632,90 @@ Continue only from the current state of the repository.
   does not establish production reliability, data completeness, or suitability
   as Wabmarket's final discovery source. A future controlled manual-testing
   phase must evaluate real coverage before normalization or integration.
+
+## Phase C.2.2-C manual Overpass investigation CLI
+
+- A manual engineering-only `test:open-discovery` command can now execute one
+  isolated `business_upgrade` investigation with keyword, city, country, and
+  optional state criteria. It requires the explicit
+  `--confirm-live-overpass-request` flag before importing the server-only test
+  service or provider code.
+- Every confirmed invocation consumes exactly one request against the public
+  Overpass endpoint. The command is never invoked by application startup,
+  build, lint, tests, APIs, UI, lifecycle processing, composition, or the
+  orchestrator, and it does not load environment files or tenant configuration.
+- The CLI prints one compact JSON diagnostic containing only the provider,
+  element/type counts, records with website/name/coordinates, and monotonic
+  provider-execution duration. It never prints raw elements, tags, coordinates,
+  URLs, contact details, queries, endpoints, response payloads, stacks, or
+  internal causes.
+- Diagnostic invariants require node, way, and relation totals to equal the raw
+  element count and require all aggregate counts to be bounded non-negative
+  integers. A valid response containing zero elements remains a successful
+  investigation result.
+- The isolated service constructs a fresh provider and calls `search()` once.
+  It does not call `normalize()`, create canonical provider items, store data,
+  generate opportunities, register the provider, retry, paginate, or execute a
+  second request.
+- Public Overpass coverage may be incomplete or geographically ambiguous, and
+  this command does not establish production reliability. No canonical results
+  or opportunities are created and no investigation data is persisted.
+
+## Isolated Overpass timeout diagnosis and query optimization
+
+- The first confirmed manual request for `roofing` in Miami, Florida, United
+  States returned the sanitized `PROVIDER_TIMEOUT` error. The previous
+  transport could not distinguish its 12-second client abort from an HTTP 504,
+  and its two-second server/client timeout separation could hide a delayed
+  server response.
+- The previous hierarchical area sets could contain multiple exact-name
+  matches and silently expand the search. The optimized query now uses official
+  named-set statistical counts and executes business scanning only when
+  country, optional state, and city each resolve to exactly one administrative
+  area. Zero or multiple matches leave a valid empty result set.
+- Search scope is reduced from four `nwr` selectors to exactly four explicit
+  branches: node/name, way/name, node/brand, and way/brand. Operator,
+  description, and relation searches were removed; one fixed website-key regex
+  still requires `website`, `contact:website`, `url`, or `contact:url`.
+- The output ceiling is 25 raw elements and quick sorting was removed. This
+  ceiling limits serialization only and does not guarantee low candidate-scan
+  cost.
+- The bounded server timeout is now 20 seconds and the client timeout is 28
+  seconds. A larger declared server timeout can still affect admission under
+  public-instance load, and public Overpass reliability remains unproven.
+- Confirmed manual CLI runs can distinguish `client_timeout`,
+  `server_timeout_504`, `server_runtime_timeout`, and `unknown_timeout` through
+  a temporary safe diagnostic channel. Runtime callers still receive only
+  `PROVIDER_TIMEOUT`; raw remarks, bodies, queries, endpoints, stacks, and
+  causes are not exposed.
+- No live request was made during this optimization. The provider remains
+  disconnected, no canonical result or opportunity is created, and no data is
+  persisted.
+
+## Phase C.2.2-D Open Discovery OSM taxonomy foundation
+
+- The first optimized live Overpass transport investigation completed in
+  approximately 2.5 seconds and returned a structurally valid zero-element
+  response for roofing in Miami, Florida. This was a successful transport
+  result, not a provider failure.
+- The empty result exposed the recall limitation of matching business keywords
+  only against OSM `name` and `brand` values. Many business categories are
+  represented through structured OSM tags instead of free-text names.
+- A pure, code-owned taxonomy now contains one approved mapping: the aliases
+  `roofer`, `roofers`, `roofing`, and `roof repair` resolve to the established
+  `craft=roofer` selector. Dash and underscore separator variants normalize to
+  the same explicitly approved alias.
+- Taxonomy entries, aliases, and selectors are deeply immutable. A deterministic
+  construction invariant rejects duplicate normalized aliases rather than
+  selecting an entry arbitrarily, and only approved entries participate in
+  lookup.
+- The resolver accepts only a keyword. Runtime callers cannot submit OSM keys,
+  values, regular expressions, QL fragments, operators, admin levels, or area
+  identifiers. Unknown keywords are never guessed and return no match.
+- The taxonomy is a retrieval hint only. It does not verify business identity,
+  website ownership, acquisition availability, opportunity quality, or
+  FlipScore.
+- This taxonomy is not connected to the live Overpass query. A future phase may
+  use structured selectors for matched keywords and retain conservative
+  name/brand retrieval for unmatched terms, but that branching is not
+  implemented here.

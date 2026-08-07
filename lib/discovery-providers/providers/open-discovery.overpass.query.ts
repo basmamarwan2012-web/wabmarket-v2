@@ -11,8 +11,9 @@ export const OPEN_DISCOVERY_OVERPASS_SUPPORTED_MODES = Object.freeze([
   'business_upgrade',
 ] as const satisfies readonly DiscoverySearchMode[])
 
-export const OPEN_DISCOVERY_OVERPASS_SERVER_TIMEOUT_SECONDS = 10
-export const OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT = 50
+export const OPEN_DISCOVERY_OVERPASS_SERVER_TIMEOUT_SECONDS = 20
+export const OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT = 25
+export const OPEN_DISCOVERY_OVERPASS_SEARCH_BRANCH_COUNT = 4
 
 export interface OpenDiscoveryOverpassCriteria {
   readonly keyword: string
@@ -65,10 +66,21 @@ const buildBusinessMatchStatements = (
   keywordExpression: string,
   areaName: string
 ) => `
-  nwr(area.${areaName})["name"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
-  nwr(area.${areaName})["brand"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
-  nwr(area.${areaName})["operator"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
-  nwr(area.${areaName})["description"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];`
+      node(area.${areaName})["name"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
+      way(area.${areaName})["name"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
+      node(area.${areaName})["brand"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];
+      way(area.${areaName})["brand"~"${keywordExpression}",i][~"^(website|contact:website|url|contact:url)$"~"."];`
+
+const buildGuardedCitySearch = (
+  parentAreaName: string,
+  city: string,
+  keywordExpression: string
+) => `area(area.${parentAreaName})["boundary"="administrative"]["name"="${city}"]->.cityAreas;
+  if (.cityAreas.count(deriveds) == 1)
+  {
+    (${buildBusinessMatchStatements(keywordExpression, 'cityAreas')}
+    )->.results;
+  }`
 
 export const buildOpenDiscoveryOverpassQuery = (
   criteria: OpenDiscoveryOverpassCriteria
@@ -82,15 +94,23 @@ export const buildOpenDiscoveryOverpassQuery = (
     escapePosixExtendedRegularExpressionLiteral(criteria.keyword)
   )
 
-  const locationStatements = state
-    ? `area(area.countryArea)["boundary"="administrative"]["name"="${state}"]->.stateArea;
-area(area.stateArea)["boundary"="administrative"]["name"="${city}"]->.searchArea;`
-    : `area(area.countryArea)["boundary"="administrative"]["name"="${city}"]->.searchArea;`
+  const guardedLocationSearch = state
+    ? `area(area.countryAreas)["boundary"="administrative"]["name"="${state}"]->.stateAreas;
+  if (.stateAreas.count(deriveds) == 1)
+  {
+    ${buildGuardedCitySearch('stateAreas', city, keywordExpression)}
+  }`
+    : buildGuardedCitySearch('countryAreas', city, keywordExpression)
 
   return `[out:json][timeout:${OPEN_DISCOVERY_OVERPASS_SERVER_TIMEOUT_SECONDS}];
-area["boundary"="administrative"]["name"="${country}"]->.countryArea;
-${locationStatements}
-(${buildBusinessMatchStatements(keywordExpression, 'searchArea')}
-);
-out tags center qt ${OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT};`
+area["boundary"="administrative"]["name"="${country}"]->.countryAreas;
+(
+  .countryAreas;
+  - .countryAreas;
+)->.results;
+if (.countryAreas.count(deriveds) == 1)
+{
+  ${guardedLocationSearch}
+}
+.results out tags center ${OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT};`
 }

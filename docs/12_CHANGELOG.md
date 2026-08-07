@@ -331,3 +331,72 @@ critical
   Google, or Dynadot integration changed; no product path executes Overpass.
   Controlled manual coverage testing remains a future phase, and this work is
   not a production-readiness claim.
+
+# Phase C.2.2-C - Manual Overpass investigation CLI
+
+- Added a manually invoked, confirmation-gated `test:open-discovery` command
+  for `business_upgrade` criteria. Argument validation and confirmation occur
+  before the server-only test service and provider are dynamically imported;
+  no environment file or credential configuration is read.
+- Added an isolated service that constructs a fresh Open Discovery provider,
+  measures only one `search()` execution with a monotonic clock, and performs
+  no retry, pagination, normalization, composition, orchestration, persistence,
+  lifecycle transition, or opportunity generation.
+- Added typed, aggregate-only diagnostics for raw element/type counts and
+  records containing a name, website, or usable coordinate pair. Runtime
+  invariants keep counts integral, non-negative, bounded, and consistent with
+  the total element count; zero elements is a valid result.
+- Limited output to one compact JSON result or a sanitized allowlisted error.
+  Raw OSM records, tags, query text, endpoint details, locations, URLs, contact
+  data, payloads, stack traces, and internal causes are never printed.
+- Each confirmed invocation consumes exactly one public Overpass request and
+  is intended only for manual engineering evaluation. The command is never run
+  automatically, stores no data, creates no canonical result or opportunity,
+  and does not make the disconnected provider available to the product.
+
+# Isolated Overpass timeout diagnosis and query optimization
+
+- Recorded that the first confirmed Miami roofing investigation ended with
+  `PROVIDER_TIMEOUT`; the original output could represent either the local
+  12-second abort or an HTTP 504 and did not prove which occurred.
+- Replaced ambiguity-expanding area traversal with fail-closed named-set
+  statistical-count guards. Country, optional state, and city must each resolve
+  to exactly one administrative area before business scanning runs; otherwise
+  the response contains a valid empty element set.
+- Reduced the query from four node/way/relation selectors to four actual search
+  branches covering only node/way records and `name`/`brand` keyword fields.
+  Removed operator, description, relation, and quick-sort work while preserving
+  one code-owned website-key allowlist filter.
+- Reduced the serialized raw-element ceiling from 50 to 25. The ceiling does
+  not limit all server scanning and is not a production reliability guarantee.
+- Increased the bounded server/client timeouts from 10/12 seconds to 20/28
+  seconds so a server response has more time to arrive before client abort.
+  No maxsize increase, retry, pagination, second request, or endpoint fallback
+  was added.
+- Added manual-CLI-only timeout categories for client abort, real HTTP 504,
+  strictly classified runtime-timeout remarks, and unknown timeouts. Provider
+  errors remain sanitized; raw remarks, payloads, queries, endpoints, stacks,
+  and causes remain private.
+- Kept Open Discovery disconnected from normalization, canonical results,
+  opportunities, APIs, UI, lifecycle, composition, orchestration, and
+  persistence. No live request was executed while implementing this change.
+
+# Phase C.2.2-D - Open Discovery OSM taxonomy foundation
+
+- Recorded that the first optimized live Overpass investigation completed in
+  about 2.5 seconds with a valid empty result. Transport succeeded; the result
+  demonstrated the weakness of name/brand-only category retrieval.
+- Added a pure immutable taxonomy containing exactly one approved entry. The
+  explicit aliases `roofer`, `roofers`, `roofing`, and `roof repair` resolve to
+  the established OSM selector `craft=roofer`; dash and underscore separator
+  variants resolve through conservative deterministic normalization.
+- Added typed source and status metadata, a readonly discriminated lookup
+  result, deeply frozen taxonomy data, and a deterministic duplicate-normalized
+  alias invariant for future taxonomy growth.
+- Kept selector authority entirely within code-owned entries. The resolver
+  accepts only a keyword, proposed/deprecated entries cannot become active
+  accidentally, and unknown terms return no match without fuzzy inference,
+  stemming, translation, AI, or guessed synonyms.
+- Added no taxonomy/query connection, network or environment access, provider
+  execution, API/UI/lifecycle integration, persistence, canonical result, or
+  opportunity behavior. Structured-selector retrieval remains a future phase.

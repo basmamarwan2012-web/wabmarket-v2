@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { channel } from 'node:diagnostics_channel'
 import { z } from 'zod'
 import { DiscoveryProviderError } from '../provider'
 import type {
@@ -11,9 +12,32 @@ import { OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT } from './open-discovery.overpass.
 
 const OVERPASS_TRANSPORT_CONFIGURATION = Object.freeze({
   endpoint: 'https://overpass-api.de/api/interpreter',
-  clientTimeoutMs: 12_000,
+  clientTimeoutMs: 28_000,
   userAgent: 'Wabmarket Open Discovery Investigation/1.0',
 })
+
+const timeoutDiagnosticChannel = channel(
+  'wabmarket.discovery.open-discovery.timeout.manual'
+)
+
+const publishTimeoutDiagnostic = (
+  diagnostic:
+    | Readonly<{
+        category: 'client_timeout' | 'server_runtime_timeout'
+      }>
+    | Readonly<{
+        category: 'server_timeout_504'
+        httpStatus: 504
+      }>
+) => {
+  timeoutDiagnosticChannel.publish(diagnostic)
+}
+
+const isAllowlistedServerRuntimeTimeoutRemark = (value: unknown) =>
+  typeof value === 'string' &&
+  /^runtime error: query timed out in "(?:query|area-query)" at line [1-9]\d{0,5} after [1-9]\d{0,5} seconds\.?$/i.test(
+    value.trim()
+  )
 
 const coordinateSchema = z.object({
   lat: z.number().finite(),
@@ -33,6 +57,7 @@ const responseSchema = z.object({
   version: z.number().finite(),
   generator: z.string().min(1),
   elements: z.array(elementSchema).max(OPEN_DISCOVERY_OVERPASS_RESULT_LIMIT),
+  remark: z.string().optional(),
 })
 
 const freezeElement = (
@@ -59,6 +84,14 @@ const validateOverpassResponse = (
     throw new DiscoveryProviderError(
       'PROVIDER_INVALID_RESPONSE',
       'Open Discovery returned an invalid response.'
+    )
+  }
+
+  if (isAllowlistedServerRuntimeTimeoutRemark(parsed.data.remark)) {
+    publishTimeoutDiagnostic({ category: 'server_runtime_timeout' })
+    throw new DiscoveryProviderError(
+      'PROVIDER_TIMEOUT',
+      'Open Discovery request timed out.'
     )
   }
 
@@ -115,6 +148,10 @@ export const executeOpenDiscoveryOverpassQuery = async (
         )
       }
       if (response.status === 504) {
+        publishTimeoutDiagnostic({
+          category: 'server_timeout_504',
+          httpStatus: 504,
+        })
         throw new DiscoveryProviderError(
           'PROVIDER_TIMEOUT',
           'Open Discovery request timed out.'
@@ -146,6 +183,7 @@ export const executeOpenDiscoveryOverpassQuery = async (
       )
     }
     if (clientTimedOut) {
+      publishTimeoutDiagnostic({ category: 'client_timeout' })
       throw new DiscoveryProviderError(
         'PROVIDER_TIMEOUT',
         'Open Discovery request timed out.'
