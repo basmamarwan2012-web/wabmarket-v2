@@ -423,3 +423,39 @@ critical
   lifecycle, persistence, Firebase, composition, orchestration, Google,
   Dynadot, or opportunity integration. Open Discovery remains an isolated
   engineering investigation.
+
+# Phase G.2.1 - Google Places primary discovery provider
+
+- Added `google_places` as a distinct provider identifier without renaming,
+  deleting, refactoring, or repurposing the deprecated `google` Custom Search
+  adapter.
+- Added a disconnected server-only Places API (New) Text Search provider for
+  `business_upgrade`, with one native-fetch POST, pure service-area business
+  inclusion, a fixed 20-result and one-page ceiling, a 10-second timeout, and no
+  retries or automatic pagination.
+- Added an immutable, caller-inaccessible field mask. Its `websiteUri` field
+  triggers Text Search Enterprise pricing; wildcard masks and caller-supplied
+  Google request parameters are rejected by the architecture.
+- Added lazy `GOOGLE_PLACES_API_KEY` configuration without reusing Custom
+  Search credentials, printing secrets, or placing credentials in request
+  URLs.
+- Added strict transient response validation and in-memory normalization for
+  operational businesses with IDs, display names, valid HTTP/HTTPS websites,
+  and unique normalized hostnames. No valid `.com` or non-hyphenated result is
+  excluded by domain-shape diagnostics.
+- Added local-only `.com`, non-`.com`, hyphen, and basic weakness diagnostics.
+  The hostname-only hyphen check is conservative and is not eTLD+1 parsing,
+  FlipScore, availability verification, or an opportunity recommendation.
+- Added a confirmation-gated manual CLI that reports consistent aggregate
+  counts and safe place/name/domain/type diagnostics after at most one request.
+  It performs no Place Details, DNS, WHOIS, registrar, or website requests.
+- Recorded the validated Miami roofing sample: 20 relevant businesses, all 20
+  with websites, with 5 of 20 using non-`.com` domains. The observation is a
+  sample, not a guaranteed global rate.
+- Kept all Google Places content transient and added no persistence or caching.
+  Place IDs are the only approved durable Google identifier, but are not stored
+  in this phase.
+- Left Google Places disconnected from production composition, APIs, UI,
+  lifecycle, persistence, Firebase, opportunities, campaigns, background work,
+  quota counters, and billing. External Google Cloud quota limits and future
+  persistent Wabmarket usage protection remain required for zero-cost control.

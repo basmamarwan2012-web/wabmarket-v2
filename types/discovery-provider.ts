@@ -1,5 +1,6 @@
 export const KNOWN_DISCOVERY_PROVIDER_IDENTIFIERS = [
   'google',
+  'google_places',
   'dynadot',
   'open_discovery',
 ] as const

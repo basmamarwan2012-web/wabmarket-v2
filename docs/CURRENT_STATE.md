@@ -746,3 +746,43 @@ Continue only from the current state of the repository.
 - Open Discovery remains investigation-only. `normalize()` still returns no
   canonical items, and no API, UI, lifecycle, database, opportunity,
   composition, or orchestration integration was added.
+
+## Phase G.2.1 Google Places primary discovery provider
+
+- Google Places API (New) is now the selected primary live business-discovery
+  source, represented by the distinct `google_places` identifier. The existing
+  `google` identifier continues to mean the deprecated Google Custom Search
+  adapter and was not changed or repurposed.
+- The disconnected provider supports only `business_upgrade` and can execute
+  one native-fetch Text Search (New) POST after explicit manual confirmation.
+  It includes pure service-area businesses and uses a fixed one-page ceiling of
+  20 results, a 10-second client timeout, no retry, and no automatic or parallel
+  pagination.
+- The immutable field mask requests only ID, display name, formatted address,
+  primary type, types, business status, website URI, and the pure-service-area
+  indicator. Requesting `websiteUri` places Text Search execution in the
+  Enterprise pricing tier.
+- Configuration is server-only and lazy. Only `GOOGLE_PLACES_API_KEY` is read,
+  only after confirmed execution begins. The deprecated Custom Search API key
+  and Search Engine ID are not reused.
+- Google Places content is transient. Display names, addresses, websites,
+  types, and business status are not written to Firestore, cache, files, logs,
+  analytics, or any other durable store. Place IDs are eligible for durable
+  storage under Google policy, but this phase adds no persistence.
+- The validated manual Miami roofing sample returned 20 relevant businesses;
+  all 20 had websites and 5 of 20 used non-`.com` domains. This is one empirical
+  sample and is not a guaranteed global coverage or extension rate.
+- Local engineering diagnostics classify valid unique website hostnames by
+  `.com`, non-`.com`, and hyphen shape. A non-`.com` hostname or any hostname
+  containing a hyphen is a basic weakness candidate. This conservative
+  hostname-only check does not calculate registrable eTLD+1 boundaries and is
+  not FlipScore, availability evidence, or an opportunity decision. Valid
+  `.com` and non-hyphenated businesses remain in the provider result.
+- Future phases may evaluate candidate `.com` generation, brand/domain
+  mismatch, length, extra words, numeric clutter, alternate extensions, hyphen
+  replacement, exact-match `.com` opportunities, registrar and aftermarket
+  availability, and FlipScore. None are implemented here.
+- Zero-cost operation is not assumed. It requires external Google Cloud quota
+  configuration plus a future persistent Wabmarket quota/usage policy. This
+  phase adds no counters, automatic paid overage, production scheduling, API,
+  UI, lifecycle, opportunity, composition, or orchestrator integration.

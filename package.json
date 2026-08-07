@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:google-discovery": "node --conditions=react-server --import tsx scripts/test-google-discovery.ts",
+    "test:google-places": "node --conditions=react-server --import tsx scripts/test-google-places.ts",
     "test:open-discovery": "node --conditions=react-server --import tsx scripts/test-open-discovery.ts",
     "postinstall": "husky install"
   },
