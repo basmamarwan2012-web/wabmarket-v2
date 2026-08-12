@@ -777,3 +777,22 @@ critical
   effect on quality or selection.
 - Added no fuzzy or semantic matching, AI, provider request, acquisition,
   purchase, persistence, marketplace, API, or UI behavior.
+
+# Phase G.2.3-G - Acquisition recommendation and external handoff foundation
+
+- Added immutable provider-neutral recommendation contracts, controlled V1
+  decision policy, deterministic reason ordering, and safe external handoff
+  metadata.
+- Kept registration availability separate from acquisition inventory, allowing
+  a registered domain to retain a legitimate fixed-price external acquisition
+  path without treating registration as available.
+- Required explicit normalized observed and maximum currencies before comparing
+  prices. Currency mismatches produce manual review and never trigger within-
+  limit or above-limit conclusions; no currency conversion was introduced.
+- Added representation for standard registration, buy-now, marketplace,
+  premium, auction, closeout, backorder, and liquidation paths without fetching
+  inventory or fabricating prices.
+- Limited provider handoff to explicitly supplied absolute HTTPS URLs without
+  embedded credentials. Added no automatic URL opening, purchasing, bidding,
+  backordering, offer acceptance, checkout, payments, network calls,
+  persistence, API, UI, marketplace fetch, marketing, CRM, or AI behavior.

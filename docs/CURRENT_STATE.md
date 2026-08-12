@@ -1165,3 +1165,27 @@ Continue only from the current state of the repository.
   quality or ordering.
 - No provider execution, acquisition decision, automatic selection or purchase,
   persistence, marketplace, API, UI, or AI integration was added.
+
+## Phase G.2.3-G acquisition recommendation and external handoff foundation
+
+- Added a pure provider-neutral recommendation boundary that combines candidate
+  selection tier, canonical registration availability, optional acquisition
+  type, explicit fixed-price evidence, and a caller-owned maximum price policy.
+- V1 returns only `RECOMMEND`, `REVIEW`, or `SKIP` with stable controlled reason
+  codes. Preferred and acceptable candidates can be recommended when an
+  actionable fixed-price path is complete; weak, unknown, auction, backorder,
+  and incomplete evidence require review; rejected quality, comparable
+  over-budget pricing, contradictory facts, and registered domains without a
+  separate acquisition offer are skipped.
+- Observed and maximum currencies are normalized explicitly and must match
+  before any numeric comparison. Currency mismatch requires review, and this
+  layer performs no exchange-rate inference or conversion.
+- Registration availability and acquisition inventory remain distinct. A
+  registered domain can still be recommended when separate complete fixed-price
+  buy-now, marketplace, premium, closeout, or liquidation evidence exists.
+- External handoff uses only an explicitly supplied absolute HTTPS provider URL
+  with no embedded credentials. Wabmarket never constructs, opens, purchases,
+  bids, backorders, accepts offers, intermediates checkout, or handles provider
+  payment credentials.
+- No network call, provider integration, persistence, API, UI, feed, purchase,
+  marketplace fetch, marketing, CRM, or AI behavior was added.
