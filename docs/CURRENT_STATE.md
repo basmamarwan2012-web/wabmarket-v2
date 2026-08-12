@@ -1216,3 +1216,27 @@ Continue only from the current state of the repository.
 - No generation, deployment, publication, provider call, persistence, API, UI,
   marketplace integration, marketing, outreach, CRM, Domain-First discovery,
   Opportunity Feed, Company Intelligence, calibration, or AI was added.
+
+## Domain Preparation assets and content generation foundation
+
+- Added a provider-neutral preparation generator contract and a built-in pure
+  deterministic template implementation. Generation requires explicit upstream
+  ownership confirmation and never derives ownership from Portfolio,
+  Opportunity, availability, recommendation, or provider handoff state.
+- V1 produces immutable description, landing-page configuration, resale price
+  and currency display facts, controlled external CTA metadata, SEO metadata,
+  and Open Graph metadata using only explicitly supplied hostname, optional
+  business/category/keyword/city context, and validated sales facts.
+- Missing optional context is omitted rather than inferred. The external sales
+  URL is copied exactly from validated explicit HTTPS input and is never built,
+  guessed, modified, navigated to, or executed by this layer.
+- Logo, favicon, and Open Graph images are generic asset slots. Missing assets
+  remain `NONE`/`PENDING`; explicit manual or provider references become
+  `AVAILABLE`. No image bytes, favicon derivation, HTML, page deployment, or
+  marketplace publication is performed.
+- Generic source metadata is limited to `TEMPLATE`, `MANUAL`, `PROVIDER`, and
+  `NONE`. No AI provider, model, prompt, credential, quota, billing, or provider
+  selection detail enters the contract; template generation works with AI off.
+- No network, AI, persistence, Firestore, API, UI, purchase, checkout,
+  marketplace call, marketing, outreach, CRM, or Company Intelligence behavior
+  was added.

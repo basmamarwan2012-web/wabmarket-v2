@@ -818,3 +818,21 @@ critical
   purchase, bid, backorder, generation, deployment, marketplace publication,
   provider request, persistence, API, UI, marketing, CRM, discovery, feed,
   Company Intelligence, calibration, or AI behavior.
+
+# Domain Preparation - Assets and content generation foundation
+
+- Added a provider-neutral generation contract, reusable immutable asset slots,
+  deterministic templates, and a built-in generator that remains fully
+  functional without AI or networking.
+- Required explicit confirmed ownership and validated hostname, finite positive
+  resale asking price, normalized currency, and explicitly supplied safe HTTPS
+  external sales URL before generation.
+- Added deterministic description, landing configuration, controlled CTA, SEO,
+  and Open Graph text derived only from supplied facts. Unknown business,
+  category, keyword, and city context is never fabricated.
+- Represented missing logo, favicon, and Open Graph images as `NONE`/`PENDING`
+  slots and accepted explicit manual/provider references as `AVAILABLE`, without
+  generating bytes, HTML, or deployed pages.
+- Kept source metadata generic and added no AI provider/model/prompt/credential,
+  quota, billing, network, persistence, API, UI, marketplace publication,
+  purchase, checkout, marketing, CRM, or Company Intelligence behavior.
