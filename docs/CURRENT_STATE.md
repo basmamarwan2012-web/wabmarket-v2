@@ -1189,3 +1189,30 @@ Continue only from the current state of the repository.
   payment credentials.
 - No network call, provider integration, persistence, API, UI, feed, purchase,
   marketplace fetch, marketing, CRM, or AI behavior was added.
+
+## Domain Preparation model and readiness checklist foundation
+
+- Added a pure immutable preparation model for an explicitly owned domain. It
+  records canonical hostname, explicit ownership confirmation, optional source
+  Opportunity provenance, structured logo, favicon, description, landing-page,
+  and external-sales facts, plus deterministic readiness.
+- Portfolio existence or lifecycle status, Opportunity existence, availability,
+  recommendation, and provider handoff never infer ownership. Preparation can
+  originate from independently recorded ownership without an Opportunity.
+- Readiness is monotonic: `NOT_READY`, `READY_FOR_MARKETPLACE`, then
+  `READY_FOR_MARKETING`. Marketplace and marketing requirement collections are
+  structurally separate. V1 has no additional marketing-only requirements, so
+  satisfying every marketplace requirement currently reaches marketing-ready.
+- Marketplace readiness requires confirmed ownership, valid hostname, logo,
+  favicon, description, finite positive asking price, normalized currency,
+  landing page, explicitly supplied safe external HTTPS sales URL, and a
+  configured CTA. Missing and invalid facts use stable controlled codes.
+- Asking price is exclusively the intended resale price. It is not Portfolio
+  purchase price, provider-observed acquisition cost, or acquisition budget;
+  currencies are explicit and never converted.
+- Invalid external sales URLs are not retained as usable destinations. URLs are
+  never constructed, guessed, opened, or submitted, and embedded credentials
+  are rejected. No checkout or other commercial action occurs in Wabmarket.
+- No generation, deployment, publication, provider call, persistence, API, UI,
+  marketplace integration, marketing, outreach, CRM, Domain-First discovery,
+  Opportunity Feed, Company Intelligence, calibration, or AI was added.

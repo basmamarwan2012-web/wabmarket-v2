@@ -796,3 +796,25 @@ critical
   embedded credentials. Added no automatic URL opening, purchasing, bidding,
   backordering, offer acceptance, checkout, payments, network calls,
   persistence, API, UI, marketplace fetch, marketing, CRM, or AI behavior.
+
+# Domain Preparation - Model and readiness checklist foundation
+
+- Added immutable Domain Preparation contracts, normalization, construction,
+  and deterministic checklist evaluation for explicitly owned domains.
+- Kept ownership as an explicit upstream fact rather than inferring it from a
+  Portfolio record, lifecycle status, Opportunity, availability result,
+  acquisition recommendation, or provider handoff.
+- Added separate immutable marketplace and future marketing requirement sets
+  with monotonic `NOT_READY`, `READY_FOR_MARKETPLACE`, and
+  `READY_FOR_MARKETING` states. V1 adds no marketing-only requirements.
+- Required logo, favicon, description, landing page, finite positive resale
+  asking price, normalized currency, safe external sales destination, and CTA
+  configuration before readiness, with stable controlled missing-requirement
+  codes.
+- Kept resale asking price separate from purchase price, acquisition cost,
+  provider-observed price, and acquisition budget. Added no currency conversion.
+- Accepted only explicitly supplied absolute HTTPS external sales URLs without
+  embedded credentials and added no URL construction, navigation, checkout,
+  purchase, bid, backorder, generation, deployment, marketplace publication,
+  provider request, persistence, API, UI, marketing, CRM, discovery, feed,
+  Company Intelligence, calibration, or AI behavior.
