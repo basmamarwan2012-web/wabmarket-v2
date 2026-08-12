@@ -1288,3 +1288,30 @@ Continue only from the current state of the repository.
 - No public route, deployment, marketplace publication, persistence, API,
   provider call, AI, asset generation, analytics, marketing, outreach, or CRM
   integration was added.
+
+## Marketplace listing model and publication eligibility foundation
+
+- Added a pure provider-neutral canonical marketplace-listing projection over
+  approved Domain Preparation, generated content, and landing-page render facts.
+  The constructor regenerates no content, price, CTA, sales URL, asset, or
+  readiness logic and publishes nothing.
+- Listing identity is `listing_` plus SHA-256 of a length-prefixed tuple
+  containing only `marketplace-listing:v1` and normalized hostname. Price,
+  content, assets, readiness, URLs, provenance, and timestamps do not affect it.
+- Publication policy returns `NOT_ELIGIBLE`,
+  `ELIGIBLE_WITH_PLACEHOLDERS`, or `ELIGIBLE`. Ownership/preparation failure,
+  upstream mismatch, non-renderable landing page, or invalid supplied landing
+  reference blocks eligibility; fully complete facts and a real reference are
+  eligible.
+- Missing landing-page deployment reference and incomplete visual assets remain
+  distinct facts through `LANDING_PAGE_REFERENCE_MISSING` and
+  `VISUAL_ASSETS_INCOMPLETE`. Either can retain structural placeholder
+  eligibility without fabricating a route or public URL.
+- Canonical listing output is limited to domain-product display, resale,
+  external CTA, visual, landing-reference, eligibility, and optional internal
+  Opportunity provenance facts. It excludes business lead data, weak-domain
+  facts, Place IDs, FlipScore, internal reasons, acquisition cost/budget,
+  provider payloads, credentials, and tokens.
+- No catalog, public route, persistence, publication, deployment, marketplace
+  API, provider fetch, AI, asset generation, marketing, CRM, Reverse Discovery,
+  Opportunity Feed, Company Intelligence, or calibration was added.

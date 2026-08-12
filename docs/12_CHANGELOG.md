@@ -870,3 +870,23 @@ critical
 - Added no public domain route, marketplace publication, persistence, provider
   call, checkout, purchase, AI, asset generation, analytics, marketing,
   outreach, or CRM behavior.
+
+# Marketplace Publication - Listing model and eligibility foundation
+
+- Added immutable provider-neutral listing contracts, canonical construction,
+  deterministic listing identity, and non-numeric publication eligibility.
+- Derived `listing_` identity from SHA-256 of only the versioned normalized
+  hostname tuple, keeping identity stable across price, content, asset, URL,
+  readiness, provenance, and timestamp changes.
+- Cross-checked preparation, generation, and render-model facts without
+  regenerating content or duplicating upstream readiness and URL validation.
+- Kept missing landing-page deployment reference separate from incomplete
+  visual assets using dedicated controlled reasons; either may yield
+  `ELIGIBLE_WITH_PLACEHOLDERS` without fabricating a public URL.
+- Restricted canonical public-sale fields to domain-product facts and optional
+  internal Opportunity provenance, excluding lead identity, weak domain,
+  Place ID, FlipScore, internal reasons, acquisition economics, raw provider
+  data, credentials, and tokens.
+- Added no catalog, public route, persistence, publication, deployment,
+  marketplace API, provider call, AI, marketing, CRM, Reverse Discovery,
+  Opportunity Feed, Company Intelligence, or calibration.
