@@ -953,3 +953,22 @@ critical
 - Kept asset binaries behind an unimplemented provider-neutral `AssetStore`.
   Added no blobs, filesystem adapter, Firestore migration, dual-write, fixture
   removal, public-route cutover, future-feature tables, or live database work.
+
+# Marketplace Publication Application Service Foundation
+
+- Added a transaction-bound Domain Preparation application service that checks
+  account-scoped ownership, canonical hostname consistency, and tenant/domain
+  asset associations before delegating exact optimistic-version persistence.
+- Added a marketplace publication application service that loads private facts
+  only through tenant-scoped repositories, requires explicit ownership,
+  reconstructs listings exclusively through the existing canonical constructor,
+  and publishes only when the existing policy returns exactly `ELIGIBLE`.
+- Kept publish validation and the publication write inside one injected unit of
+  work so failures cannot leave partial application state. Added deterministic,
+  version-exact tenant-scoped unpublication without retries or overwrite logic.
+- Limited service results to immutable IDs, hostname, readiness/version, and
+  publication state/version. Commands contain no caller-provided tenant,
+  account, Firebase UID, role, or ownership actor.
+- Added no repository/schema/infrastructure changes, live database connection,
+  migration, route cutover, fixture removal, Firestore dual-write, asset binary
+  storage, provider call, AI, marketing, CRM, or purchase behavior.

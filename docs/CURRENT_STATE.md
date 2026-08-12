@@ -1406,3 +1406,32 @@ Continue only from the current state of the repository.
   Domains and discovery behavior remain unchanged; no migration, deletion,
   dual-write, route cutover, fixture replacement, database connection, or
   production deployment was performed.
+
+## Marketplace Publication Application Service Foundation
+
+- Added constructor-injected application services for saving current Domain
+  Preparation and publishing or unpublishing canonical marketplace listings
+  through the provider-neutral `PersistenceUnitOfWork` boundary.
+- Preparation saves resolve the account-scoped owned domain, require exact
+  hostname agreement across the owned domain, preparation, generated content,
+  and landing render model, and validate each supplied logo/favicon/Open Graph
+  asset through the account-scoped metadata repository. Associated assets must
+  belong to the same owned domain and have the declared asset kind.
+- Preparation persistence delegates the exact nullable expected version to the
+  repository. Stale writes retain the sanitized
+  `PERSISTENCE_VERSION_CONFLICT`; the service adds no retry or last-write-wins
+  behavior and returns only owned-domain ID, hostname, preparation version, and
+  readiness.
+- Publication runs atomically: tenant-owned domain resolution, explicit
+  ownership confirmation, current preparation load, canonical fact checks,
+  `createMarketplaceListing()` reconstruction, exact `ELIGIBLE` gating, and
+  repository publication occur inside one unit of work. Placeholder-eligible
+  and ineligible listings never reach the publication write.
+- Unpublication is tenant-scoped and version-exact through the repository.
+  Service commands accept no account ID, Firebase UID, tenant ID, role, or
+  ownership actor, and outputs expose no account, SQL, ORM, private preparation,
+  credential, or provider records.
+- Added no MySQL connection, migration execution, route cutover, fixture
+  removal, Firestore migration/dual-write, asset storage adapter, provider
+  request, AI, marketing, CRM, Reverse Discovery, Opportunity Feed, or
+  transaction execution outside the injected persistence boundary.
