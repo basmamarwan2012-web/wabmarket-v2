@@ -724,3 +724,19 @@ critical
   response fields cannot enter canonical output.
 - Added no persistence, Firestore schema, lifecycle, feed, acquisition,
   purchase, marketplace, marketing, CRM, API, UI, AI, or provider request.
+
+# Phase G.2.3-D - Forward opportunity qualification service
+
+- Added a three-module Business-First qualification boundary that composes the
+  existing deterministic candidate generator, provider-neutral availability
+  service, and canonical Opportunity constructor around a completed FlipScore.
+- Limited each run to the first five generated candidates or the injected
+  provider's smaller advertised capacity. One provider lookup is permitted;
+  there is no extra batch, retry, continuation, or candidate re-ranking.
+- Constructed canonical opportunities only for explicit `AVAILABLE` facts and
+  preserved generator order. `REGISTERED` and `UNKNOWN` facts create none.
+- Added immutable generated, checked, and available counts and immutable
+  opportunity output. Zero generated candidates perform zero provider calls.
+- Added no live provider request, new score, FlipScore change, persistence,
+  Firestore, API, UI, feed, purchase, acquisition, marketplace, preparation,
+  marketing, CRM, AI, or Domain-First orchestration.

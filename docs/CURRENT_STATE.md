@@ -1093,3 +1093,26 @@ Continue only from the current state of the repository.
 - This foundation adds no persistence, lifecycle state, Opportunity Feed,
   acquisition, purchase, marketplace, marketing, CRM, API, UI, AI, or provider
   execution and does not modify the legacy opportunity placeholder.
+
+## Phase G.2.3-D forward opportunity qualification service
+
+- Added a server-only Business-First orchestration boundary that accepts an
+  already-completed FlipScore result and explicit business, current-domain,
+  keyword, location, and discovery-time facts. It reuses the deterministic
+  candidate generator, injected provider through `DomainAvailabilityService`,
+  and the canonical Opportunity constructor without duplicating their logic.
+- V1 selects only the first candidates in generator order, capped by both the
+  explicit five-candidate product ceiling and the provider's declared per-call
+  capacity. It performs one provider lookup at most, with no further batch,
+  retry, ranking, or continuation to candidate six and beyond.
+- Only explicit `AVAILABLE` results become canonical opportunities.
+  `REGISTERED` and `UNKNOWN` results remain report facts and produce none.
+  Opportunities retain deterministic candidate order and canonical identity.
+- The immutable report exposes generated, checked, and available counts plus
+  deeply immutable opportunities. A valid zero-candidate generation returns an
+  empty report without invoking the provider.
+- Availability does not create or alter qualification scores: the input
+  business must already have completed FlipScore analysis. This phase adds no
+  Google or live Dynadot call, persistence, Firestore, API, UI, feed, purchase,
+  acquisition, marketplace, preparation, marketing, CRM, AI, or Domain-First
+  orchestration.
