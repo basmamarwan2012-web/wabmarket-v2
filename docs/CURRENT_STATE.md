@@ -1138,3 +1138,30 @@ Continue only from the current state of the repository.
 - Implementation validation uses injected mocked providers only. No live
   Dynadot or Google request, persistence, purchase, marketplace, API, UI, AI,
   feed, or production workflow integration was added.
+
+## Phase G.2.3-F candidate-domain quality and selection foundation
+
+- Added a pure deterministic candidate-quality layer over existing generator
+  pattern metadata and normalized business, keyword, and city tokens. It emits
+  immutable structural, coverage, declared-order, generic-suffix, repetition,
+  digit-origin, length, and compactness facts without numeric scoring.
+- V1 selection tiers are `PREFERRED`, `ACCEPTABLE`, `WEAK`, and `REJECT`.
+  Structural or declared-pattern integrity failures reject; exact distinctive
+  brand coverage in business order is preferred unless long; city-first exact
+  coverage is acceptable; keyword-first, partial coverage, controlled appended
+  generic suffixes, generic-only businesses, and valid long forms are weak.
+- Controlled generic words are marked unnecessary only when the declared
+  generator pattern appends one that was not already present in the normalized
+  business name. Legitimate business terms such as `services` or `group` are
+  not penalized merely for belonging to the controlled generic dictionary.
+- Labels longer than 32 characters reject and are never truncated. Valid labels
+  through 32 characters may be `LONG` and remain eligible for a non-reject tier.
+  Repetition detection requires full deterministic tokenization from known
+  context tokens; arbitrary substring, fuzzy, semantic, and AI inference remain
+  absent.
+- Stable ordering uses tier, exact brand coverage, declared token order,
+  unnecessary-generic absence, compactness, hostname length, and original
+  position. Optional availability facts are copied canonically but never affect
+  quality or ordering.
+- No provider execution, acquisition decision, automatic selection or purchase,
+  persistence, marketplace, API, UI, or AI integration was added.

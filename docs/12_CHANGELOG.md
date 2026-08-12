@@ -759,3 +759,21 @@ critical
   zero-pagination, and no-second-batch boundaries. Added no live implementation
   validation, Google request, persistence, purchase, marketplace, API, UI, AI,
   or production integration.
+
+# Phase G.2.3-F - Candidate-domain quality and selection foundation
+
+- Added immutable candidate quality contracts, deterministic fact extraction,
+  non-numeric tiering, and stable selection ordering under four isolated pure
+  modules.
+- Evaluated `.com`, hyphens, known digit origin, hostname and label length,
+  declared-pattern integrity, distinctive brand/keyword/city coverage, declared
+  order, controlled generic suffixes, deterministic repetition, and compactness.
+- Marked a controlled generic word unnecessary only when a generator pattern
+  appends it and the normalized business name did not already contain it.
+- Rejected labels over the existing 32-character limit without truncation while
+  retaining `LONG` as a valid fact for candidates at or below that ceiling.
+- Added stable `PREFERRED`, `ACCEPTABLE`, `WEAK`, and `REJECT` ordering without a
+  numeric score. Optional availability is immutable passthrough data and has no
+  effect on quality or selection.
+- Added no fuzzy or semantic matching, AI, provider request, acquisition,
+  purchase, persistence, marketplace, API, or UI behavior.
