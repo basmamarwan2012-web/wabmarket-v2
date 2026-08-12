@@ -740,3 +740,22 @@ critical
 - Added no live provider request, new score, FlipScore change, persistence,
   Firestore, API, UI, feed, purchase, acquisition, marketplace, preparation,
   marketing, CRM, AI, or Domain-First orchestration.
+
+# Phase G.2.3-E - Manual forward-opportunity qualification CLI
+
+- Added isolated test types, a server-only report service, and a manual npm CLI
+  for confirmation-gated Business-First opportunity qualification.
+- Reused the complete existing local domain-analysis and FlipScore pipeline,
+  then delegated candidate generation, provider-neutral availability, filtering,
+  and canonical construction to the existing forward qualification service.
+- Required strict argument validation and explicit confirmation before loading
+  `.env.local` or dynamically importing provider execution code. A fresh
+  Dynadot adapter is constructed only inside the confirmed manual path.
+- Limited output to business, normalized current domain, score, priority,
+  aggregate candidate counts, and allowlisted canonical opportunity summaries.
+  Credentials, request URLs, raw responses, prices, and provider internals are
+  never printed.
+- Preserved the five-candidate, one-lookup, one-request, zero-retry,
+  zero-pagination, and no-second-batch boundaries. Added no live implementation
+  validation, Google request, persistence, purchase, marketplace, API, UI, AI,
+  or production integration.

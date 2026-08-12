@@ -1116,3 +1116,25 @@ Continue only from the current state of the repository.
   Google or live Dynadot call, persistence, Firestore, API, UI, feed, purchase,
   acquisition, marketplace, preparation, marketing, CRM, AI, or Domain-First
   orchestration.
+
+## Phase G.2.3-E manual forward-opportunity qualification CLI
+
+- Added an isolated confirmation-gated engineering CLI for one Business-First
+  qualification run. It accepts explicit business identity, current domain,
+  keyword, city, optional state, country, optional Place ID, and optional
+  primary type and prints only a compact allowlisted report.
+- Current-domain FlipScore is calculated locally by composing the existing
+  analyzer, comparator, signals, importance, composition, F1 policy, F2
+  magnitude policy, and F3 engine in their established order. The result is
+  passed to the existing forward qualification service; no scoring, candidate,
+  availability, or canonical-opportunity logic is duplicated.
+- CLI parsing, duplicate-option rejection, normalization, hostname validation,
+  and explicit `--confirm-live-domain-availability-request` checking occur
+  before `.env.local` loading. The server-only test service is dynamically
+  imported afterward and creates a fresh Dynadot adapter only for that run.
+- The inherited ceilings remain five candidates, one availability-service
+  lookup, and one Dynadot REST v2 `bulk_search` request, with no retry,
+  pagination, second batch, or candidate-six continuation.
+- Implementation validation uses injected mocked providers only. No live
+  Dynadot or Google request, persistence, purchase, marketplace, API, UI, AI,
+  feed, or production workflow integration was added.
