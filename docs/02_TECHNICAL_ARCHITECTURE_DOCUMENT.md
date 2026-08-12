@@ -87,11 +87,17 @@ public/
 
 ---
 
-# Database stack
+# Identity and persistence stack
 
-- Firebase Firestore
-- Firebase Storage
-- Firebase Authentication
+- Firebase Authentication and custom claims remain authoritative for identity
+  and RBAC.
+- Existing implemented areas continue using Firestore until a controlled,
+  explicit migration and cutover.
+- New Wabmarket business persistence targets MySQL through provider-neutral
+  repository contracts. Drizzle/mysql2 are isolated infrastructure adapters,
+  not application/domain dependencies.
+- Generated binary assets belong in a future provider-neutral file/object
+  store. SQL stores opaque keys, public references, and metadata only.
 
 ---
 
@@ -240,7 +246,7 @@ settings/
 
 # Authentication architecture
 
-## SaaS v2 data boundary
+## Current Firestore SaaS v2 data boundary
 
 The authoritative Firestore structure is user-scoped:
 
@@ -257,6 +263,12 @@ users/{uid}/analytics/global
 
 This v2 hierarchy supersedes legacy top-level business collections. Client SDK
 access is scoped to the authenticated UID.
+
+It describes the current Firestore implementation, not the target database for
+new business persistence. The approved relational target uses an internal SQL
+account ID linked uniquely to the verified Firebase UID. Roles remain in
+Firebase custom claims; no role supplied by a request or stored in SQL becomes
+authoritative.
 
 Supported methods:
 

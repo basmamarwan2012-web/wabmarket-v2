@@ -75,7 +75,10 @@ The following files already exist inside the docs directory:
 
 ## Database
 
-- Firestore
+- Firestore remains the current persistence implementation for existing
+  shipped modules pending controlled migration.
+- MySQL is the approved target for new Wabmarket business-data persistence,
+  isolated behind provider-neutral repositories and Drizzle infrastructure.
 
 ## Authentication
 
@@ -83,7 +86,9 @@ The following files already exist inside the docs directory:
 
 ## Storage
 
-- Firebase Storage
+- Firebase Storage remains available to existing modules.
+- Future generated asset binaries use a provider-neutral file/object-storage
+  boundary; relational records store references and metadata, never blobs.
 
 ## Queue system
 
@@ -1368,3 +1373,36 @@ Continue only from the current state of the repository.
   deployment automation, root-level slug, marketplace API, AI, analytics,
   outreach, CRM, Reverse Discovery, Opportunity Feed, Company Intelligence, or
   transaction execution was added.
+
+## Relational Persistence Foundation v1
+
+- Firebase Authentication, verified session cookies, custom claims, and RBAC
+  remain authoritative for identity and authorization. A trusted server-only
+  context maps the verified Firebase UID to a unique SQL account; SQL foreign
+  keys use the internal account ID and no team/membership model is introduced.
+- Added storage-neutral repository contracts for accounts, owned domains,
+  preparation snapshots, asset metadata, marketplace publication, public
+  marketplace reads, and transactional units of work. MySQL, Drizzle, and
+  Firebase SDK types do not cross these repository interfaces.
+- Added an isolated Drizzle/mysql2 adapter with an explicit lazy client factory
+  and environment configuration for conventional local or approved remote
+  MySQL. Importing configuration, schema, or repositories creates no pool and
+  opens no connection; credentials are never placed in persistence errors.
+- Added exactly five relational tables: `accounts`, `owned_domains`,
+  `domain_assets`, `domain_preparations`, and `marketplace_listings`. Database
+  constraints enforce unique Firebase identities, tenant-scoped hostnames, one
+  current preparation/listing per owned domain, optimistic versions, explicit
+  ownership facts, and one live globally published hostname.
+- Publication eligibility remains a calculated canonical fact while actual
+  lifecycle uses `DRAFT`, `PUBLISHED`, and `UNPUBLISHED`. Only canonical
+  `ELIGIBLE` snapshots with a renderable landing model and explicit landing
+  reference can be published. Public reads select `PUBLISHED` records only and
+  project public-safe fields in deterministic hostname/listing-ID order.
+- Asset persistence stores opaque storage keys, safe public references, MIME
+  type, byte size, checksum, kind, and availability only. No bytes, absolute
+  filesystem paths, provider credentials, or concrete filesystem adapter were
+  added.
+- This foundation is parallel and disconnected. Existing Firestore Owned
+  Domains and discovery behavior remain unchanged; no migration, deletion,
+  dual-write, route cutover, fixture replacement, database connection, or
+  production deployment was performed.

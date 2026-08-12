@@ -930,3 +930,26 @@ critical
   or publication, root slug, marketplace API, AI, analytics, marketing, CRM,
   Reverse Discovery, Opportunity Feed, Company Intelligence, or commercial
   transaction behavior.
+
+# Relational Persistence Foundation v1
+
+- Approved MySQL as the target for new Wabmarket business persistence while
+  retaining Firebase Authentication/custom claims for authoritative identity
+  and RBAC and leaving existing Firestore-backed modules unchanged.
+- Added provider-neutral trusted identity/account contexts, sanitized errors,
+  repository contracts, and unit-of-work boundaries without leaking Firebase,
+  Drizzle, or mysql2 types into application/domain interfaces.
+- Added isolated Drizzle/mysql2 infrastructure and a lazy explicit client
+  factory. No import-time pool, live connection, credential logging, route
+  integration, or hosting-company-specific configuration was introduced.
+- Added one five-table MySQL migration for accounts, owned domains, asset
+  metadata, current preparations, and marketplace publication snapshots with
+  tenant, uniqueness, foreign-key, optimistic-version, eligibility, lifecycle,
+  and public-read indexes/constraints.
+- Added concrete tenant-scoped repositories for safe lazy account provisioning,
+  explicit domain ownership, optimistic preparation replacement, metadata-only
+  assets, eligible-only publication, unpublication, and published-only public
+  reads in deterministic order.
+- Kept asset binaries behind an unimplemented provider-neutral `AssetStore`.
+  Added no blobs, filesystem adapter, Firestore migration, dual-write, fixture
+  removal, public-route cutover, future-feature tables, or live database work.

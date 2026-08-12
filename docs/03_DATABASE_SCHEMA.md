@@ -1,8 +1,16 @@
 # WABMARKET DATABASE SCHEMA
 
-Version: 1.0
+Version: 1.1
 
-Database engine: Firebase Firestore
+Current legacy/implemented engine: Firebase Firestore
+
+Approved target for new business persistence: MySQL behind provider-neutral
+repository contracts. The Firestore schemas below remain authoritative only
+for existing implemented modules until a future explicit migration/cutover.
+Relational Persistence Foundation v1 adds only `accounts`, `owned_domains`,
+`domain_assets`, `domain_preparations`, and `marketplace_listings`; its canonical
+migration is `infrastructure/mysql/migrations/0001_marketplace_foundation.sql`.
+No dual-write or data migration is active.
 
 ---
 
