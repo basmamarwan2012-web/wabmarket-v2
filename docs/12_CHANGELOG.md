@@ -836,3 +836,19 @@ critical
 - Kept source metadata generic and added no AI provider/model/prompt/credential,
   quota, billing, network, persistence, API, UI, marketplace publication,
   purchase, checkout, marketing, CRM, or Company Intelligence behavior.
+
+# Domain Preparation - Landing-page rendering foundation
+
+- Added immutable framework-neutral landing-page render contracts, validation,
+  stable sections, asset placeholder mapping, and deterministic readiness.
+- Reused existing generated headline, description, SEO, Open Graph, price,
+  currency, and external CTA facts without regenerating or enriching copy.
+- Added `NOT_RENDERABLE`, `RENDERABLE_WITH_PLACEHOLDERS`, and
+  `FULLY_RENDERABLE` states with controlled validation/placeholder reasons.
+- Fixed V1 section order to hero, value proposition, domain details, price, CTA,
+  and footer while adding no fabricated claims, schema markup, or raw HTML.
+- Reused only the exact validated external sales URL and represented unavailable
+  logo, favicon, and Open Graph images as null placeholders without fabricating
+  references.
+- Added no route, deployment, marketplace publication, persistence, API, UI,
+  provider call, AI, image generation, analytics, marketing, or outreach.

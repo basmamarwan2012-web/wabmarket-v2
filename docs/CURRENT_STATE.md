@@ -1240,3 +1240,24 @@ Continue only from the current state of the repository.
 - No network, AI, persistence, Firestore, API, UI, purchase, checkout,
   marketplace call, marketing, outreach, CRM, or Company Intelligence behavior
   was added.
+
+## Domain Preparation landing-page rendering foundation
+
+- Added a pure framework-neutral renderer that maps an existing immutable
+  `PreparationGenerationResult` into a landing-page document model. It reuses
+  generated content verbatim and performs no copy or template generation.
+- The render model includes canonical hostname, title and meta description,
+  Open Graph metadata, logo/favicon/OG image render states, hero content,
+  display domain, resale price facts, controlled CTA, stable sections, and
+  non-numeric readiness.
+- V1 section order is fixed as `HERO`, `VALUE_PROPOSITION`, `DOMAIN_DETAILS`,
+  `PRICE`, `CTA`, and `FOOTER`. No testimonials, urgency, scarcity, fake buyer
+  claims, statistics, or schema markup are introduced.
+- Invalid core hostname, content, price, currency, or sales URL yields
+  `NOT_RENDERABLE`. Valid core content with missing visual references yields
+  `RENDERABLE_WITH_PLACEHOLDERS`; all three explicit visual references yield
+  `FULLY_RENDERABLE`. Placeholder references remain null.
+- The external CTA URL is validated and reused exactly. It is never constructed,
+  guessed, modified, opened, or used for checkout inside Wabmarket.
+- No raw HTML, Next.js route, deployment, marketplace publication, persistence,
+  API, UI, provider call, AI, image generation, analytics, or outreach was added.
