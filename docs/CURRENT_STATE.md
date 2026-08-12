@@ -1315,3 +1315,29 @@ Continue only from the current state of the repository.
 - No catalog, public route, persistence, publication, deployment, marketplace
   API, provider fetch, AI, asset generation, marketing, CRM, Reverse Discovery,
   Opportunity Feed, Company Intelligence, or calibration was added.
+
+## Public marketplace catalog and read-model foundation
+
+- Added a public-safe immutable catalog projection and a read-only public
+  `/marketplace` route backed exclusively by explicit reserved `.example`
+  fixtures. The route requires no authentication and has no write or publication
+  controls.
+- Catalog inclusion delegates to canonical publication output and admits only
+  listings in `ELIGIBLE` state. `ELIGIBLE_WITH_PLACEHOLDERS` and
+  `NOT_ELIGIBLE` records are excluded without duplicating eligibility rules.
+- The public read model exposes only listing identity, domain-product display
+  facts, resale price/currency, description, logo state, explicit landing-page
+  reference, and external sales CTA facts. Internal preparation Opportunity
+  provenance and all non-public listing internals are stripped.
+- Fixtures pass through deterministic generation, canonical Domain Preparation,
+  landing-page rendering, canonical MarketplaceListing construction, and the
+  catalog projection. No fixture bypasses existing business boundaries.
+- Catalog order is normalized hostname ascending with listing ID as a stable
+  tie-breaker. No rank or marketplace score was introduced.
+- Cards reuse exact canonical landing and external sales URLs through explicit
+  user-triggered links with `noopener noreferrer`. The accessible empty state
+  supports a catalog with no eligible records.
+- No persistence, Firestore, Portfolio wiring, public domain detail route,
+  automatic publication, marketplace API, search, filters, pagination,
+  analytics, AI, outreach, CRM, Reverse Discovery, Opportunity Feed, Company
+  Intelligence, calibration, or purchase execution was added.

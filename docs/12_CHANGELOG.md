@@ -890,3 +890,24 @@ critical
 - Added no catalog, public route, persistence, publication, deployment,
   marketplace API, provider call, AI, marketing, CRM, Reverse Discovery,
   Opportunity Feed, Company Intelligence, or calibration.
+
+# Marketplace Publication - Public catalog and read-model foundation
+
+- Added an immutable public-safe marketplace catalog projection and public
+  read-only `/marketplace` route with loading and accessible empty states.
+- Restricted inclusion to canonical `ELIGIBLE` listings and excluded both
+  placeholder-eligible and ineligible records without reimplementing the
+  publication policy.
+- Stripped internal Opportunity provenance and exposed only allowlisted
+  domain-product display, resale, logo, landing-reference, and external CTA
+  facts.
+- Built reserved `.example` fixtures through the existing generation,
+  preparation, rendering, listing, and catalog pipeline with no persistence or
+  provider request.
+- Sorted by normalized hostname and listing ID, with no ranking or numeric
+  marketplace score.
+- Reused exact canonical URLs in user-triggered links with safe external-link
+  attributes and added no public domain detail route, Portfolio/Firestore
+  integration, automatic publication, marketplace API, search, filters,
+  pagination, analytics, AI, outreach, CRM, Reverse Discovery, Opportunity
+  Feed, Company Intelligence, calibration, or transaction execution.
