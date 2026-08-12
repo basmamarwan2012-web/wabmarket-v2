@@ -1,4 +1,5 @@
 import type { DiscoveryProviderRequest } from '@/types/discovery-provider'
+import type { FlipScorePriority } from '@/lib/flipscore/engine.types'
 
 export interface GooglePlacesTestRequest extends DiscoveryProviderRequest {
   readonly mode: 'business_upgrade'
@@ -17,9 +18,14 @@ export interface GooglePlacesSafeTestResult {
   readonly name: string
   readonly domain: string
   readonly primaryType: string | null
-  readonly isDotCom: boolean
-  readonly hasHyphen: boolean
-  readonly hasBasicDomainWeakness: boolean
+  readonly flipScore: number
+  readonly priority: FlipScorePriority
+  readonly breakdown: Readonly<{
+    need: number
+    impact: number
+    confidence: number
+  }>
+  readonly reasons: readonly string[]
 }
 
 export interface GooglePlacesTestReport {
@@ -32,5 +38,11 @@ export interface GooglePlacesTestReport {
   readonly nonDotComDomains: number
   readonly hyphenatedDomains: number
   readonly basicWeakDomainCandidates: number
+  readonly totalAccepted: number
+  readonly criticalCount: number
+  readonly highCount: number
+  readonly mediumCount: number
+  readonly lowCount: number
+  readonly averageFlipScore: number
   readonly results: readonly GooglePlacesSafeTestResult[]
 }

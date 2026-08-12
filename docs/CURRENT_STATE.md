@@ -997,3 +997,25 @@ Continue only from the current state of the repository.
 - No candidate generation, availability lookup, DNS, Dynadot, Google, AI,
   network access, persistence, API, UI, ranking, or recommendation integration
   was added.
+
+## Phase G.2.2-G manual end-to-end FlipScore validation
+
+- Extended only the confirmation-gated Google Places engineering test service.
+  Every accepted transient business now passes locally through the existing
+  analyzer, comparator, signals, importance, domain composition, F1 policy, F2
+  magnitude policy, and F3 engine in that exact order.
+- Business name and normalized hostname come from the accepted transient Google
+  Places result. Primary keyword and city come explicitly from the already
+  validated CLI request; neither value is inferred from the business or domain.
+- Each safe result contains only place ID, business name, normalized domain,
+  primary type, FlipScore, priority, NEED/IMPACT/CONFIDENCE breakdown, and
+  active human-readable reasons. Results sort by FlipScore descending and retain
+  original Google order for ties.
+- The report retains useful domain-shape diagnostics and adds accepted total,
+  priority counts, and a deterministic average FlipScore rounded to two decimal
+  places. All report objects, nested breakdowns, reasons, and result arrays are
+  immutable.
+- The live boundary remains one existing Text Search request followed by local
+  transient analysis. No extra fetch, retry, pagination, persistence, candidate
+  generation, Dynadot, DNS, AI, opportunity creation, API, UI, lifecycle, or
+  production composition integration was added.

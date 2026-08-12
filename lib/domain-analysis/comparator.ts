@@ -12,6 +12,7 @@ import {
   findWholeStemSequenceMatches,
   getBrandTokens,
   getDomainStemTokens,
+  matchControlledBusinessStem,
   normalizeComparatorTokens,
 } from './comparator.helpers'
 
@@ -20,8 +21,11 @@ const classifyComparison = (
   allTokensPresent: boolean,
   containsPrimaryKeyword: boolean,
   containsCity: boolean,
-  onlyGenericTokens: boolean
+  onlyGenericTokens: boolean,
+  hasNumericSuffixMatch: boolean
 ): BrandDomainClassification => {
+  if (containsBrandWord && hasNumericSuffixMatch)
+    return 'PARTIALLY_BRANDED'
   if (containsBrandWord && allTokensPresent) return 'BRANDED'
   if (containsBrandWord) return 'PARTIALLY_BRANDED'
   if (containsPrimaryKeyword || containsCity || onlyGenericTokens)
@@ -45,12 +49,19 @@ export const compareBrandToDomain = (
   const domainTokenSet = new Set(domainTokens)
   const businessTokens =
     input.analysis.business.businessTokensWithoutLegalSuffixes
+  const allBusinessTokens = input.analysis.business.businessTokens
   const brandTokens = getBrandTokens(
     businessTokens,
     primaryKeywordTokens,
     cityTokens
   )
   const compactDomainStem = compactTokens(domainTokens)
+  const controlledStemMatch = matchControlledBusinessStem(
+    compactDomainStem,
+    businessTokens,
+    allBusinessTokens,
+    input.analysis.business.legalSuffixes
+  )
   const businessSequenceMatches = findWholeStemSequenceMatches(
     compactDomainStem,
     createContiguousTokenSequences(businessTokens)
@@ -60,7 +71,13 @@ export const compareBrandToDomain = (
     createContextTokenSequences(primaryKeywordTokens, cityTokens)
   )
   const compactMatchedTokens = new Set(
-    [...businessSequenceMatches, ...contextSequenceMatches].flat()
+    [
+      ...businessSequenceMatches,
+      ...contextSequenceMatches,
+      ...(controlledStemMatch
+        ? [controlledStemMatch.matchedTokens]
+        : []),
+    ].flat()
   )
   const containsKnownToken = (token: string) =>
     domainTokenSet.has(token) || compactMatchedTokens.has(token)
@@ -72,7 +89,8 @@ export const compareBrandToDomain = (
     cityTokens.length > 0 && cityTokens.every(containsKnownToken)
   const allTokensPresent =
     containsEveryToken(domainTokenSet, businessTokens) ||
-    compactDomainStem === compactTokens(businessTokens)
+    compactDomainStem === compactTokens(businessTokens) ||
+    controlledStemMatch !== null
   const zeroBrandTokens = !containsBrandWord
   const onlyGenericTokens = containsOnlyGenericTokens(
     domainTokens,
@@ -92,7 +110,8 @@ export const compareBrandToDomain = (
       allTokensPresent,
       containsPrimaryKeyword,
       containsCity,
-      onlyGenericTokens
+      onlyGenericTokens,
+      controlledStemMatch?.kind === 'NUMERIC_SUFFIX'
     ),
   })
 }

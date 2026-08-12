@@ -643,3 +643,25 @@ critical
   calibration points independent of upstream analysis contracts.
 - Added no provider, Google, Dynadot, DNS, availability, candidate generation,
   AI, network, persistence, API, UI, ranking, or recommendation integration.
+
+# Phase G.2.2-G - Manual end-to-end FlipScore validation
+
+- Extended the isolated Google Places test service with a pure report builder
+  that runs every accepted transient result through the completed local domain
+  intelligence and FlipScore pipeline.
+- Reused the accepted business name and normalized hostname plus the explicit
+  request keyword and city. Added no inferred context and duplicated none of
+  the analyzer, comparison, signal, importance, composition, policy, magnitude,
+  or scoring logic.
+- Replaced per-result shape diagnostics with the requested safe scored output:
+  place ID, name, domain, primary type, FlipScore, priority, immutable dimension
+  breakdown, and immutable human-readable reasons.
+- Added stable descending FlipScore sorting with original Google response order
+  as the explicit tie-breaker. Added total accepted, priority counts, and an
+  average FlipScore rounded to two decimal places while retaining useful
+  aggregate domain-shape diagnostics.
+- Preserved one provider search and one existing Google Places Text Search
+  request per confirmed invocation. All scoring is local and transient; no
+  extra request, retry, pagination, persistence, candidates, Dynadot, DNS, AI,
+  opportunities, API, UI, lifecycle, or production composition behavior was
+  added.
