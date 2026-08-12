@@ -852,3 +852,21 @@ critical
   references.
 - Added no route, deployment, marketplace publication, persistence, API, UI,
   provider call, AI, image generation, analytics, marketing, or outreach.
+
+# Domain Preparation - Landing-page UI and route integration foundation
+
+- Added an authenticated `/admin/preparation/preview` Server Component route,
+  loading skeleton, and framework-facing presentational landing-page component.
+- Used only an explicit deterministic `.example` fixture and the existing
+  generator-to-render-model pipeline; added no Portfolio or persistence wiring.
+- Refused sales rendering for `NOT_RENDERABLE` models and mapped the established
+  section order for placeholder-ready and fully renderable models without
+  duplicating business rules in React.
+- Added explicit visual placeholders without fabricated image URLs and included
+  favicon/Open Graph image metadata only for available render-model references.
+- Reused render-model SEO/Open Graph copy, disabled indexing/following, and
+  exposed the exact external CTA as a user-triggered `_blank` link with
+  `noopener noreferrer`.
+- Added no public domain route, marketplace publication, persistence, provider
+  call, checkout, purchase, AI, asset generation, analytics, marketing,
+  outreach, or CRM behavior.

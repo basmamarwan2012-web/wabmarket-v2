@@ -1261,3 +1261,30 @@ Continue only from the current state of the repository.
   guessed, modified, opened, or used for checkout inside Wabmarket.
 - No raw HTML, Next.js route, deployment, marketplace publication, persistence,
   API, UI, provider call, AI, image generation, analytics, or outreach was added.
+
+## Domain Preparation landing-page UI and route integration foundation
+
+- Added the authenticated internal preview route
+  `/admin/preparation/preview`. It uses an explicit deterministic `.example`
+  fixture and does not connect Portfolio, Firestore, marketplace, or other
+  persisted domain data.
+- The Server Component builds the fixture through the existing preparation
+  generator, converts it through the existing landing-page renderer, and passes
+  only `LandingPageRenderModel` to the presentational component. React contains
+  no template, validation, readiness, URL-validation, or preparation logic.
+- `NOT_RENDERABLE` refuses the sales presentation. Placeholder-ready and fully
+  renderable models map the controlled section order into a simple premium
+  domain-product page without fabricated business identity, services,
+  testimonials, reviews, statistics, urgency, or scarcity.
+- Available logo references render as supplied; missing logo references render
+  an explicit visual placeholder without an image URL. Favicon and Open Graph
+  images are included in route metadata only when the render model marks their
+  explicit references available.
+- Metadata reuses render-model title, description, and Open Graph copy and sets
+  `index: false` and `follow: false`. No metadata copy is regenerated.
+- The CTA is a user-triggered external link using the exact render-model URL,
+  `_blank`, and `noopener noreferrer`. No redirect, checkout, purchase, bid,
+  backorder, or provider transaction occurs within Wabmarket.
+- No public route, deployment, marketplace publication, persistence, API,
+  provider call, AI, asset generation, analytics, marketing, outreach, or CRM
+  integration was added.
