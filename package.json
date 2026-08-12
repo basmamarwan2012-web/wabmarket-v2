@@ -11,6 +11,9 @@
     "test:google-places": "node --conditions=react-server --import tsx scripts/test-google-places.ts",
     "test:open-discovery": "node --conditions=react-server --import tsx scripts/test-open-discovery.ts",
     "test:opportunity-qualification": "node --conditions=react-server --import tsx scripts/test-opportunity-qualification.ts",
+    "db:check": "node --conditions=react-server --import tsx scripts/db-check.ts",
+    "db:migrate": "node --conditions=react-server --import tsx scripts/db-migrate.ts",
+    "db:smoke": "node --conditions=react-server --import tsx scripts/db-smoke.ts",
     "postinstall": "husky install"
   },
   "dependencies": {

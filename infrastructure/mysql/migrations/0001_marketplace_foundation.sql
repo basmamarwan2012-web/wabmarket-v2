@@ -8,6 +8,7 @@ CREATE TABLE `accounts` (
   CONSTRAINT `accounts_pk` PRIMARY KEY (`id`),
   CONSTRAINT `accounts_firebase_uid_uq` UNIQUE (`firebase_uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--> statement-breakpoint
 
 CREATE TABLE `owned_domains` (
   `id` varchar(36) NOT NULL,
@@ -31,6 +32,7 @@ CREATE TABLE `owned_domains` (
   ),
   INDEX `owned_domains_account_idx` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--> statement-breakpoint
 
 CREATE TABLE `domain_assets` (
   `id` varchar(36) NOT NULL,
@@ -52,6 +54,7 @@ CREATE TABLE `domain_assets` (
   CONSTRAINT `domain_assets_byte_size_ck` CHECK (`byte_size` >= 0),
   INDEX `domain_assets_account_domain_idx` (`account_id`, `owned_domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--> statement-breakpoint
 
 CREATE TABLE `domain_preparations` (
   `id` varchar(36) NOT NULL,
@@ -85,6 +88,7 @@ CREATE TABLE `domain_preparations` (
   CONSTRAINT `domain_preparations_asking_price_ck` CHECK (`asking_price` IS NULL OR `asking_price` > 0),
   INDEX `domain_preparations_readiness_idx` (`readiness`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+--> statement-breakpoint
 
 CREATE TABLE `marketplace_listings` (
   `listing_id` varchar(72) NOT NULL,

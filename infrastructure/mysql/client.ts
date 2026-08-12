@@ -6,6 +6,8 @@ import { createPool, type Pool } from 'mysql2/promise'
 import type { DatabaseConfig } from '@/lib/config/database'
 import * as schema from './schema'
 
+export const DATABASE_CONNECTION_TIMEOUT_MS = 10_000
+
 export type WabmarketMySqlDatabase = MySql2Database<typeof schema>
 
 export interface WabmarketMySqlClient {
@@ -25,6 +27,7 @@ export const createWabmarketMySqlClient = (
     user: config.user,
     password: config.password,
     waitForConnections: true,
+    connectTimeout: DATABASE_CONNECTION_TIMEOUT_MS,
     connectionLimit: config.connectionLimit,
     ssl: config.ssl === 'required' ? {} : undefined,
     decimalNumbers: true,

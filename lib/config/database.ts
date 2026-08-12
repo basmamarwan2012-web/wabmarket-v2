@@ -23,9 +23,9 @@ const required = (value: string | undefined) => {
 export const getDatabaseConfig = (
   environment: NodeJS.ProcessEnv = process.env
 ): DatabaseConfig => {
-  const port = Number(environment.MYSQL_PORT ?? '3306')
-  const connectionLimit = Number(environment.MYSQL_CONNECTION_LIMIT ?? '5')
-  const ssl = environment.MYSQL_SSL === 'required' ? 'required' : 'disabled'
+  const port = Number(environment.DATABASE_PORT ?? '3306')
+  const connectionLimit = Number(environment.DATABASE_CONNECTION_LIMIT ?? '5')
+  const sslValue = environment.DATABASE_SSL?.trim() || 'disabled'
 
   if (
     !Number.isInteger(port) ||
@@ -33,17 +33,18 @@ export const getDatabaseConfig = (
     port > 65_535 ||
     !Number.isInteger(connectionLimit) ||
     connectionLimit < 1 ||
-    connectionLimit > 50
+    connectionLimit > 50 ||
+    (sslValue !== 'disabled' && sslValue !== 'required')
   )
     throw new PersistenceError('PERSISTENCE_CONFIGURATION_INVALID')
 
   return Object.freeze({
-    host: required(environment.MYSQL_HOST),
+    host: required(environment.DATABASE_HOST),
     port,
-    database: required(environment.MYSQL_DATABASE),
-    user: required(environment.MYSQL_USER),
-    password: required(environment.MYSQL_PASSWORD),
-    ssl,
+    database: required(environment.DATABASE_NAME),
+    user: required(environment.DATABASE_USER),
+    password: required(environment.DATABASE_PASSWORD),
+    ssl: sslValue,
     connectionLimit,
   })
 }

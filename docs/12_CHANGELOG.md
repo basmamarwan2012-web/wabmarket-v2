@@ -972,3 +972,25 @@ critical
 - Added no repository/schema/infrastructure changes, live database connection,
   migration, route cutover, fixture removal, Firestore dual-write, asset binary
   storage, provider call, AI, marketing, CRM, or purchase behavior.
+
+# MySQL Production Readiness and Controlled Migration Setup
+
+- Unified database runtime and operator configuration under the server-only
+  `DATABASE_*` contract and added a fixed bounded connection timeout without
+  import-time pool construction.
+- Added confirmation-gated `db:check`, `db:migrate`, and `db:smoke` commands.
+  They are not referenced by build, start, postinstall, or deployment hooks.
+- Added read-only Drizzle-history status with deterministic `PENDING`,
+  `APPLIED`, and `DRIFTED` outcomes plus separately confirmed migration
+  execution. Business-table existence is never treated as migration history.
+- Finalized the not-yet-applied 0001 migration for Drizzle execution by adding
+  statement breakpoints and the minimum Drizzle journal. Once migration 0001 is
+  applied to any real environment it becomes immutable; subsequent schema work
+  must use new numbered migrations.
+- Added a rollback-on-success synthetic repository smoke test for read-back and
+  tenant isolation with no Firebase dependency and no published listing.
+- Added a controlled MySQL deployment runbook distinguishing runtime data
+  privileges from migration/schema privileges and requiring operators to stop
+  on any failed step.
+- Performed no live connection, status query, migration, smoke test, route
+  cutover, Firestore migration, dual-write, or fixture removal.

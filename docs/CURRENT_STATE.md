@@ -1435,3 +1435,33 @@ Continue only from the current state of the repository.
   removal, Firestore migration/dual-write, asset storage adapter, provider
   request, AI, marketing, CRM, Reverse Discovery, Opportunity Feed, or
   transaction execution outside the injected persistence boundary.
+
+## MySQL Production Readiness and controlled migration setup
+
+- Standardized runtime and operator configuration on one server-only
+  `DATABASE_*` contract. The lazy mysql2 pool now has a fixed ten-second
+  connection timeout and bounded connection count; no import creates a pool.
+- Added three explicit operator commands. `db:check` performs exactly one
+  `SELECT 1`; `db:migrate` separates read-only status from explicit execution;
+  and `db:smoke` verifies repository read-back and tenant isolation using
+  synthetic reserved `.example` records that are always transaction-rolled
+  back.
+- Every command validates its exact confirmation flag before importing database
+  execution modules or reading configuration. Pools close after success or
+  failure, output is allowlisted, and raw mysql errors, SQL, endpoints,
+  usernames, paths, and credentials are not exposed.
+- Registered migration 0001 in Drizzle's journal and added statement
+  breakpoints required by the existing migration runner. Status is derived only
+  from ordered Drizzle history timestamps and hashes and reports `PENDING`,
+  `APPLIED`, or `DRIFTED`; existing business tables never substitute for
+  migration history.
+- Migration 0001 remains editable only until its first real application. After
+  that point it is immutable, and every schema change must use a new numbered
+  migration.
+- Added a cPanel-compatible deployment runbook covering database/user creation,
+  least-privilege separation, configuration, connectivity, status inspection,
+  explicit migration, smoke testing, cleanup verification, and stop-on-failure
+  behavior.
+- No live database operation, migration execution, Firestore migration,
+  dual-write, route cutover, fixture removal, asset-storage implementation, or
+  automatic build/start/deploy migration was added.
