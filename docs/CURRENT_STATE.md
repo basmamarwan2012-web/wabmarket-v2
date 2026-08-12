@@ -1019,3 +1019,77 @@ Continue only from the current state of the repository.
   transient analysis. No extra fetch, retry, pagination, persistence, candidate
   generation, Dynadot, DNS, AI, opportunity creation, API, UI, lifecycle, or
   production composition integration was added.
+
+## Phase G.2.3-A deterministic candidate-domain generation foundation
+
+- Added a disconnected pure TypeScript generator for forward-discovery domain
+  possibilities. It accepts explicit business name, primary keyword, city, and
+  optional country context and reuses the existing deterministic business-name
+  normalization, tokenizer, and trailing legal-suffix analysis.
+- V1 emits only lowercase single-label `.com` hostnames. It uses normalized
+  non-legal business tokens, explicit keyword/city tokens, and the fixed generic
+  dictionary `experts`, `pros`, `services`, `solutions`, and `group`; it does
+  not infer abbreviations, synonyms, translations, or semantic relationships.
+- Fourteen immutable patterns run in fixed order: brand; brand-keyword;
+  brand-keyword-city; city-brand-keyword; keyword-brand; five brand-led
+  commercial variants; and four keyword-led variants. Exact repeated tokens
+  are retained only at their first position and duplicate hostnames preserve
+  their earliest pattern.
+- Generated second-level labels must be non-empty ASCII alphanumeric strings no
+  longer than 32 characters. The generator never truncates, adds hyphens, or
+  invents digits; digits survive only when present in explicit normalized
+  inputs.
+- Results and nested candidate records are immutable and include only hostname
+  and stable pattern ID. No availability, price, registrar, marketplace,
+  acquisition status, score, recommendation, provider call, network access,
+  persistence, opportunity creation, API, UI, or existing workflow integration
+  was added.
+
+## Phase G.2.3-B scalable domain-availability provider foundation
+
+- Added a server-only, provider-neutral `DomainAvailabilityProvider` boundary
+  with normalized immutable `hostname`, provider identifier,
+  `AVAILABLE | REGISTERED | UNKNOWN`, and `checkedAt` results. The generic
+  service validates and normalizes the complete ordered caller input before
+  execution, preserves order defensively, and rejects invalid provider output.
+- Added the first isolated adapter for Dynadot REST v2 `bulk_search`. One lookup
+  accepts at most five unique valid hostnames and performs at most one native
+  `fetch`, with a 10-second timeout, no retry, no pagination, no parallel fanout,
+  and no hidden second pass. Credentials remain behind a lazy server-only Bearer
+  header configuration boundary.
+- `show_price=true` is sent only because Dynadot documents the premium marker
+  with priced availability results. Price lists are neither modeled nor retained.
+  Explicit `available=true` plus `premium=no` maps to `AVAILABLE`; explicit
+  unavailable maps to `REGISTERED`; premium, unknown, missing, duplicate,
+  mismatched, malformed, and per-domain-error evidence maps conservatively to
+  `UNKNOWN`.
+- Transport, configuration, HTTP, rate-limit, timeout, cancellation, invalid
+  JSON, and unexpected network failures remain typed sanitized failures. No raw
+  provider body, credential, price, or provider-specific cause is returned.
+- Registration availability remains separate from marketplace, auction,
+  closeout, liquidation, backorder, premium-purchase, and other acquisition
+  inventory. This foundation is disconnected from candidate generation,
+  opportunity creation, persistence, API, UI, lifecycle, routing, and AI.
+
+## Phase G.2.3-C canonical opportunity model foundation
+
+- Added a pure provider-neutral canonical Opportunity constructor representing
+  a business, current hostname, candidate hostname, current-domain FlipScore,
+  candidate registration-availability fact, and discovery provenance. Output is
+  deeply immutable and contains no raw provider fields.
+- Canonical identity is `opp_` plus SHA-256 of a versioned, length-prefixed tuple
+  containing only `opportunity:v1`, canonical business identity, current
+  hostname, and candidate hostname. Business identity prefers a normalized
+  Place ID and otherwise uses normalized business name, city, optional state,
+  and country. Timestamps, discovery mode, provider, availability, score,
+  reasons, and candidate pattern do not affect identity.
+- `BUSINESS_FIRST` and `DOMAIN_FIRST` remain immutable provenance facts but
+  converge on the same opportunity ID for the same commercial opportunity.
+  Future persistence may attach multiple discovery events to that one identity.
+- Construction validates hostname and candidate/availability agreement,
+  canonical timestamps, provider and availability status, candidate pattern,
+  FlipScore and dimension ranges, score sum, priority threshold consistency,
+  and bounded human-readable fields before producing the allowlisted model.
+- This foundation adds no persistence, lifecycle state, Opportunity Feed,
+  acquisition, purchase, marketplace, marketing, CRM, API, UI, AI, or provider
+  execution and does not modify the legacy opportunity placeholder.

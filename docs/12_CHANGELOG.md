@@ -665,3 +665,62 @@ critical
   extra request, retry, pagination, persistence, candidates, Dynadot, DNS, AI,
   opportunities, API, UI, lifecycle, or production composition behavior was
   added.
+
+# Phase G.2.3-A - Deterministic candidate-domain generation foundation
+
+- Added four isolated pure TypeScript modules for generator contracts, fixed
+  pattern metadata, normalization/composition helpers, and immutable ordered
+  candidate generation.
+- Reused existing business normalization, tokenization, and legal-suffix
+  analysis. Candidate context remains explicit; no abbreviation, fuzzy match,
+  synonym, translation, AI, or semantic inference was introduced.
+- Added exactly fourteen fixed patterns in the approved priority order and only
+  the approved generic words `experts`, `pros`, `services`, `solutions`, and
+  `group`. Exact token deduplication prevents obvious repeated keyword/city
+  forms, while stable hostname deduplication retains the first pattern.
+- Restricted output to lowercase ASCII alphanumeric second-level labels plus
+  `.com`, with a 32-character label ceiling, no truncation, no hyphens, and no
+  generator-invented digits. Explicit normalized business digits remain
+  eligible.
+- Returned only deeply immutable hostname/pattern-ID records. Added no
+  availability or DNS lookup, registrar, marketplace, acquisition status,
+  pricing, score, recommendation, Google request, persistence, opportunity,
+  API, UI, lifecycle, or production discovery integration.
+
+# Phase G.2.3-B - Scalable domain-availability provider foundation
+
+- Added provider-neutral immutable availability types, typed sanitized errors,
+  hostname normalization, bounded execution, defensive result validation, and
+  input-order preservation without exposing registrar-specific response fields.
+- Added an isolated Dynadot REST v2 `bulk_search` adapter with a five-candidate
+  ceiling, one-request ceiling, 10-second timeout, native `fetch`, zero retries,
+  no pagination, and a lazy server-only Bearer credential boundary.
+- Used `show_price=true` only to obtain explicit premium evidence and discarded
+  all price information. Standard non-premium availability maps to `AVAILABLE`,
+  explicit unavailability maps to `REGISTERED`, and ambiguous, premium, missing,
+  duplicate, mismatched, malformed, or per-domain-error evidence maps to
+  `UNKNOWN`.
+- Kept transport and configuration failures as typed sanitized errors and added
+  no live validation, purchase, marketplace, auction, closeout, liquidation,
+  backorder, premium-pricing, router, persistence, opportunity, API, UI, AI, or
+  existing discovery-composition integration.
+
+# Phase G.2.3-C - Canonical opportunity model foundation
+
+- Added pure immutable canonical Opportunity types, validation helpers, and an
+  allowlisted constructor over existing FlipScore, candidate-pattern, and
+  provider-neutral registration-availability contracts.
+- Added deterministic `opp_` SHA-256 identity over a versioned length-prefixed
+  tuple of canonical business identity, current hostname, and candidate
+  hostname. Place ID is preferred; normalized business and location facts form
+  the fallback identity.
+- Excluded discovery mode, timestamps, provider, availability status,
+  FlipScore, reasons, and candidate pattern from identity. Business-first and
+  domain-first discoveries therefore converge on one commercial opportunity
+  while retaining their individual provenance on constructed v1 records.
+- Added strict construction checks for hostnames, candidate/availability
+  agreement, timestamps, provider/status, pattern IDs, FlipScore dimensions,
+  score sum, priority consistency, and immutable reasons. Provider-specific
+  response fields cannot enter canonical output.
+- Added no persistence, Firestore schema, lifecycle, feed, acquisition,
+  purchase, marketplace, marketing, CRM, API, UI, AI, or provider request.
