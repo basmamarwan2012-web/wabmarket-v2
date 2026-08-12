@@ -46,6 +46,27 @@ export const normalizeLandingPageReference = (
   if (typeof value !== 'string')
     return Object.freeze({ status: 'INVALID', reference: null })
 
+  const marketplacePrefix = '/marketplace/domains/'
+  if (value.startsWith(marketplacePrefix)) {
+    const hostnameSegment = value.slice(marketplacePrefix.length)
+    const normalizedHostname = normalizeHostname(hostnameSegment)
+    const validInternalReference =
+      hostnameSegment.length > 0 &&
+      !hostnameSegment.includes('/') &&
+      !hostnameSegment.includes('?') &&
+      !hostnameSegment.includes('#') &&
+      !hostnameSegment.includes('%') &&
+      normalizedHostname !== null &&
+      normalizedHostname === hostnameSegment
+
+    return validInternalReference
+      ? Object.freeze({ status: 'VALID', reference: value })
+      : Object.freeze({ status: 'INVALID', reference: null })
+  }
+
+  if (value.startsWith('/') || value.startsWith('//'))
+    return Object.freeze({ status: 'INVALID', reference: null })
+
   const validated = normalizeExternalSalesUrl(value)
   return validated.status === 'VALID' && validated.value === value
     ? Object.freeze({ status: 'VALID', reference: value })
@@ -173,4 +194,3 @@ export const normalizeMarketplaceListingProjection = (
       openGraphImage.state === 'AVAILABLE',
   })
 }
-

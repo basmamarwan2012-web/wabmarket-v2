@@ -1341,3 +1341,30 @@ Continue only from the current state of the repository.
   automatic publication, marketplace API, search, filters, pagination,
   analytics, AI, outreach, CRM, Reverse Discovery, Opportunity Feed, Company
   Intelligence, calibration, or purchase execution was added.
+
+## Public individual marketplace domain route foundation
+
+- Added public read-only `/marketplace/domains/[hostname]` pages backed by one
+  immutable reserved `.example` fixture allowlist shared with `/marketplace`.
+  Catalog and detail routes no longer construct independent fixture facts.
+- Every fixture passes through deterministic preparation generation, canonical
+  Domain Preparation, landing-page rendering, and canonical MarketplaceListing
+  construction once. The shared record supplies both catalog listing and detail
+  render model, preventing catalog/detail drift.
+- Route resolution safely decodes and normalizes the hostname, matches only the
+  explicit allowlist, requires canonical `ELIGIBLE` publication and a renderable
+  landing model, and returns `notFound()` for all other input. Route parameters
+  never create listings.
+- Canonical landing-page references now accept either explicit safe HTTPS URLs
+  or the exact root-relative `/marketplace/domains/<normalized-hostname>` form.
+  Queries, fragments, encoded targets, extra segments, protocol-relative URLs,
+  and arbitrary paths remain invalid. External sales URLs remain HTTPS-only.
+- Catalog cards now reference their matching internal public detail routes,
+  while external sales URLs remain unchanged and separate. Detail pages reuse
+  the existing `DomainLandingPage` component and exact external CTA behavior.
+- Public metadata is projected only from the resolved render model; unknown,
+  ineligible, and non-renderable fixtures produce no valid sales metadata.
+- No persistence, Firestore, Portfolio integration, admin publication workflow,
+  deployment automation, root-level slug, marketplace API, AI, analytics,
+  outreach, CRM, Reverse Discovery, Opportunity Feed, Company Intelligence, or
+  transaction execution was added.

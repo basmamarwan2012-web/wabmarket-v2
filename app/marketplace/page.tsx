@@ -2,12 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { MarketplaceCatalog } from '@/components/marketplace/marketplace-catalog'
-import { generatePreparationAssetsAndContent } from '@/lib/domain-preparation/generation'
-import { createLandingPageRenderModel } from '@/lib/domain-preparation/landing-page'
-import { createDomainPreparation } from '@/lib/domain-preparation/preparation'
 import { createMarketplaceCatalog } from '@/lib/marketplace/catalog'
-import { createMarketplaceListing } from '@/lib/marketplace/listing'
-import type { MarketplaceListing } from '@/lib/marketplace/listing.types'
+import { getMarketplaceFixtureRecords } from '@/lib/marketplace/fixtures'
 
 export const metadata: Metadata = {
   title: 'Premium Domain Marketplace | Wabmarket',
@@ -15,85 +11,10 @@ export const metadata: Metadata = {
     'Explore prepared premium domains available through external sales providers.',
 }
 
-interface MarketplaceFixture {
-  readonly hostname: string
-  readonly category: string
-  readonly city: string
-  readonly askingPrice: number
-}
-
-const MARKETPLACE_FIXTURES: readonly MarketplaceFixture[] = Object.freeze([
-  Object.freeze({
-    hostname: 'atlasroofing.example',
-    category: 'roofing',
-    city: 'Miami',
-    askingPrice: 2_495,
-  }),
-  Object.freeze({
-    hostname: 'brightplumbing.example',
-    category: 'plumbing',
-    city: 'Austin',
-    askingPrice: 1_995,
-  }),
-])
-
-const createFixtureListing = (
-  fixture: MarketplaceFixture
-): MarketplaceListing => {
-  const fixtureKey = fixture.hostname.replace('.', '-')
-  const externalSalesUrl = `https://sales.example/domains/${fixtureKey}`
-  const landingPageReference = `https://landing.example/domains/${fixtureKey}`
-  const logoReference = `https://assets.example/${fixtureKey}/logo.svg`
-  const faviconReference = `https://assets.example/${fixtureKey}/favicon.ico`
-  const openGraphReference = `https://assets.example/${fixtureKey}/open-graph.png`
-  const generation = generatePreparationAssetsAndContent({
-    hostname: fixture.hostname,
-    ownershipConfirmed: true,
-    category: fixture.category,
-    city: fixture.city,
-    askingPrice: fixture.askingPrice,
-    currency: 'USD',
-    externalSalesUrl,
-    logo: { source: 'MANUAL', reference: logoReference },
-    favicon: { source: 'MANUAL', reference: faviconReference },
-    openGraphImage: { source: 'MANUAL', reference: openGraphReference },
-  })
-  if (!generation) throw new Error('Marketplace generation fixture is invalid.')
-
-  const preparation = createDomainPreparation({
-    hostname: fixture.hostname,
-    ownershipConfirmed: true,
-    preparation: {
-      logo: { present: true, reference: logoReference },
-      favicon: { present: true, reference: faviconReference },
-      description: {
-        present: true,
-        contentOrReference: generation.description.value,
-      },
-      landingPage: { present: true, reference: landingPageReference },
-      sales: {
-        askingPrice: fixture.askingPrice,
-        currency: 'USD',
-        externalSalesUrl,
-        ctaConfigured: true,
-      },
-    },
-  })
-  if (!preparation) throw new Error('Marketplace preparation fixture is invalid.')
-
-  const landingPage = createLandingPageRenderModel(generation)
-  const listing = createMarketplaceListing({
-    preparation,
-    generation,
-    landingPage,
-    landingPageReference,
-  })
-  if (!listing) throw new Error('Marketplace listing fixture is invalid.')
-  return listing
-}
-
 const createFixtureCatalog = () =>
-  createMarketplaceCatalog(MARKETPLACE_FIXTURES.map(createFixtureListing))
+  createMarketplaceCatalog(
+    getMarketplaceFixtureRecords().map((record) => record.listing)
+  )
 
 export default function MarketplacePage() {
   const catalog = createFixtureCatalog()
@@ -135,4 +56,3 @@ export default function MarketplacePage() {
     </main>
   )
 }
-

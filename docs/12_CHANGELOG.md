@@ -911,3 +911,22 @@ critical
   integration, automatic publication, marketplace API, search, filters,
   pagination, analytics, AI, outreach, CRM, Reverse Discovery, Opportunity
   Feed, Company Intelligence, calibration, or transaction execution.
+
+# Marketplace Publication - Public individual domain route foundation
+
+- Added shared immutable reserved `.example` fixtures and public read-only
+  `/marketplace/domains/[hostname]` routes with loading and not-found states.
+- Consolidated catalog and detail data into one canonical generation,
+  preparation, render, and listing pipeline so the two public views cannot drift.
+- Restricted resolution to decoded, normalized, explicitly allowlisted fixture
+  hostnames whose canonical listing is `ELIGIBLE` and render model is not
+  `NOT_RENDERABLE`; arbitrary route input never constructs a listing.
+- Extended only landing-page publication references to accept the exact safe
+  root-relative marketplace-domain route form in addition to absolute HTTPS.
+  External sales destinations remain absolute HTTPS only.
+- Pointed catalog cards to their matching internal detail routes and reused the
+  existing landing presentation, exact external CTA, and render-model metadata.
+- Added no persistence, Firestore, Portfolio integration, automatic deployment
+  or publication, root slug, marketplace API, AI, analytics, marketing, CRM,
+  Reverse Discovery, Opportunity Feed, Company Intelligence, or commercial
+  transaction behavior.
