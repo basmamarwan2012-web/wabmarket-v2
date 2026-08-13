@@ -31,10 +31,11 @@ export type LandingPageRenderReason =
 
 export const LANDING_PAGE_SECTIONS = Object.freeze([
   'HERO',
-  'VALUE_PROPOSITION',
+  'DOMAIN_VALUE',
   'DOMAIN_DETAILS',
-  'PRICE',
-  'CTA',
+  'BRAND_PREVIEW',
+  'USE_CASE',
+  'PURCHASE_CTA',
   'FOOTER',
 ] as const)
 
@@ -70,6 +71,20 @@ export interface LandingPageRenderModel {
     label: string | null
     externalSalesUrl: string | null
   }>
+  readonly publicContext?: Readonly<{
+    readonly category: string | null
+    readonly primaryKeyword: string | null
+    readonly city: string | null
+  }>
+  readonly productFacts?: Readonly<{
+    readonly extension: string | null
+    readonly secondLevelLabelLength: number | null
+    readonly hasHyphen: boolean | null
+    readonly hasDigits: boolean | null
+    readonly saleStatus: 'AVAILABLE_FOR_ACQUISITION'
+    readonly valuePoints: readonly string[]
+    readonly useCase: string
+  }>
   readonly sectionOrder: readonly LandingPageSection[]
   readonly readiness: Readonly<{
     state: LandingPageRenderReadiness
@@ -78,4 +93,3 @@ export interface LandingPageRenderModel {
 }
 
 export type LandingPageRenderInput = PreparationGenerationResult
-

@@ -8,6 +8,7 @@ import { verifySession, type AuthenticatedSession } from '@/lib/auth/session'
 import { PersistenceError } from '@/lib/persistence/errors'
 import { AssetError } from '@/lib/assets/asset.errors'
 import { PrepareDomainError } from '@/lib/domain-preparation/prepare-domain.errors'
+import { OwnedDomainManagementError } from '@/lib/owned-domains/owned-domain-management.errors'
 
 const privateHeaders = { 'Cache-Control': 'private, no-store' }
 
@@ -63,6 +64,13 @@ export const marketplaceAdminError = (error: unknown) => {
             error.code === 'PREPARE_DOMAIN_ASSET_CLEANUP_FAILED'
           ? 503
           : 400
+    return NextResponse.json(
+      { success: false, error: { code: error.code, message: error.message } },
+      { status, headers: privateHeaders }
+    )
+  }
+  if (error instanceof OwnedDomainManagementError) {
+    const status = error.code === 'DOMAIN_ALREADY_EXISTS' ? 409 : error.code === 'DOMAIN_MANAGEMENT_UNAVAILABLE' ? 503 : 400
     return NextResponse.json(
       { success: false, error: { code: error.code, message: error.message } },
       { status, headers: privateHeaders }

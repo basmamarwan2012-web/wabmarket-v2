@@ -1650,3 +1650,38 @@ Continue only from the current state of the repository.
 - Added no schema/migration, Firestore business write, Firebase Storage, AI,
   provider transaction, automatic publication, marketing, CRM, Reverse
   Discovery, Opportunity Feed, checkout, bid, or backorder behavior.
+
+## Owned Domain Management and Premium Landing Page v1
+
+- Added authenticated tenant-scoped owned-domain creation with canonical
+  hostname normalization and mandatory explicit ownership confirmation. A
+  duplicate tenant hostname returns a controlled conflict and never overwrites
+  existing ownership or domain state.
+- Added conservative owned-domain deletion for clean, unprepared, asset-free,
+  publication-free records only. Preparation, any asset, published listing,
+  and retained draft/unpublished publication records produce distinct safe
+  blocking outcomes; no unpublish or cascade cleanup is attempted.
+- Made the MySQL repository's guarded deletion authoritative: it locks the
+  tenant-owned parent row, performs final reference checks, and deletes within
+  the same unit-of-work transaction. Concurrent reference creation or a final
+  database conflict blocks deletion instead of allowing cascade data loss.
+- Added compact Add Owned Domain controls and two-step hostname-specific delete
+  confirmation to `/admin/marketplace`. Tenant/account/Firebase identity and
+  ownership actor facts continue to come exclusively from the trusted session
+  composition and are never accepted from the browser.
+- Extended deterministic generation and the landing render model with optional
+  explicit public category, keyword, and city context plus canonical hostname
+  structure, factual value points, controlled use-case copy, and sale status.
+  Existing stored snapshots without these optional fields remain renderable
+  through generic factual fallbacks; no migration is required.
+- Upgraded the one shared landing presentation to the stable seven-section
+  premium structure: Hero, Domain Value, Domain Details, Brand Preview, Use
+  Case, Purchase CTA, and Footer. Admin preview and public pages remain visually
+  aligned; only authenticated-private versus published-public asset access
+  differs.
+- Public copy uses only normalized domain properties, explicit preparation
+  context, persisted price/currency, prepared text, explicit assets, and the
+  exact validated external sales URL. No traffic, ranking, valuation, demand,
+  scarcity, urgency, review, customer, or operating-business claim is created.
+- Added no schema/migration, Firestore business write, registrar sync, AI,
+  marketing, CRM, checkout, automatic publication, or destructive cascade.

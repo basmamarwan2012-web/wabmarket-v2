@@ -1,6 +1,8 @@
 import type { PreparationGenerationResult } from './generation.types'
 import {
   freezeLandingPageReasons,
+  createLandingPageProductFacts,
+  createLandingPagePublicContext,
   mapLandingPageRenderAsset,
   validateExactExternalSalesUrl,
   validateGeneratedRenderText,
@@ -41,6 +43,8 @@ export const createLandingPageRenderModel = (
   const externalSalesUrl = validateExactExternalSalesUrl(
     input?.landingPage?.cta?.externalSalesUrl
   )
+  const publicContext = createLandingPagePublicContext(input?.publicContext)
+  const productFacts = createLandingPageProductFacts(hostname, publicContext)
 
   const logo = mapLandingPageRenderAsset(input?.assets?.logo, 'LOGO_PLACEHOLDER')
   const favicon = mapLandingPageRenderAsset(
@@ -100,6 +104,8 @@ export const createLandingPageRenderModel = (
     domainDisplayName: hostname,
     price: Object.freeze({ askingPrice, currency }),
     cta: Object.freeze({ label: ctaLabel, externalSalesUrl }),
+    publicContext,
+    productFacts,
     sectionOrder: LANDING_PAGE_V1_SECTION_ORDER,
     readiness: Object.freeze({ state: readinessState, reasons }),
   })
@@ -114,4 +120,3 @@ export type {
   LandingPageRenderReason,
   LandingPageSection,
 } from './landing-page.types'
-

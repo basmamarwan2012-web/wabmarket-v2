@@ -1122,3 +1122,34 @@ critical
 - Added no schema/migration, live infrastructure operation, Firestore write,
   Firebase Storage, AI, automatic publication, marketing, CRM, Reverse
   Discovery, Opportunity Feed, checkout, bid, or backorder behavior.
+
+# Owned Domain Management and Premium Landing Page v1
+
+- Added provider-neutral owned-domain management contracts and authenticated
+  admin create/delete operations. Creation requires literal ownership
+  confirmation and canonical hostname validation; tenant duplicates are safe
+  controlled conflicts.
+- Added authoritative race-resistant MySQL deletion. A tenant-scoped parent row
+  lock, final preparation/asset/publication checks, and deletion execute in one
+  transaction. Prepared, asset-bearing, published, or retained-publication
+  domains are blocked without cascading or automatic cleanup.
+- Added a compact admin creation form and explicit two-step delete confirmation
+  showing the normalized hostname. Delete is offered only when the current
+  summary is clean, while the repository guard remains authoritative.
+- Added optional explicit category/keyword/city public context to deterministic
+  preparation output and canonical domain-product facts to the render model.
+  Older stored snapshots use a read-time generic fallback and require no schema
+  migration.
+- Rebuilt the shared domain landing presentation with responsive premium
+  product styling and the stable Hero → Domain Value → Domain Details → Brand
+  Preview → Use Case → Purchase CTA → Footer order.
+- Kept admin preview and public presentation on the same component and model.
+  Private draft assets remain authenticated; public assets remain restricted to
+  published snapshots.
+- Restricted public content to factual hostname structure, explicitly supplied
+  context, persisted price and prepared copy, and the exact external purchase
+  destination. Added no private lead/opportunity facts or fabricated metrics,
+  valuation, ranking, demand, scarcity, reviews, or operating-business claims.
+- Added no schema/migration, live database operation, Firestore write,
+  registrar sync, AI, marketing, CRM, checkout, automatic publication, or
+  destructive cascade behavior.

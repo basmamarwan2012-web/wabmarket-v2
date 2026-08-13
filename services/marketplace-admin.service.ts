@@ -1,6 +1,9 @@
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
+  CreateAdminOwnedDomainInput,
+  CreateAdminOwnedDomainResult,
+  DeleteAdminOwnedDomainResult,
   GenerateAdminMarketplaceBrandingInput,
   PrepareAdminMarketplaceDomainInput,
   PrepareAdminMarketplaceDomainResult,
@@ -15,6 +18,17 @@ interface ApiSuccess<T> {
 }
 
 const SAFE_CLIENT_MESSAGES: Readonly<Record<string, string>> = Object.freeze({
+  DOMAIN_HOSTNAME_INVALID: 'Enter a valid domain hostname.',
+  DOMAIN_OWNERSHIP_CONFIRMATION_REQUIRED:
+    'Confirm that you own this domain before adding it.',
+  DOMAIN_ALREADY_EXISTS: 'This owned domain already exists.',
+  DOMAIN_HAS_PREPARATION:
+    'Delete is blocked because this domain has a saved preparation.',
+  DOMAIN_HAS_ASSETS: 'Delete is blocked because this domain has stored assets.',
+  DOMAIN_IS_PUBLISHED: 'Delete is blocked because this domain is published.',
+  DOMAIN_DELETE_NOT_ALLOWED:
+    'Delete is blocked because this domain has retained records.',
+  DOMAIN_MANAGEMENT_UNAVAILABLE: 'Owned-domain storage is unavailable. Try again.',
   PREPARE_DOMAIN_ASKING_PRICE_INVALID:
     'Asking price is required and must be positive.',
   PREPARE_DOMAIN_CURRENCY_INVALID: 'Currency must be a valid three-letter code.',
@@ -41,6 +55,9 @@ const SAFE_CLIENT_MESSAGES: Readonly<Record<string, string>> = Object.freeze({
 const validationMessage = (issues: unknown) => {
   if (!issues || typeof issues !== 'object') return null
   const fields = issues as Readonly<Record<string, unknown>>
+  if (fields.hostname) return 'Enter a valid domain hostname.'
+  if (fields.ownershipConfirmed)
+    return 'Confirm that you own this domain before adding it.'
   if (fields.askingPrice) return 'Asking price is required and must be positive.'
   if (fields.currency) return 'Currency must be a valid three-letter code.'
   if (fields.externalSalesUrl)
@@ -73,6 +90,16 @@ const endpoint = (hostname: string) =>
 export const marketplaceAdminService = Object.freeze({
   list: () => request<readonly AdminMarketplaceDomainSummary[]>('/api/admin/marketplace'),
   get: (hostname: string) => request<AdminMarketplaceDomainDetail>(endpoint(hostname)),
+  createOwnedDomain: (input: CreateAdminOwnedDomainInput) =>
+    request<CreateAdminOwnedDomainResult>('/api/admin/marketplace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    }),
+  deleteOwnedDomain: (hostname: string) =>
+    request<DeleteAdminOwnedDomainResult>(endpoint(hostname), {
+      method: 'DELETE',
+    }),
   save: (hostname: string, input: SaveAdminMarketplacePreparationInput) =>
     request(endpoint(hostname), {
       method: 'PATCH',

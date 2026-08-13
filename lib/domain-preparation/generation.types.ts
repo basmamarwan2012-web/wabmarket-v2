@@ -70,6 +70,11 @@ export interface PreparationOpenGraphMetadata {
 
 export interface PreparationGenerationResult {
   readonly hostname: string
+  readonly publicContext?: Readonly<{
+    readonly category: string | null
+    readonly primaryKeyword: string | null
+    readonly city: string | null
+  }>
   readonly description: PreparationGeneratedText
   readonly landingPage: PreparationLandingPageConfiguration
   readonly seo: PreparationSeoMetadata

@@ -13,7 +13,12 @@ import type {
   StoredOwnedDomain,
 } from '@/lib/owned-domains/owned-domain.repository'
 import type { WabmarketMySqlDatabase } from '../client'
-import { ownedDomains } from '../schema'
+import {
+  domainAssets,
+  domainPreparations,
+  marketplaceListings,
+  ownedDomains,
+} from '../schema'
 import { createPersistenceId, toIso } from './helpers'
 
 export class MySqlOwnedDomainRepository implements OwnedDomainRepository {
@@ -103,6 +108,91 @@ export class MySqlOwnedDomainRepository implements OwnedDomainRepository {
     const updated = await this.findById(context, ownedDomainId)
     if (!updated) throw new PersistenceError('PERSISTENCE_NOT_FOUND')
     return updated
+  }
+
+  async deleteIfUnreferenced(
+    context: PersistenceAccountContext,
+    ownedDomainId: string
+  ) {
+    try {
+      // MySqlPersistenceUnitOfWork supplies one transaction. The parent row
+      // lock also conflicts with concurrent FK child insertion, closing the
+      // check/delete race before cascade-capable foreign keys are reached.
+      const [domain] = await this.database
+        .select({ id: ownedDomains.id })
+        .from(ownedDomains)
+        .where(
+          and(
+            eq(ownedDomains.accountId, context.accountId),
+            eq(ownedDomains.id, ownedDomainId)
+          )
+        )
+        .limit(1)
+        .for('update')
+      if (!domain) throw new PersistenceError('PERSISTENCE_NOT_FOUND')
+
+      const [publication] = await this.database
+        .select({ state: marketplaceListings.publicationState })
+        .from(marketplaceListings)
+        .where(eq(marketplaceListings.ownedDomainId, ownedDomainId))
+        .limit(1)
+      if (publication?.state === 'PUBLISHED')
+        return Object.freeze({
+          deleted: false as const,
+          reason: 'DOMAIN_IS_PUBLISHED' as const,
+        })
+      if (publication)
+        return Object.freeze({
+          deleted: false as const,
+          reason: 'DOMAIN_DELETE_NOT_ALLOWED' as const,
+        })
+
+      const [preparation] = await this.database
+        .select({ id: domainPreparations.id })
+        .from(domainPreparations)
+        .where(eq(domainPreparations.ownedDomainId, ownedDomainId))
+        .limit(1)
+      if (preparation)
+        return Object.freeze({
+          deleted: false as const,
+          reason: 'DOMAIN_HAS_PREPARATION' as const,
+        })
+
+      const [asset] = await this.database
+        .select({ id: domainAssets.id })
+        .from(domainAssets)
+        .where(eq(domainAssets.ownedDomainId, ownedDomainId))
+        .limit(1)
+      if (asset)
+        return Object.freeze({
+          deleted: false as const,
+          reason: 'DOMAIN_HAS_ASSETS' as const,
+        })
+
+      const deleted = await this.database
+        .delete(ownedDomains)
+        .where(
+          and(
+            eq(ownedDomains.accountId, context.accountId),
+            eq(ownedDomains.id, ownedDomainId)
+          )
+        )
+      if (deleted[0].affectedRows !== 1)
+        throw new PersistenceError('PERSISTENCE_CONFLICT')
+      return Object.freeze({ deleted: true as const, reason: null })
+    } catch (error) {
+      const referenceConflict =
+        typeof error === 'object' &&
+        error !== null &&
+        (('errno' in error && error.errno === 1451) ||
+          ('code' in error && error.code === 'ER_ROW_IS_REFERENCED_2'))
+      if (referenceConflict)
+        return Object.freeze({
+          deleted: false as const,
+          reason: 'DOMAIN_DELETE_NOT_ALLOWED' as const,
+        })
+      throw sanitizePersistenceError(error)
+    }
   }
 
   private ownershipValues(

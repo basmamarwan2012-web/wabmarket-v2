@@ -2,6 +2,13 @@ import { z } from 'zod'
 
 const nullableId = z.string().trim().min(1).max(128).nullable().optional()
 
+export const createAdminOwnedDomainSchema = z
+  .object({
+    hostname: z.string().trim().min(1).max(253),
+    ownershipConfirmed: z.literal(true),
+  })
+  .strict()
+
 export const saveAdminMarketplacePreparationSchema = z
   .object({
     askingPrice: z.coerce.number().finite().positive(),

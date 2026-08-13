@@ -30,6 +30,11 @@ export const generatePreparationAssetsAndContent = (
 
   return Object.freeze({
     hostname: normalized.hostname,
+    publicContext: Object.freeze({
+      category: normalized.category,
+      primaryKeyword: normalized.primaryKeyword,
+      city: normalized.city,
+    }),
     description,
     landingPage: Object.freeze({
       headline,
