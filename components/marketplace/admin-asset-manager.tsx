@@ -13,6 +13,7 @@ interface AdminAssetManagerProps {
   readonly disabled: boolean
   onUpload(file: File): Promise<void>
   onDelete(assetId: string): Promise<void>
+  onGenerate(): Promise<void>
 }
 
 export function AdminAssetManager(props: AdminAssetManagerProps) {
@@ -30,6 +31,7 @@ export function AdminAssetManager(props: AdminAssetManagerProps) {
         <span className="text-xs text-gray-500">{selectedAsset ? 'Selected' : 'Missing / pending'}</span>
       </div>
       <input ref={input} type="file" disabled={props.disabled} accept={props.kind === 'FAVICON' ? 'image/png,image/x-icon,image/vnd.microsoft.icon,.ico' : 'image/png,image/jpeg,image/webp'} onChange={(event) => void upload(event)} className="block w-full text-xs" />
+      <button type="button" disabled={props.disabled} onClick={() => void props.onGenerate()} className="rounded border px-2 py-1 text-xs disabled:opacity-50">{props.assets.some((asset) => asset.kind === props.kind) ? 'Regenerate' : 'Generate'}</button>
       <div className="space-y-1">
         {props.assets.filter((asset) => asset.kind === props.kind).map((asset) => (
           <div key={asset.id} className="flex items-center justify-between gap-2 text-xs">

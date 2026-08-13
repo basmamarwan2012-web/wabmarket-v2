@@ -41,6 +41,8 @@ export function AdminPreparationForm({ detail, role }: Readonly<{ detail: AdminM
   const assets = (kind: 'LOGO' | 'FAVICON' | 'OPEN_GRAPH_IMAGE') => detail.availableAssets.filter((asset) => asset.kind === kind && asset.status === 'AVAILABLE' && asset.publicReference)
   const uploadAsset = (kind: 'LOGO' | 'FAVICON' | 'OPEN_GRAPH_IMAGE', file: File) => execute(() => marketplaceAdminService.uploadAsset(detail.hostname, kind, file), `${kind.replaceAll('_', ' ')} uploaded.`)
   const deleteAsset = (assetId: string) => execute(() => marketplaceAdminService.deleteAsset(detail.hostname, assetId), 'Asset deleted.')
+  const generateAsset = (kind: 'LOGO' | 'FAVICON' | 'OPEN_GRAPH_IMAGE') => execute(() => marketplaceAdminService.generateAssets(detail.hostname, { action: 'GENERATE_ONE', kind }), `${kind.replaceAll('_', ' ')} generated.`)
+  const generateMissing = () => execute(() => marketplaceAdminService.generateAssets(detail.hostname, { action: 'GENERATE_MISSING' }), 'Missing branding assets generated.')
 
   return <div className="space-y-6">
     <form onSubmit={submit} className="space-y-5 rounded-xl border bg-white p-6 dark:bg-gray-900">
@@ -59,10 +61,11 @@ export function AdminPreparationForm({ detail, role }: Readonly<{ detail: AdminM
       {editable && <button disabled={busy} className="rounded-md bg-black px-4 py-2 text-sm text-white disabled:opacity-50 dark:bg-white dark:text-black">Save preparation</button>}
     </form>
     {editable && <div className="grid gap-4 md:grid-cols-3">
-      <AdminAssetManager hostname={detail.hostname} kind="LOGO" label="Logo uploads" assets={detail.availableAssets} selected={detail.selectedAssets.logoAssetId} disabled={busy} onUpload={(file) => uploadAsset('LOGO', file)} onDelete={deleteAsset} />
-      <AdminAssetManager hostname={detail.hostname} kind="FAVICON" label="Favicon uploads" assets={detail.availableAssets} selected={detail.selectedAssets.faviconAssetId} disabled={busy} onUpload={(file) => uploadAsset('FAVICON', file)} onDelete={deleteAsset} />
-      <AdminAssetManager hostname={detail.hostname} kind="OPEN_GRAPH_IMAGE" label="Open Graph uploads" assets={detail.availableAssets} selected={detail.selectedAssets.openGraphAssetId} disabled={busy} onUpload={(file) => uploadAsset('OPEN_GRAPH_IMAGE', file)} onDelete={deleteAsset} />
+      <AdminAssetManager hostname={detail.hostname} kind="LOGO" label="Logo assets" assets={detail.availableAssets} selected={detail.selectedAssets.logoAssetId} disabled={busy} onUpload={(file) => uploadAsset('LOGO', file)} onDelete={deleteAsset} onGenerate={() => generateAsset('LOGO')} />
+      <AdminAssetManager hostname={detail.hostname} kind="FAVICON" label="Favicon assets" assets={detail.availableAssets} selected={detail.selectedAssets.faviconAssetId} disabled={busy} onUpload={(file) => uploadAsset('FAVICON', file)} onDelete={deleteAsset} onGenerate={() => generateAsset('FAVICON')} />
+      <AdminAssetManager hostname={detail.hostname} kind="OPEN_GRAPH_IMAGE" label="Open Graph assets" assets={detail.availableAssets} selected={detail.selectedAssets.openGraphAssetId} disabled={busy} onUpload={(file) => uploadAsset('OPEN_GRAPH_IMAGE', file)} onDelete={deleteAsset} onGenerate={() => generateAsset('OPEN_GRAPH_IMAGE')} />
     </div>}
+    {editable && <button type="button" disabled={busy} onClick={() => void generateMissing()} className="rounded-md border px-4 py-2 text-sm disabled:opacity-50">Generate missing branding assets</button>}
     {editable && <div className="flex flex-wrap gap-3">{detail.publicationState !== 'PUBLISHED' ? <button type="button" disabled={busy || !detail.ownershipConfirmed || detail.preparationVersion === null} onClick={() => void execute(() => marketplaceAdminService.publish(detail.hostname, { expectedPublicationVersion: detail.publicationVersion }), 'Listing published.')} className="rounded-md bg-emerald-700 px-4 py-2 text-sm text-white disabled:opacity-50">Publish</button> : <button type="button" disabled={busy || !detail.listingId || detail.publicationVersion === null} onClick={() => { const listingId = detail.listingId; const publicationVersion = detail.publicationVersion; if (listingId && publicationVersion !== null) void execute(() => marketplaceAdminService.unpublish(detail.hostname, { listingId, expectedPublicationVersion: publicationVersion }), 'Listing unpublished.') }} className="rounded-md border px-4 py-2 text-sm disabled:opacity-50">Unpublish</button>}</div>}
     {message && <p role="status" className="rounded-md border p-3 text-sm">{message}</p>}
   </div>

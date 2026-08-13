@@ -68,3 +68,8 @@ export interface AdminMarketplaceMutationResult {
   readonly publicationState?: MarketplacePublicationState
   readonly publicationVersion?: number
 }
+
+export interface GenerateAdminMarketplaceBrandingInput {
+  readonly action: 'GENERATE_ONE' | 'GENERATE_MISSING'
+  readonly kind?: DomainAssetKind
+}

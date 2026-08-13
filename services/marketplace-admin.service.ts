@@ -1,6 +1,7 @@
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
+  GenerateAdminMarketplaceBrandingInput,
   PublishAdminMarketplaceInput,
   SaveAdminMarketplacePreparationInput,
   UnpublishAdminMarketplaceInput,
@@ -60,5 +61,9 @@ export const marketplaceAdminService = Object.freeze({
   deleteAsset: (hostname: string, assetId: string) =>
     request(`${endpoint(hostname)}/assets/${encodeURIComponent(assetId)}`, {
       method: 'DELETE',
+    }),
+  generateAssets: (hostname: string, input: GenerateAdminMarketplaceBrandingInput) =>
+    request(`${endpoint(hostname)}/assets/generate`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input),
     }),
 })

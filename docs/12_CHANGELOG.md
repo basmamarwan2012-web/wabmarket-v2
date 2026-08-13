@@ -1074,3 +1074,24 @@ critical
   No schema/migration, live database, real hosting directory, Firebase Storage,
   Firestore asset persistence, AI generation, resizing, CDN, or provider write
   was introduced.
+
+# Branding and Asset Generation v1
+
+- Added deterministic immutable brand identity, controlled style/palette/type
+  policy, and a provider-neutral visual generator contract with no AI-specific
+  fields or dependency.
+- Added trusted built-in PNG generation for 512×512 logos, 64×64 derived
+  favicons, and 1200×630 Open Graph visuals. All use the same versioned identity
+  seed and contain no SVG, script, external resource, remote font, fabricated
+  claim, urgency, or price presentation.
+- Routed every generated PNG through the existing upload validation,
+  filesystem storage, checksum, metadata, tenant, and compensation path.
+- Added authenticated Generate, Regenerate, and Generate Missing operations.
+  Each generation creates new metadata/storage identity; selected assets are
+  never replaced by the missing-assets action and old assets remain until
+  explicit guarded deletion.
+- Preserved explicit selection, preparation save, readiness evaluation,
+  publication, manual upload, and published-only media authorization. No
+  automatic selection/save/publish or private public-media preview was added.
+- Added no package, schema/migration, Firebase Storage, Firestore, AI provider,
+  network call, or live infrastructure operation.
