@@ -1712,3 +1712,32 @@ Continue only from the current state of the repository.
   no canonical columns for them. No schema, migration, scheduled sync,
   destructive reconciliation, Firestore write, purchase, renewal, or transfer
   behavior was added.
+
+## SQL Portfolio Consolidation and Explicit Prepare-for-Sale Handoff v1
+
+- `/admin/domains` is now the visible authoritative Portfolio over tenant-scoped
+  MySQL `owned_domains`. It lists manually added and registrar-synchronized
+  inventory through a trusted Firebase-session-to-SQL-account composition and
+  no longer reads the legacy Firestore Owned Domains repository or `/api/domains`.
+- Legacy Firestore Portfolio code and data remain unchanged for later controlled
+  reconciliation. This phase performs no migration, merge, fallback, deletion,
+  or Firestore/MySQL dual-write.
+- Manual Add Owned Domain, guarded Delete, and the bounded Dynadot synchronization
+  action now live under the Portfolio application, API, client, and UI boundary.
+  Browser commands still contain no account, tenant, Firebase UID, role,
+  ownership actor, or registrar credential facts.
+- Portfolio shows only persisted ownership, preparation, and publication facts.
+  Its explicit transition is Prepare for Sale, Continue Preparation, or Manage
+  Listing. Navigation reuses the existing preparation route and creates no
+  preparation, asset, listing, or publication record by itself.
+- `/admin/marketplace` is now the selling workspace. Its list includes only
+  domains with a stored preparation or retained marketplace publication record;
+  pure unprepared owned inventory is excluded. Inventory add/delete and registrar
+  controls are no longer Marketplace operations.
+- Registrar synchronization remains idempotent and creates only missing SQL
+  owned-domain records. Preparation and publication remain separate explicit
+  human actions, and public Marketplace reads remain restricted to canonical
+  `PUBLISHED` snapshots.
+- Added no schema, migration, migration-journal edit, registrar enrichment,
+  fixture fallback, AI, bulk operation, Opportunity Feed, Reverse Discovery,
+  campaign, CRM, purchase, checkout, bid, or backorder behavior.

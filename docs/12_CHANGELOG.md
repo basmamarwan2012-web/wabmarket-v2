@@ -1179,3 +1179,28 @@ critical
 - Added no schema/migration, background job, cron, webhook, Firestore write,
   dual-write, purchase, renewal, transfer, registrar settings dashboard, AI,
   marketing, CRM, Reverse Discovery, or Opportunity Feed behavior.
+
+# SQL Portfolio Consolidation and Explicit Prepare-for-Sale Handoff v1
+
+- Replaced the visible `/admin/domains` Firestore composition with a
+  tenant-scoped SQL Portfolio service and request-owned MySQL composition. The
+  route now lists every SQL-owned or managed domain without merging or falling
+  back to legacy Firestore records.
+- Moved manual owned-domain creation, guarded deletion, Dynadot synchronization,
+  and the transient sync report from Marketplace into Portfolio-specific API,
+  client, and UI boundaries. Existing ownership, deletion, sync, signing,
+  pagination, idempotency, and tenant-safety services are reused unchanged.
+- Added explicit Prepare for Sale, Continue Preparation, and Manage Listing
+  actions derived only from persisted preparation and publication state.
+  Navigation creates no durable selling state; the existing canonical
+  preparation save remains the first persisted selling transition.
+- Changed Marketplace admin into a selling workspace that includes only domains
+  with stored preparation or retained draft, published, or unpublished listing
+  state. Pure registrar/manual inventory is excluded and Marketplace no longer
+  exposes add, delete, or registrar-sync controls.
+- Removed the obsolete Marketplace inventory manager and misplaced Marketplace
+  Dynadot sync route after confirming all production callers moved to Portfolio.
+- Kept legacy Firestore Portfolio code/data untouched and added no migration,
+  schema change, dual-write, fixture fallback, automatic preparation,
+  automatic publication, public Marketplace change, registrar enrichment, AI,
+  bulk action, outreach, CRM, or provider transaction.

@@ -6,13 +6,6 @@ import type { DomainPreparationRequirement } from '@/lib/domain-preparation/prep
 import type { LandingPageRenderModel } from '@/lib/domain-preparation/landing-page.types'
 import type { PrepareDomainResult } from '@/lib/domain-preparation/prepare-domain.types'
 import type { MarketplacePublicationState } from './publication.repository'
-import type {
-  CreateOwnedDomainCommand,
-  CreateOwnedDomainResult,
-  DeleteOwnedDomainResult,
-  OwnedDomainDeletionEligibility,
-} from '@/lib/owned-domains/owned-domain-management.types'
-import type { RegistrarOwnedDomainSyncReport } from '@/lib/registrar-sync/types'
 
 export interface AdminMarketplaceDomainSummary {
   readonly ownedDomainId: string
@@ -23,13 +16,7 @@ export interface AdminMarketplaceDomainSummary {
   readonly missingRequirements: readonly DomainPreparationRequirement[]
   readonly publicationState: 'NOT_PUBLISHED' | MarketplacePublicationState
   readonly publicationVersion: number | null
-  readonly deletion: OwnedDomainDeletionEligibility
 }
-
-export type CreateAdminOwnedDomainInput = CreateOwnedDomainCommand
-export type CreateAdminOwnedDomainResult = CreateOwnedDomainResult
-export type DeleteAdminOwnedDomainResult = DeleteOwnedDomainResult
-export type AdminRegistrarOwnedDomainSyncReport = RegistrarOwnedDomainSyncReport
 
 export interface AdminMarketplaceAssetOption {
   readonly id: string

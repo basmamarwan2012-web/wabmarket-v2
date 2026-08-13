@@ -7,7 +7,6 @@ import {
 import { saveAdminMarketplacePreparationSchema } from '@/lib/marketplace/admin.validation'
 import { normalizeMarketplaceRouteHostname } from '@/lib/marketplace/route-hostname'
 import { PersistenceError } from '@/lib/persistence/errors'
-import { revalidatePath } from 'next/cache'
 
 export const runtime = 'nodejs'
 
@@ -43,21 +42,6 @@ export async function PATCH(request: Request, context: RouteContext) {
       service.save(account, hostname, input)
     )
     return marketplaceAdminSuccess(data, 'Preparation saved.')
-  } catch (error) {
-    return marketplaceAdminError(error)
-  }
-}
-
-export async function DELETE(_request: Request, context: RouteContext) {
-  try {
-    const session = await requireMarketplaceAdminSession(true)
-    const hostname = await hostnameFrom(context)
-    const data = await executeAdminMarketplaceOperation(
-      session,
-      (service, account) => service.deleteOwnedDomain(account, hostname)
-    )
-    revalidatePath('/admin/marketplace')
-    return marketplaceAdminSuccess(data, 'Owned domain deleted.')
   } catch (error) {
     return marketplaceAdminError(error)
   }

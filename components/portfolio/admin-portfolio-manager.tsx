@@ -1,0 +1,249 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useState, type FormEvent } from 'react'
+
+import { TransitionLink } from '@/components/ui/transition-link'
+import type {
+  AdminPortfolioDomainSummary,
+  AdminPortfolioRegistrarSyncReport,
+  PortfolioNextAction,
+} from '@/lib/portfolio/admin.types'
+import { portfolioAdminService } from '@/services/portfolio-admin.service'
+
+const actionLabel: Readonly<Record<PortfolioNextAction, string>> = Object.freeze({
+  PREPARE_FOR_SALE: 'Prepare for Sale',
+  CONTINUE_PREPARATION: 'Continue Preparation',
+  MANAGE_LISTING: 'Manage Listing',
+})
+
+export function AdminPortfolioManager({
+  domains,
+  editable,
+}: Readonly<{
+  domains: readonly AdminPortfolioDomainSummary[]
+  editable: boolean
+}>) {
+  const router = useRouter()
+  const [adding, setAdding] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [syncReport, setSyncReport] =
+    useState<AdminPortfolioRegistrarSyncReport | null>(null)
+
+  const create = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
+    if (form.get('ownershipConfirmed') !== 'on') {
+      setFailed(true)
+      setMessage('Confirm that you own this domain before adding it.')
+      return
+    }
+    setBusy(true)
+    setMessage(null)
+    setFailed(false)
+    try {
+      await portfolioAdminService.createOwnedDomain({
+        hostname: String(form.get('hostname') ?? ''),
+        ownershipConfirmed: true,
+      })
+      setAdding(false)
+      setMessage('Owned domain added to Portfolio.')
+      router.refresh()
+    } catch (error) {
+      setFailed(true)
+      setMessage(error instanceof Error ? error.message : 'Unable to add domain.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const remove = async (hostname: string) => {
+    setBusy(true)
+    setMessage(null)
+    setFailed(false)
+    try {
+      await portfolioAdminService.deleteOwnedDomain(hostname)
+      setConfirmDelete(null)
+      setMessage('Owned domain deleted from Portfolio.')
+      router.refresh()
+    } catch (error) {
+      setFailed(true)
+      setMessage(
+        error instanceof Error ? error.message : 'Unable to delete domain.'
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const syncDynadot = async () => {
+    setSyncing(true)
+    setMessage(null)
+    setFailed(false)
+    try {
+      const report = await portfolioAdminService.syncDynadotOwnedDomains()
+      setSyncReport(report)
+      setMessage('Dynadot domains synchronized with Portfolio.')
+      router.refresh()
+    } catch (error) {
+      setFailed(true)
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : 'Unable to synchronize domains.'
+      )
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      {editable && (
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setAdding((value) => !value)}
+            className="rounded-md bg-black px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-black"
+          >
+            + Add Owned Domain
+          </button>
+          <button
+            type="button"
+            disabled={syncing || busy}
+            onClick={() => void syncDynadot()}
+            className="rounded-md border px-4 py-2 text-sm font-semibold disabled:opacity-50"
+          >
+            {syncing ? 'Syncing Dynadot...' : 'Sync Domains - Dynadot'}
+          </button>
+        </div>
+      )}
+
+      {syncReport && (
+        <section
+          aria-label="Dynadot synchronization report"
+          className="rounded-xl border bg-white p-4 text-sm dark:bg-gray-900"
+        >
+          <p className="font-semibold">Last Dynadot Portfolio sync</p>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div><dt className="text-gray-500">Fetched</dt><dd>{syncReport.fetchedCount}</dd></div>
+            <div><dt className="text-gray-500">Created</dt><dd>{syncReport.createdCount}</dd></div>
+            <div><dt className="text-gray-500">Existing</dt><dd>{syncReport.existingCount}</dd></div>
+            <div><dt className="text-gray-500">Invalid</dt><dd>{syncReport.skippedInvalidCount}</dd></div>
+            <div><dt className="text-gray-500">Duplicates</dt><dd>{syncReport.duplicateCount}</dd></div>
+          </dl>
+          {syncReport.truncated && (
+            <p role="alert" className="mt-3 text-amber-700">
+              The safety ceiling was reached. This is a partial synchronization report.
+            </p>
+          )}
+        </section>
+      )}
+
+      {adding && (
+        <form
+          onSubmit={(event) => void create(event)}
+          className="space-y-4 rounded-xl border bg-white p-5 dark:bg-gray-900"
+        >
+          <label className="block space-y-2">
+            <span className="text-sm font-medium">Domain hostname</span>
+            <input
+              name="hostname"
+              required
+              placeholder="example.com"
+              disabled={busy}
+              className="w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              name="ownershipConfirmed"
+              type="checkbox"
+              required
+              disabled={busy}
+              className="mt-1"
+            />
+            <span>I explicitly confirm that I own or manage this domain.</span>
+          </label>
+          <div className="flex gap-3">
+            <button disabled={busy} className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Add domain</button>
+            <button type="button" disabled={busy} onClick={() => setAdding(false)} className="rounded-md border px-4 py-2 text-sm">Cancel</button>
+          </div>
+        </form>
+      )}
+
+      {domains.length === 0 ? (
+        <div className="rounded-xl border border-dashed p-10 text-center">
+          <h2 className="font-semibold">No Portfolio domains yet</h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Add an owned domain or synchronize a registrar account.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-xl border bg-white dark:bg-gray-900">
+          {domains.map((domain) => (
+            <div
+              key={domain.ownedDomainId}
+              className="flex flex-wrap items-center justify-between gap-4 border-b p-5 last:border-0"
+            >
+              <div>
+                <p className="font-semibold">{domain.hostname}</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {domain.ownershipConfirmed ? 'OWNERSHIP CONFIRMED' : 'OWNERSHIP UNCONFIRMED'} / {domain.portfolioState}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <TransitionLink
+                  href={`/admin/marketplace/domains/${domain.hostname}`}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {actionLabel[domain.nextAction]}
+                </TransitionLink>
+                {editable && domain.deletion.allowed && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmDelete(domain.hostname)}
+                    className="rounded-md border border-red-300 px-4 py-2 text-sm text-red-700 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-domain-title"
+          className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-950"
+        >
+          <h2 id="delete-domain-title" className="font-semibold">
+            Delete {confirmDelete} from Portfolio?
+          </h2>
+          <p className="mt-2 text-sm">
+            This is allowed only while the domain has no preparation, assets, or retained publication record.
+          </p>
+          <div className="mt-4 flex gap-3">
+            <button type="button" disabled={busy} onClick={() => void remove(confirmDelete)} className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Confirm delete</button>
+            <button type="button" disabled={busy} onClick={() => setConfirmDelete(null)} className="rounded-md border px-4 py-2 text-sm">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {message && (
+        <p role={failed ? 'alert' : 'status'} className="rounded-md border p-3 text-sm">
+          {message}
+        </p>
+      )}
+    </div>
+  )
+}

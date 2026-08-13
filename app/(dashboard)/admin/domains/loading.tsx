@@ -1,5 +1,5 @@
-import { DomainListSkeleton } from '@/components/ui/skeletons/domain-list-skeleton'
+import { AdminPageSkeleton } from '@/components/ui/skeletons/admin-page-skeleton'
 
 export default function DomainsLoading() {
-  return <DomainListSkeleton />
+  return <AdminPageSkeleton />
 }

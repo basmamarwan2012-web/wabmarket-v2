@@ -1,10 +1,6 @@
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
-  AdminRegistrarOwnedDomainSyncReport,
-  CreateAdminOwnedDomainInput,
-  CreateAdminOwnedDomainResult,
-  DeleteAdminOwnedDomainResult,
   GenerateAdminMarketplaceBrandingInput,
   PrepareAdminMarketplaceDomainInput,
   PrepareAdminMarketplaceDomainResult,
@@ -91,21 +87,6 @@ const endpoint = (hostname: string) =>
 export const marketplaceAdminService = Object.freeze({
   list: () => request<readonly AdminMarketplaceDomainSummary[]>('/api/admin/marketplace'),
   get: (hostname: string) => request<AdminMarketplaceDomainDetail>(endpoint(hostname)),
-  createOwnedDomain: (input: CreateAdminOwnedDomainInput) =>
-    request<CreateAdminOwnedDomainResult>('/api/admin/marketplace', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    }),
-  syncDynadotOwnedDomains: () =>
-    request<AdminRegistrarOwnedDomainSyncReport>(
-      '/api/admin/marketplace/registrars/dynadot/sync',
-      { method: 'POST' }
-    ),
-  deleteOwnedDomain: (hostname: string) =>
-    request<DeleteAdminOwnedDomainResult>(endpoint(hostname), {
-      method: 'DELETE',
-    }),
   save: (hostname: string, input: SaveAdminMarketplacePreparationInput) =>
     request(endpoint(hostname), {
       method: 'PATCH',

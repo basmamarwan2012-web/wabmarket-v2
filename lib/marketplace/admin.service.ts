@@ -11,7 +11,6 @@ import type { PersistenceAccountContext } from '@/lib/persistence/context'
 import { PersistenceError } from '@/lib/persistence/errors'
 import type { PersistenceRepositories, PersistenceUnitOfWork } from '@/lib/persistence/unit-of-work'
 import { MarketplacePublicationApplicationService } from './publication.service'
-import { OwnedDomainManagementService } from '@/lib/owned-domains/owned-domain-management.service'
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
@@ -49,23 +48,10 @@ const selectedAssetInput = (
 export class AdminMarketplaceService {
   private readonly preparations: DomainPreparationApplicationService
   private readonly publications: MarketplacePublicationApplicationService
-  private readonly ownedDomains: OwnedDomainManagementService
 
   constructor(private readonly unitOfWork: PersistenceUnitOfWork) {
     this.preparations = new DomainPreparationApplicationService(unitOfWork)
     this.publications = new MarketplacePublicationApplicationService(unitOfWork)
-    this.ownedDomains = new OwnedDomainManagementService(unitOfWork)
-  }
-
-  createOwnedDomain(
-    context: PersistenceAccountContext,
-    input: Parameters<OwnedDomainManagementService['create']>[1]
-  ) {
-    return this.ownedDomains.create(context, input)
-  }
-
-  deleteOwnedDomain(context: PersistenceAccountContext, hostname: string) {
-    return this.ownedDomains.delete(context, { hostname })
   }
 
   list(context: PersistenceAccountContext) {
@@ -74,7 +60,13 @@ export class AdminMarketplaceService {
       const summaries = await Promise.all(
         domains.map((domain) => this.summary(repositories, context, domain.id))
       )
-      return Object.freeze(summaries)
+      return Object.freeze(
+        summaries.filter(
+          (summary) =>
+            summary.preparationVersion !== null ||
+            summary.publicationState !== 'NOT_PUBLISHED'
+        )
+      )
     })
   }
 
@@ -85,11 +77,6 @@ export class AdminMarketplaceService {
       const preparation = await repositories.preparations.getCurrent(context, domain.id)
       const publication = await repositories.marketplacePublications.findByOwnedDomain(context, domain.id)
       const assets = await repositories.assetMetadata.listForOwnedDomain(context, domain.id)
-      const deletion = await this.ownedDomains.deletionEligibility(
-        repositories,
-        context,
-        domain.id
-      )
       return Object.freeze({
         ownedDomainId: domain.id,
         hostname: domain.normalizedHostname,
@@ -120,7 +107,6 @@ export class AdminMarketplaceService {
           )
         ),
         listingId: publication?.listingId ?? null,
-        deletion,
       } satisfies AdminMarketplaceDomainDetail)
     })
   }
@@ -246,11 +232,6 @@ export class AdminMarketplaceService {
     if (!domain) throw new PersistenceError('PERSISTENCE_NOT_FOUND')
     const preparation = await repositories.preparations.getCurrent(context, ownedDomainId)
     const publication = await repositories.marketplacePublications.findByOwnedDomain(context, ownedDomainId)
-    const deletion = await this.ownedDomains.deletionEligibility(
-      repositories,
-      context,
-      ownedDomainId
-    )
     return Object.freeze({
       ownedDomainId,
       hostname: domain.normalizedHostname,
@@ -260,7 +241,6 @@ export class AdminMarketplaceService {
       missingRequirements: preparation?.preparation.readiness.missingRequirements ?? Object.freeze([]),
       publicationState: publication?.state ?? 'NOT_PUBLISHED',
       publicationVersion: publication?.version ?? null,
-      deletion,
     })
   }
 }
