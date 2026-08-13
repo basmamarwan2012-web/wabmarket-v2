@@ -1544,3 +1544,41 @@ Continue only from the current state of the repository.
   schema/migration, Firestore business persistence, dual-write, asset storage,
   AI, provider transaction, outreach, CRM, Reverse Discovery, or Opportunity
   Feed behavior was added.
+
+## Asset Storage and Admin Upload v1
+
+- Added server-only `ASSET_STORAGE_ROOT` configuration and a provider-neutral
+  local-filesystem `AssetStore` adapter for conventional cPanel-compatible Node
+  hosting. Opaque storage keys contain hashed account/domain scopes and a
+  server-generated asset UUID; user filenames and absolute paths never enter
+  storage metadata or public responses.
+- Added strict signature and declared-MIME agreement checks. Logo files accept
+  PNG, JPEG, and WebP up to 2 MiB; favicons accept PNG and ICO up to 512 KiB;
+  Open Graph images accept PNG, JPEG, and WebP up to 5 MiB. SVG, unknown data,
+  unbounded bodies, resizing, derivation, and AI generation remain unsupported.
+- Added a tenant-scoped upload/delete application service. Uploads resolve the
+  trusted SQL-owned domain, generate SHA-256 checksums and storage identity on
+  the server, write bytes, and persist `AVAILABLE` metadata. A metadata failure
+  compensates by removing the new file; a failed compensation reports an
+  explicit sanitized orphan-risk error rather than pretending the boundary is
+  transactional.
+- Replacement is deliberately non-destructive: upload and persist the new
+  asset, select it through the existing preparation save flow, then explicitly
+  delete the old asset. Deletion rejects current preparation associations and
+  references in a `PUBLISHED` marketplace snapshot; metadata-delete failures
+  restore the previously read bytes where possible.
+- Added authenticated `domains.manage` multipart upload and explicit delete
+  endpoints plus compact logo/favicon/Open Graph controls on the existing admin
+  preparation page. Upload alone does not select an asset, satisfy readiness,
+  or publish a listing; all existing preparation and publication services
+  remain authoritative.
+- Added `/media/domain-assets/<asset-id>` as a controlled public byte route.
+  `AVAILABLE` status and UUID knowledge are insufficient: the exact public
+  reference must currently appear in the public snapshot of a `PUBLISHED`
+  listing. Unselected, draft-only, unpublished, replaced, unknown, and deleted
+  assets return not found. Infrastructure failures remain sanitized server
+  failures rather than being converted to 404.
+- Asset binaries remain outside MySQL and outside the public webroot; MySQL
+  stores metadata and public snapshots only. No schema, migration, Firebase
+  Storage, Firestore asset write, CDN, provider transaction, or live hosting
+  operation was added.

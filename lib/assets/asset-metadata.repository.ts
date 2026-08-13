@@ -46,4 +46,12 @@ export interface AssetMetadataRepository {
     context: PersistenceAccountContext,
     ownedDomainId: string
   ): Promise<readonly AssetMetadataRecord[]>
+  delete(
+    context: PersistenceAccountContext,
+    assetId: string
+  ): Promise<boolean>
+  isReferencedByPublishedListing(
+    context: PersistenceAccountContext,
+    assetId: string
+  ): Promise<boolean>
 }

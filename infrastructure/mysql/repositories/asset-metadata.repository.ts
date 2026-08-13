@@ -10,7 +10,7 @@ import type {
 import type { PersistenceAccountContext } from '@/lib/persistence/context'
 import { sanitizePersistenceError } from '@/lib/persistence/errors'
 import type { WabmarketMySqlDatabase } from '../client'
-import { domainAssets } from '../schema'
+import { domainAssets, marketplaceListings } from '../schema'
 import { createPersistenceId, toIso } from './helpers'
 
 export class MySqlAssetMetadataRepository
@@ -73,6 +73,20 @@ export class MySqlAssetMetadataRepository
       )
       .orderBy(asc(domainAssets.kind), asc(domainAssets.id))
     return Object.freeze(rows.map((row) => this.map(row)))
+  }
+
+  async delete(context: PersistenceAccountContext, assetId: string) {
+    try {
+      const result = await this.database.delete(domainAssets).where(and(eq(domainAssets.accountId, context.accountId), eq(domainAssets.id, assetId)))
+      return result[0].affectedRows === 1
+    } catch (error) { throw sanitizePersistenceError(error) }
+  }
+
+  async isReferencedByPublishedListing(context: PersistenceAccountContext, assetId: string) {
+    const asset = await this.findById(context, assetId)
+    if (!asset?.publicReference) return false
+    const rows = await this.database.select({ snapshot: marketplaceListings.publicSnapshot }).from(marketplaceListings).where(and(eq(marketplaceListings.ownedDomainId, asset.ownedDomainId), eq(marketplaceListings.publicationState, 'PUBLISHED')))
+    return rows.some(({ snapshot }) => [snapshot.logo, snapshot.favicon, snapshot.openGraphImage].some((item) => item.state === 'AVAILABLE' && item.reference === asset.publicReference))
   }
 
   private map(row: typeof domainAssets.$inferSelect): AssetMetadataRecord {

@@ -51,4 +51,14 @@ export const marketplaceAdminService = Object.freeze({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     }),
+  uploadAsset: (hostname: string, kind: string, file: File) => {
+    const body = new FormData()
+    body.set('kind', kind)
+    body.set('file', file)
+    return request(`${endpoint(hostname)}/assets`, { method: 'POST', body })
+  },
+  deleteAsset: (hostname: string, assetId: string) =>
+    request(`${endpoint(hostname)}/assets/${encodeURIComponent(assetId)}`, {
+      method: 'DELETE',
+    }),
 })

@@ -1050,3 +1050,27 @@ critical
 - Added no direct SQL in UI/API handlers, fixture fallback, Firestore migration
   or dual-write, asset upload/storage, AI, provider marketplace API, checkout,
   bidding, outreach, CRM, Reverse Discovery, Opportunity Feed, or team model.
+
+# Asset Storage and Admin Upload v1
+
+- Added private configurable filesystem storage behind the existing
+  provider-neutral `AssetStore`, with opaque hashed-scope keys, containment
+  checks, atomic temporary-file writes, server-derived extensions, and no
+  public or SQL exposure of absolute paths.
+- Added bounded magic-byte/MIME validation for PNG, JPEG, WebP, and favicon ICO
+  uploads, server-generated UUIDs and SHA-256 checksums, tenant/domain-scoped
+  metadata writes, and explicit filesystem/SQL compensation behavior.
+- Added safe deletion that rejects current preparation selections and published
+  marketplace references. Replacement stores and selects the new asset before
+  the old asset becomes eligible for explicit deletion.
+- Added authenticated multipart upload/delete APIs and preparation-page controls
+  without adding a general media library or weakening canonical readiness and
+  explicit publication.
+- Added a published-only public media route. An `AVAILABLE` row is not public by
+  itself; the exact reference must be active in a `PUBLISHED` listing snapshot.
+  Private/draft/unpublished records return 404 while infrastructure failures
+  remain sanitized server failures.
+- Added a hosting-neutral cPanel asset runbook and `ASSET_STORAGE_ROOT` example.
+  No schema/migration, live database, real hosting directory, Firebase Storage,
+  Firestore asset persistence, AI generation, resizing, CDN, or provider write
+  was introduced.
