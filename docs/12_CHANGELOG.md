@@ -1009,3 +1009,21 @@ critical
 - Added no fixture fallback, route cutover, UI change, schema/migration change,
   Firestore migration or dual-write, admin workflow, asset adapter, AI,
   outreach, CRM, Reverse Discovery, Opportunity Feed, or purchase behavior.
+
+# Public Marketplace Route Cutover to Persisted MySQL Reads
+
+- Replaced fixture reads in public marketplace catalog and domain-detail routes
+  with the production MySQL marketplace read composition.
+- Added a pure shared route-hostname decoder/normalizer and reused it from the
+  fixture-only landing resolver to prevent parsing drift.
+- Projected persisted published records into the existing catalog public
+  allowlist without reordering, exposing private provenance, or changing
+  presentation components.
+- Shared one React request-cached persisted resolver between domain metadata and
+  page rendering and passed the stored landing render model directly to the
+  existing domain presentation.
+- Preserved empty catalog, not-found, and sanitized database-failure outcomes as
+  distinct states with no fixture fallback.
+- Added no schema/migration, write path, admin workflow, Firestore change, asset
+  storage, AI, outreach, CRM, Reverse Discovery, Opportunity Feed, or commercial
+  transaction behavior.

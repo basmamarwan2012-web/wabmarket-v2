@@ -1,21 +1,6 @@
-import { normalizeHostname } from '../domain-analysis/analyzer.helpers'
 import { getMarketplaceFixtureRecords } from './fixtures'
 import type { MarketplacePublicLandingRecord } from './public-landing.types'
-
-export const normalizeMarketplaceRouteHostname = (value: unknown) => {
-  if (typeof value !== 'string') return null
-  let decoded: string
-  try {
-    decoded = decodeURIComponent(value)
-  } catch {
-    return null
-  }
-
-  const normalized = normalizeHostname(decoded)
-  return normalized !== null && normalized === decoded.toLowerCase()
-    ? normalized
-    : null
-}
+import { normalizeMarketplaceRouteHostname } from './route-hostname'
 
 export const resolveMarketplacePublicLanding = (
   routeHostname: unknown
@@ -37,4 +22,4 @@ export const resolveMarketplacePublicLanding = (
 }
 
 export type { MarketplacePublicLandingRecord } from './public-landing.types'
-
+export { normalizeMarketplaceRouteHostname } from './route-hostname'

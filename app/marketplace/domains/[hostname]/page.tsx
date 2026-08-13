@@ -1,19 +1,28 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 
 import { DomainLandingPage } from '@/components/domain-preparation/domain-landing-page'
-import { resolveMarketplacePublicLanding } from '@/lib/marketplace/public-landing'
+import { resolvePublishedMarketplaceHostnameFromMySql } from '@/infrastructure/mysql/marketplace-read.composition'
+import { normalizeMarketplaceRouteHostname } from '@/lib/marketplace/route-hostname'
 
 interface PublicDomainPageProps {
   readonly params: Promise<{ hostname: string }>
 }
 
+const resolvePersistedPublicLanding = cache(async (routeHostname: string) => {
+  const hostname = normalizeMarketplaceRouteHostname(routeHostname)
+  if (!hostname) return null
+
+  return resolvePublishedMarketplaceHostnameFromMySql(hostname)
+})
+
 export async function generateMetadata({
   params,
 }: PublicDomainPageProps): Promise<Metadata> {
   const { hostname } = await params
-  const record = resolveMarketplacePublicLanding(hostname)
+  const record = await resolvePersistedPublicLanding(hostname)
   if (!record) notFound()
 
   const model = record.landingPage
@@ -38,7 +47,7 @@ export async function generateMetadata({
 
 export default async function PublicDomainPage({ params }: PublicDomainPageProps) {
   const { hostname } = await params
-  const record = resolveMarketplacePublicLanding(hostname)
+  const record = await resolvePersistedPublicLanding(hostname)
   if (!record) notFound()
 
   return (
@@ -62,4 +71,3 @@ export default async function PublicDomainPage({ params }: PublicDomainPageProps
     </main>
   )
 }
-

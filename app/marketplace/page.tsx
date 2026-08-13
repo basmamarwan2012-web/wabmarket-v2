@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { MarketplaceCatalog } from '@/components/marketplace/marketplace-catalog'
-import { createMarketplaceCatalog } from '@/lib/marketplace/catalog'
-import { getMarketplaceFixtureRecords } from '@/lib/marketplace/fixtures'
+import { listPublishedMarketplaceFromMySql } from '@/infrastructure/mysql/marketplace-read.composition'
+import type { MarketplaceCatalog as MarketplaceCatalogModel } from '@/lib/marketplace/catalog.types'
 
 export const metadata: Metadata = {
   title: 'Premium Domain Marketplace | Wabmarket',
@@ -11,13 +11,30 @@ export const metadata: Metadata = {
     'Explore prepared premium domains available through external sales providers.',
 }
 
-const createFixtureCatalog = () =>
-  createMarketplaceCatalog(
-    getMarketplaceFixtureRecords().map((record) => record.listing)
-  )
-
-export default function MarketplacePage() {
-  const catalog = createFixtureCatalog()
+export default async function MarketplacePage() {
+  const page = await listPublishedMarketplaceFromMySql()
+  const catalog: MarketplaceCatalogModel = Object.freeze({
+    items: Object.freeze(
+      page.items.map((record) =>
+        Object.freeze({
+          listingId: record.listingId,
+          hostname: record.hostname,
+          displayName: record.displayName,
+          askingPrice: record.askingPrice,
+          currency: record.currency,
+          description: record.description,
+          logo: Object.freeze({
+            state: record.logo.state,
+            reference: record.logo.reference,
+          }),
+          landingPageReference: record.landingPageReference,
+          externalSalesUrl: record.externalSalesUrl,
+          externalSalesCtaLabel: record.externalSalesCtaLabel,
+        })
+      )
+    ),
+    total: page.items.length,
+  })
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white">

@@ -1485,3 +1485,24 @@ Continue only from the current state of the repository.
   schema, migration, Firestore, publication workflow, asset storage, AI,
   outreach, CRM, Reverse Discovery, Opportunity Feed, or transaction behavior
   changed.
+
+## Public marketplace route cutover to persisted MySQL reads
+
+- Cut over public `/marketplace` to the production MySQL read composition. The
+  route projects only the existing public catalog allowlist from persisted
+  `PUBLISHED` snapshots, preserves repository order, and retains the existing
+  empty state for a genuinely empty persisted catalog.
+- Cut over `/marketplace/domains/[hostname]` and its metadata generation to the
+  same persisted hostname resolver. A shared request-cached resolver safely
+  decodes and normalizes route input, resolves published data once per render
+  request where React caching applies, and passes the stored landing render
+  model directly to the existing presentation component.
+- Invalid, missing, and unpublished hostnames return not found. Configuration,
+  connection, and query failures remain sanitized server failures and are never
+  converted into empty or not-found results.
+- Production routes no longer import fixtures or perform fallback. Reserved
+  `.example` fixtures remain available only for pure tests and development
+  demonstrations through their existing isolated modules.
+- Added no component redesign, write API, admin workflow, schema/migration,
+  Firestore migration or dual-write, asset storage, AI, outreach, CRM, Reverse
+  Discovery, Opportunity Feed, or purchase behavior.
