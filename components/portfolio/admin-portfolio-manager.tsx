@@ -17,6 +17,11 @@ const actionLabel: Readonly<Record<PortfolioNextAction, string>> = Object.freeze
   MANAGE_LISTING: 'Manage Listing',
 })
 
+const supplied = (value: string | null) => value ?? 'Not supplied'
+
+const autoRenewLabel = (value: boolean | null) =>
+  value === null ? 'Not supplied' : value ? 'Enabled' : 'Disabled'
+
 export function AdminPortfolioManager({
   domains,
   editable,
@@ -195,6 +200,33 @@ export function AdminPortfolioManager({
                 <p className="mt-1 text-xs text-gray-500">
                   {domain.ownershipConfirmed ? 'OWNERSHIP CONFIRMED' : 'OWNERSHIP UNCONFIRMED'} / {domain.portfolioState}
                 </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Preparation: {domain.preparationReadiness} / Marketplace:{' '}
+                  {domain.publicationState}
+                </p>
+                {domain.registrarAssociations.length === 0 ? (
+                  <p className="mt-2 text-xs text-gray-500">
+                    Manual domain / Registrar facts not supplied
+                  </p>
+                ) : (
+                  <dl className="mt-3 grid gap-x-5 gap-y-2 text-xs text-gray-600 sm:grid-cols-2 xl:grid-cols-3 dark:text-gray-300">
+                    {domain.registrarAssociations.map((association) => (
+                      <div
+                        key={association.providerIdentifier}
+                        className="rounded-md bg-gray-50 p-2 dark:bg-gray-800"
+                      >
+                        <dt className="font-semibold uppercase tracking-wide">
+                          {association.providerIdentifier}
+                        </dt>
+                        <dd>Status: {association.registrarStatus}</dd>
+                        <dd>Expiration: {supplied(association.expiresAt)}</dd>
+                        <dd>Auto-renew: {autoRenewLabel(association.autoRenew)}</dd>
+                        <dd>Sync: {association.syncState}</dd>
+                        <dd>Last synced: {association.lastSyncedAt}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 <TransitionLink

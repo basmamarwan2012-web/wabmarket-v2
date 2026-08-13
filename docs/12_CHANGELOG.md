@@ -1204,3 +1204,23 @@ critical
   schema change, dual-write, fixture fallback, automatic preparation,
   automatic publication, public Marketplace change, registrar enrichment, AI,
   bulk action, outreach, CRM, or provider transaction.
+
+# Registrar Portfolio Enrichment v1
+
+- Added migration 0002 and a generic registrar-association schema/repository
+  with database-enforced tenant ownership, unique owned-domain/provider identity,
+  controlled status/sync values, nullable canonical facts, and immutable DTOs.
+- Extended the bounded manual sync transaction to attach associations to new or
+  matching manual domains and update supported provider facts without changing
+  ownership, preparation, assets, branding, price, listing, or publication.
+- Preserved first-seen across repeated observations while updating last-seen and
+  last-synced. Complete inventories mark absent associations `MISSING` without
+  changing last-seen; truncated inventories make no absence updates.
+- Defined `MISSING` strictly as absence from the latest complete provider
+  inventory. It has no automatic ownership, deletion, transfer, preparation, or
+  publication consequence.
+- Added compact deterministic registrar facts to SQL Portfolio with neutral
+  manual/unknown/not-supplied states and multi-provider display support.
+- Kept migration 0001 unchanged and did not execute migration 0002, call live
+  Dynadot/MySQL, store raw provider payloads, add scheduled synchronization,
+  touch Firestore, or introduce destructive automation.

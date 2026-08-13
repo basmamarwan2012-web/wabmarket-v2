@@ -6,7 +6,7 @@ import { RegistrarSyncError } from './errors'
 import {
   createRegistrarSyncEvidence,
   freezeRegistrarSyncReport,
-  normalizeRegistrarDomainFact,
+  normalizeRegistrarAssociationFact,
   REGISTRAR_OWNED_DOMAIN_SYNC_POLICY,
   waitForRegistrarPage,
 } from './helpers'
@@ -46,24 +46,29 @@ export class RegistrarOwnedDomainSyncService {
       if (error instanceof RegistrarSyncError) throw error
       throw new RegistrarSyncError('REGISTRAR_SYNC_FAILED', { cause: error })
     }
-    const normalized = new Set<string>()
+    const normalized = new Map<string, RegistrarOwnedDomainFact>()
     let skippedInvalidCount = 0
     let duplicateCount = 0
 
     for (const fact of inventory.facts) {
-      const hostname = normalizeRegistrarDomainFact(fact, provider.identifier)
-      if (!hostname) {
+      const normalizedFact = normalizeRegistrarAssociationFact(
+        fact,
+        provider.identifier
+      )
+      if (!normalizedFact) {
         skippedInvalidCount += 1
         continue
       }
-      if (normalized.has(hostname)) {
+      if (normalized.has(normalizedFact.normalizedHostname)) {
         duplicateCount += 1
         continue
       }
-      normalized.add(hostname)
+      normalized.set(normalizedFact.normalizedHostname, normalizedFact)
     }
 
-    const domains = Object.freeze([...normalized].sort((a, b) => a.localeCompare(b)))
+    const domains = Object.freeze(
+      [...normalized.keys()].sort((a, b) => a.localeCompare(b))
+    )
     const confirmedAt = this.clock().toISOString()
 
     try {
@@ -75,31 +80,49 @@ export class RegistrarOwnedDomainSyncService {
         let createdCount = 0
         let existingCount = 0
 
+        const seenOwnedDomainIds: string[] = []
         for (const hostname of domains) {
-          if (existingByHostname.has(hostname)) {
+          let ownedDomain = existingByHostname.get(hostname)
+          if (ownedDomain) {
             existingCount += 1
-            continue
+          } else {
+            ownedDomain = await repositories.ownedDomains.create(context, {
+              normalizedHostname: hostname,
+              status: 'active',
+              ownership: {
+                confirmed: true,
+                confirmedAt,
+                evidenceReference,
+              },
+            })
+            existingByHostname.set(hostname, ownedDomain)
+            createdCount += 1
           }
-          await repositories.ownedDomains.create(context, {
-            normalizedHostname: hostname,
-            status: 'active',
-            ownership: {
-              confirmed: true,
-              confirmedAt,
-              evidenceReference,
-            },
+
+          const fact = normalized.get(hostname)!
+          await repositories.registrarAssociations.observe(context, {
+            ownedDomainId: ownedDomain.id,
+            providerIdentifier: provider.identifier,
+            providerDomainIdentifier: fact.providerDomainIdentifier,
+            registrarStatus: fact.status,
+            expiresAt: fact.expiresAt,
+            autoRenew: fact.autoRenew,
+            observedAt: confirmedAt,
+            provenanceReference: evidenceReference,
           })
-          createdCount += 1
+          seenOwnedDomainIds.push(ownedDomain.id)
         }
 
         const missingFromProviderCount = inventory.truncated
           ? null
-          : existingDomains.filter(
-              (domain) =>
-                domain.ownership.confirmed &&
-                domain.ownership.evidenceReference === evidenceReference &&
-                !normalized.has(domain.normalizedHostname)
-            ).length
+          : await repositories.registrarAssociations.markMissingAfterCompleteSync(
+              context,
+              {
+                providerIdentifier: provider.identifier,
+                seenOwnedDomainIds,
+                syncedAt: confirmedAt,
+              }
+            )
 
         return freezeRegistrarSyncReport({
           provider: provider.identifier,

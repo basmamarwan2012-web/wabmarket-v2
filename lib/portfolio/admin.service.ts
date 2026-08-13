@@ -8,9 +8,10 @@ import type {
 } from '@/lib/persistence/unit-of-work'
 import { OwnedDomainManagementService } from '@/lib/owned-domains/owned-domain-management.service'
 import type { StoredOwnedDomain } from '@/lib/owned-domains/owned-domain.repository'
-import type {
-  AdminPortfolioDomainSummary,
-  CreateAdminPortfolioDomainInput,
+import {
+  toAdminPortfolioRegistrarAssociation,
+  type AdminPortfolioDomainSummary,
+  type CreateAdminPortfolioDomainInput,
 } from './admin.types'
 
 export class AdminPortfolioService {
@@ -46,14 +47,19 @@ export class AdminPortfolioService {
     context: PersistenceAccountContext,
     domain: StoredOwnedDomain
   ): Promise<AdminPortfolioDomainSummary> {
-    const [preparation, publication, deletion] = await Promise.all([
-      repositories.preparations.getCurrent(context, domain.id),
-      repositories.marketplacePublications.findByOwnedDomain(
-        context,
-        domain.id
-      ),
-      this.ownedDomains.deletionEligibility(repositories, context, domain.id),
-    ])
+    const [preparation, publication, deletion, registrarAssociations] =
+      await Promise.all([
+        repositories.preparations.getCurrent(context, domain.id),
+        repositories.marketplacePublications.findByOwnedDomain(
+          context,
+          domain.id
+        ),
+        this.ownedDomains.deletionEligibility(repositories, context, domain.id),
+        repositories.registrarAssociations.listForOwnedDomain(
+          context,
+          domain.id
+        ),
+      ])
 
     if (preparation && preparation.ownedDomainId !== domain.id)
       throw new PersistenceError('PERSISTENCE_INVALID_INPUT')
@@ -70,11 +76,11 @@ export class AdminPortfolioService {
           ? 'UNPUBLISHED'
           : publicationState === 'DRAFT'
             ? 'PREPARING'
-          : preparationReadiness === 'NOT_PREPARED'
-            ? 'OWNED'
-            : preparationReadiness === 'NOT_READY'
-              ? 'PREPARING'
-              : 'READY'
+            : preparationReadiness === 'NOT_PREPARED'
+              ? 'OWNED'
+              : preparationReadiness === 'NOT_READY'
+                ? 'PREPARING'
+                : 'READY'
     const nextAction = publication
       ? 'MANAGE_LISTING'
       : preparation
@@ -85,6 +91,9 @@ export class AdminPortfolioService {
       ownedDomainId: domain.id,
       hostname: domain.normalizedHostname,
       ownershipConfirmed: domain.ownership.confirmed,
+      registrarAssociations: Object.freeze(
+        registrarAssociations.map(toAdminPortfolioRegistrarAssociation)
+      ),
       preparationVersion: preparation?.version ?? null,
       preparationReadiness,
       publicationState,

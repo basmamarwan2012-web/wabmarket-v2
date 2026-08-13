@@ -1741,3 +1741,30 @@ Continue only from the current state of the repository.
 - Added no schema, migration, migration-journal edit, registrar enrichment,
   fixture fallback, AI, bulk operation, Opportunity Feed, Reverse Discovery,
   campaign, CRM, purchase, checkout, bid, or backorder behavior.
+
+## Registrar Portfolio Enrichment v1
+
+- Added the provider-neutral SQL `owned_domain_registrar_associations` model in
+  migration 0002. Its composite owned-domain/account foreign key enforces tenant
+  ownership in the database, while one `(owned domain, provider)` association
+  supports deterministic updates and future multi-registrar records.
+- Manual registrar sync now creates or updates canonical status, expiration,
+  nullable auto-renew, first/last-seen, last-synced, and sync-state facts inside
+  the same tenant-scoped transaction that reconciles owned domains. Dynadot v1
+  continues to supply `autoRenew = null` and no provider record identifier.
+- A complete inventory marks previously associated provider domains absent from
+  that inventory as `MISSING`, updates only their last-synced timestamp, and
+  preserves last-seen. `MISSING` is observational only: it never revokes
+  ownership, deletes a domain, removes preparation/assets, or unpublishes it.
+- A truncated inventory updates only returned domains. It never infers absence,
+  changes unseen associations, or marks them missing.
+- Existing manually created domains are reused when hostnames match and gain a
+  registrar association without replacement or modification of preparation,
+  branding, pricing, assets, listing, or publication facts.
+- SQL Portfolio now presents all associations in deterministic provider order
+  with compact provider, status, expiration, auto-renew, sync-state, and
+  last-synced facts. Domains with no association remain normal manual domains.
+- Migration 0001 remains immutable. Migration 0002 was created but not executed;
+  existing domains require no backfill and gain associations on a later
+  successful manual sync. No raw provider payload, background sync, Firestore
+  write, destructive reconciliation, or provider-specific table was added.

@@ -10,6 +10,7 @@ import { MySqlAssetMetadataRepository } from './repositories/asset-metadata.repo
 import { MySqlMarketplacePublicationRepository } from './repositories/marketplace-publication.repository'
 import { MySqlMarketplaceReadRepository } from './repositories/marketplace-read.repository'
 import { MySqlOwnedDomainRepository } from './repositories/owned-domain.repository'
+import { MySqlOwnedDomainRegistrarAssociationRepository } from './repositories/registrar-association.repository'
 import { MySqlDomainPreparationRepository } from './repositories/preparation.repository'
 
 const createRepositories = (
@@ -18,6 +19,8 @@ const createRepositories = (
   Object.freeze({
     accounts: new MySqlAccountRepository(database),
     ownedDomains: new MySqlOwnedDomainRepository(database),
+    registrarAssociations:
+      new MySqlOwnedDomainRegistrarAssociationRepository(database),
     preparations: new MySqlDomainPreparationRepository(database),
     assetMetadata: new MySqlAssetMetadataRepository(database),
     marketplacePublications: new MySqlMarketplacePublicationRepository(database),

@@ -1,5 +1,6 @@
 export * from './accounts'
 export * from './owned-domains'
+export * from './owned-domain-registrar-associations'
 export * from './domain-assets'
 export * from './domain-preparations'
 export * from './marketplace-listings'
