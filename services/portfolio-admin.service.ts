@@ -77,4 +77,17 @@ export const portfolioAdminService = Object.freeze({
       `${portfolioEndpoint}/registrars/dynadot/sync`,
       { method: 'POST' }
     ),
+  uploadLogo: (hostname: string, file: File) => {
+    const form = new FormData()
+    form.set('file', file)
+    return request<unknown>(
+      `${portfolioEndpoint}/domains/${encodeURIComponent(hostname)}/assets`,
+      { method: 'POST', body: form }
+    )
+  },
+  generateLogo: (hostname: string) =>
+    request<unknown>(
+      `${portfolioEndpoint}/domains/${encodeURIComponent(hostname)}/assets/generate`,
+      { method: 'POST' }
+    ),
 })

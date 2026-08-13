@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { TransitionLink } from '@/components/ui/transition-link'
 
 import { AdminPreparationForm } from '@/components/marketplace/admin-preparation-form'
 import { executeAdminMarketplaceOperation } from '@/infrastructure/mysql/admin-marketplace.composition'
@@ -21,6 +22,11 @@ export default async function AdminMarketplaceDomainPage({
     )
     return (
       <div className="mx-auto max-w-5xl space-y-6">
+        <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-sm text-gray-500">
+          <TransitionLink href="/admin/domains">Portfolio</TransitionLink><span>/</span>
+          <TransitionLink href={`/admin/domains/${detail.hostname}`}>{detail.hostname}</TransitionLink><span>/</span>
+          <span>Prepare for Sale</span>
+        </nav>
         <header>
           <h1 className="text-2xl font-bold">Prepare {detail.hostname}</h1>
           <p className="mt-1 text-sm text-gray-500">Sales details → Prepare domain → Preview → Publish</p>
@@ -39,6 +45,11 @@ export default async function AdminMarketplaceDomainPage({
           </section>
         )}
         <AdminPreparationForm detail={detail} role={session.role} />
+        <div className="flex flex-wrap gap-2">
+          <TransitionLink href={`/admin/domains/${detail.hostname}`} className="rounded-md border px-4 py-2 text-sm">Back to Domain Profile</TransitionLink>
+          <TransitionLink href="/admin/domains" className="rounded-md border px-4 py-2 text-sm">Back to Portfolio</TransitionLink>
+          <TransitionLink href="/admin/marketplace" className="rounded-md border px-4 py-2 text-sm">Marketplace</TransitionLink>
+        </div>
       </div>
     )
   } catch (error) {

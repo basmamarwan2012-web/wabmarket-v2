@@ -11,6 +11,7 @@ import { MySqlMarketplacePublicationRepository } from './repositories/marketplac
 import { MySqlMarketplaceReadRepository } from './repositories/marketplace-read.repository'
 import { MySqlOwnedDomainRepository } from './repositories/owned-domain.repository'
 import { MySqlOwnedDomainRegistrarAssociationRepository } from './repositories/registrar-association.repository'
+import { MySqlPortfolioReadRepository } from './repositories/portfolio-read.repository'
 import { MySqlDomainPreparationRepository } from './repositories/preparation.repository'
 
 const createRepositories = (
@@ -21,6 +22,7 @@ const createRepositories = (
     ownedDomains: new MySqlOwnedDomainRepository(database),
     registrarAssociations:
       new MySqlOwnedDomainRegistrarAssociationRepository(database),
+    portfolioRead: new MySqlPortfolioReadRepository(database),
     preparations: new MySqlDomainPreparationRepository(database),
     assetMetadata: new MySqlAssetMetadataRepository(database),
     marketplacePublications: new MySqlMarketplacePublicationRepository(database),

@@ -1224,3 +1224,23 @@ critical
 - Kept migration 0001 unchanged and did not execute migration 0002, call live
   Dynadot/MySQL, store raw provider payloads, add scheduled synchronization,
   touch Firestore, or introduce destructive automation.
+
+# Portfolio UX and Domain Profile / Lifecycle View v1
+
+- Reworked SQL Portfolio into a compact responsive inventory table with private
+  logo thumbnails, key registrar/selling facts, price, status pills, hostname
+  profile links, and server-supplied three-dot actions.
+- Added a tenant-scoped provider-neutral Portfolio read snapshot backed by five
+  bounded set queries, eliminating per-domain preparation/publication/asset/
+  registrar query expansion while retaining deterministic ordering.
+- Added `/admin/domains/[hostname]` with Overview, Registrar, Ownership/Source,
+  Branding/Assets, Preparation, Marketplace/Listing, and Lifecycle sections.
+  Timeline entries are emitted only for persisted timestamps.
+- Reused authenticated private asset content for admin thumbnails and existing
+  upload/generation services for logo actions. Display fallback is not persisted
+  and asset creation does not create preparation or publication.
+- Added explicit back links and breadcrumbs across profile, preparation, and
+  preview pages while preserving the separation of ownership inventory and the
+  Marketplace selling workspace.
+- Added no schema or migration change, Firestore read, live provider/database
+  operation, automatic selling transition, public-media relaxation, or cache.

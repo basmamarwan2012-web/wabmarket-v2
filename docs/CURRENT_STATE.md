@@ -1768,3 +1768,33 @@ Continue only from the current state of the repository.
   existing domains require no backfill and gain associations on a later
   successful manual sync. No raw provider payload, background sync, Firestore
   write, destructive reconciliation, or provider-specific table was added.
+
+## Portfolio UX and Domain Profile / Lifecycle View v1
+
+- Replaced the expanded per-domain Portfolio cards with a compact responsive
+  inventory table showing only logo/avatar, hostname, registrar, status,
+  expiration, sync, preparation, publication, price, and server-derived actions.
+- Added the authenticated `/admin/domains/[hostname]` lifecycle profile as a
+  factual ownership/operator view separate from the existing Prepare for Sale
+  workspace. It combines allowlisted ownership, registrar, asset, preparation,
+  publication, and timestamp-derived activity facts without exposing account,
+  SQL, storage-key, raw evidence, or provider payload details.
+- Added a provider-neutral set-based Portfolio read repository. A list request
+  uses one owned-domain query plus four bounded metadata queries and groups them
+  deterministically, replacing the prior per-domain repository N+1 pattern.
+- Preparation-selected logos win for private admin presentation; otherwise the
+  first deterministic available logo is display-only. Both use the existing
+  authenticated tenant-scoped private asset-content route, never public media
+  authorization or storage paths.
+- Added Portfolio logo upload/generation actions that reuse the existing asset
+  upload, deterministic branding, storage, metadata, authorization, and tenant
+  boundaries. They create only available assets and never create preparation,
+  change preparation selection, mark sale intent, or publish.
+- Added server-derived context actions and a compact three-dot menu. Delete
+  visibility remains advisory and every deletion still passes through the
+  authoritative guarded transaction service.
+- Added explicit Portfolio/profile/preparation/preview breadcrumbs and back
+  links. Portfolio remains ownership inventory, the profile remains factual,
+  Prepare for Sale remains explicit, and Marketplace remains selling state.
+- Added no schema/migration, Firestore read, provider request, background sync,
+  automatic preparation/publication, asset bytes in list reads, or new cache.

@@ -7,20 +7,11 @@ import { TransitionLink } from '@/components/ui/transition-link'
 import type {
   AdminPortfolioDomainSummary,
   AdminPortfolioRegistrarSyncReport,
-  PortfolioNextAction,
 } from '@/lib/portfolio/admin.types'
 import { portfolioAdminService } from '@/services/portfolio-admin.service'
-
-const actionLabel: Readonly<Record<PortfolioNextAction, string>> = Object.freeze({
-  PREPARE_FOR_SALE: 'Prepare for Sale',
-  CONTINUE_PREPARATION: 'Continue Preparation',
-  MANAGE_LISTING: 'Manage Listing',
-})
+import { DomainActionsMenu } from './domain-actions-menu'
 
 const supplied = (value: string | null) => value ?? 'Not supplied'
-
-const autoRenewLabel = (value: boolean | null) =>
-  value === null ? 'Not supplied' : value ? 'Enabled' : 'Disabled'
 
 export function AdminPortfolioManager({
   domains,
@@ -189,65 +180,31 @@ export function AdminPortfolioManager({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-white dark:bg-gray-900">
-          {domains.map((domain) => (
-            <div
-              key={domain.ownedDomainId}
-              className="flex flex-wrap items-center justify-between gap-4 border-b p-5 last:border-0"
-            >
-              <div>
-                <p className="font-semibold">{domain.hostname}</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {domain.ownershipConfirmed ? 'OWNERSHIP CONFIRMED' : 'OWNERSHIP UNCONFIRMED'} / {domain.portfolioState}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  Preparation: {domain.preparationReadiness} / Marketplace:{' '}
-                  {domain.publicationState}
-                </p>
-                {domain.registrarAssociations.length === 0 ? (
-                  <p className="mt-2 text-xs text-gray-500">
-                    Manual domain / Registrar facts not supplied
-                  </p>
-                ) : (
-                  <dl className="mt-3 grid gap-x-5 gap-y-2 text-xs text-gray-600 sm:grid-cols-2 xl:grid-cols-3 dark:text-gray-300">
-                    {domain.registrarAssociations.map((association) => (
-                      <div
-                        key={association.providerIdentifier}
-                        className="rounded-md bg-gray-50 p-2 dark:bg-gray-800"
-                      >
-                        <dt className="font-semibold uppercase tracking-wide">
-                          {association.providerIdentifier}
-                        </dt>
-                        <dd>Status: {association.registrarStatus}</dd>
-                        <dd>Expiration: {supplied(association.expiresAt)}</dd>
-                        <dd>Auto-renew: {autoRenewLabel(association.autoRenew)}</dd>
-                        <dd>Sync: {association.syncState}</dd>
-                        <dd>Last synced: {association.lastSyncedAt}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <TransitionLink
-                  href={`/admin/marketplace/domains/${domain.hostname}`}
-                  className="rounded-md border px-4 py-2 text-sm font-medium"
-                >
-                  {actionLabel[domain.nextAction]}
-                </TransitionLink>
-                {editable && domain.deletion.allowed && (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => setConfirmDelete(domain.hostname)}
-                    className="rounded-md border border-red-300 px-4 py-2 text-sm text-red-700 disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
+        <div className="overflow-x-auto rounded-xl border bg-white dark:bg-gray-900">
+          <div className="min-w-[980px]">
+            <div className="grid grid-cols-[minmax(250px,2fr)_1fr_1fr_1fr_1fr_1fr_1fr_auto] gap-3 border-b bg-gray-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-950">
+              <span>Domain</span><span>Registrar</span><span>Status</span><span>Expiration</span><span>Sync</span><span>Preparation</span><span>Marketplace / Price</span><span>Actions</span>
             </div>
-          ))}
+            {domains.map((domain) => {
+              const registrar = domain.registrarAssociations[0]
+              const hasMultipleRegistrars = domain.registrarAssociations.length > 1
+              return (
+                <div key={domain.ownedDomainId} className="grid grid-cols-[minmax(250px,2fr)_1fr_1fr_1fr_1fr_1fr_1fr_auto] items-center gap-3 border-b px-4 py-2.5 text-sm transition hover:bg-gray-50 last:border-0 dark:hover:bg-gray-800/50">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {domain.displayLogo ? <img src={domain.displayLogo.contentReference} alt="" className="h-9 w-9 shrink-0 rounded-lg border object-contain" /> : <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gray-100 font-semibold dark:bg-gray-800">{domain.hostname[0]?.toUpperCase()}</div>}
+                    <TransitionLink href={`/admin/domains/${domain.hostname}`} className="truncate font-semibold hover:underline">{domain.hostname}</TransitionLink>
+                  </div>
+                  <span className="truncate">{hasMultipleRegistrars ? `${domain.registrarAssociations.length} registrars` : registrar?.providerIdentifier ?? 'Manual domain'}</span>
+                  <StatusPill value={hasMultipleRegistrars ? 'See profile' : registrar?.registrarStatus ?? 'Unknown'} />
+                  <span className="truncate text-xs">{hasMultipleRegistrars ? 'See profile' : supplied(registrar?.expiresAt ?? null)}</span>
+                  <StatusPill value={hasMultipleRegistrars ? 'See profile' : registrar?.syncState ?? 'Not supplied'} />
+                  <StatusPill value={domain.preparationReadiness} />
+                  <div><StatusPill value={domain.publicationState} />{domain.askingPrice !== null && <p className="mt-1 text-xs text-gray-500">{domain.askingPrice} {domain.currency}</p>}</div>
+                  <DomainActionsMenu hostname={domain.hostname} actions={editable ? domain.actions : domain.actions.filter((action) => action !== 'DELETE_DOMAIN' && action !== 'ADD_LOGO' && action !== 'GENERATE_LOGO')} publicReference={domain.publicationPublicReference} disabled={busy} onDelete={domain.actions.includes('DELETE_DOMAIN') ? () => setConfirmDelete(domain.hostname) : undefined} />
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -278,4 +235,8 @@ export function AdminPortfolioManager({
       )}
     </div>
   )
+}
+
+function StatusPill({ value }: Readonly<{ value: string }>) {
+  return <span className="inline-flex max-w-full truncate rounded-full bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200">{value.replaceAll('_', ' ')}</span>
 }

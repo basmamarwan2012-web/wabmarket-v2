@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+import { TransitionLink } from '@/components/ui/transition-link'
 
 import { DomainLandingPage } from '@/components/domain-preparation/domain-landing-page'
 import { executeAdminMarketplaceOperation } from '@/infrastructure/mysql/admin-marketplace.composition'
@@ -21,11 +22,20 @@ export default async function AdminDomainPreviewPage({
     )
     return (
       <div className="mx-auto max-w-6xl space-y-6">
+        <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-sm text-gray-500">
+          <TransitionLink href="/admin/domains">Portfolio</TransitionLink><span>/</span>
+          <TransitionLink href={`/admin/domains/${preview.hostname}`}>{preview.hostname}</TransitionLink><span>/</span>
+          <TransitionLink href={`/admin/marketplace/domains/${preview.hostname}`}>Preparation</TransitionLink><span>/</span><span>Preview</span>
+        </nav>
         <header>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">Internal preview · Not published by this action</p>
           <h1 className="mt-2 text-2xl font-bold">{preview.hostname}</h1>
         </header>
         <DomainLandingPage model={preview.model} />
+        <div className="flex flex-wrap gap-2">
+          <TransitionLink href={`/admin/marketplace/domains/${preview.hostname}`} className="rounded-md border px-4 py-2 text-sm">Back to Preparation</TransitionLink>
+          <TransitionLink href={`/admin/domains/${preview.hostname}`} className="rounded-md border px-4 py-2 text-sm">Back to Domain Profile</TransitionLink>
+        </div>
       </div>
     )
   } catch (error) {
@@ -33,4 +43,3 @@ export default async function AdminDomainPreviewPage({
     throw error
   }
 }
-
