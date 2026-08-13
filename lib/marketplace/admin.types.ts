@@ -3,6 +3,8 @@ import type {
   DomainAssetStatus,
 } from '@/lib/assets/asset-metadata.repository'
 import type { DomainPreparationRequirement } from '@/lib/domain-preparation/preparation.types'
+import type { LandingPageRenderModel } from '@/lib/domain-preparation/landing-page.types'
+import type { PrepareDomainResult } from '@/lib/domain-preparation/prepare-domain.types'
 import type { MarketplacePublicationState } from './publication.repository'
 
 export interface AdminMarketplaceDomainSummary {
@@ -44,11 +46,25 @@ export interface SaveAdminMarketplacePreparationInput {
   readonly currency: string
   readonly manualDescription?: string | null
   readonly externalSalesUrl: string
-  readonly ctaConfigured: boolean
   readonly logoAssetId?: string | null
   readonly faviconAssetId?: string | null
   readonly openGraphAssetId?: string | null
   readonly expectedVersion: number | null
+}
+
+export interface PrepareAdminMarketplaceDomainInput {
+  readonly askingPrice: number
+  readonly currency: string
+  readonly manualDescription?: string | null
+  readonly externalSalesUrl: string
+  readonly expectedVersion: number | null
+}
+
+export type PrepareAdminMarketplaceDomainResult = PrepareDomainResult
+
+export interface AdminMarketplacePreviewResult {
+  readonly hostname: string
+  readonly model: LandingPageRenderModel
 }
 
 export interface PublishAdminMarketplaceInput {

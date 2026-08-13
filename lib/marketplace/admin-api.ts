@@ -7,6 +7,7 @@ import { hasPermission } from '@/lib/auth/permissions'
 import { verifySession, type AuthenticatedSession } from '@/lib/auth/session'
 import { PersistenceError } from '@/lib/persistence/errors'
 import { AssetError } from '@/lib/assets/asset.errors'
+import { PrepareDomainError } from '@/lib/domain-preparation/prepare-domain.errors'
 
 const privateHeaders = { 'Cache-Control': 'private, no-store' }
 
@@ -53,6 +54,20 @@ export const marketplaceAdminError = (error: unknown) => {
       },
       { status: 400, headers: privateHeaders }
     )
+  if (error instanceof PrepareDomainError) {
+    const status =
+      error.code === 'PREPARE_DOMAIN_VERSION_CONFLICT'
+        ? 409
+        : error.code === 'PREPARE_DOMAIN_DATABASE_UNAVAILABLE' ||
+            error.code === 'PREPARE_DOMAIN_ASSET_STORAGE_NOT_CONFIGURED' ||
+            error.code === 'PREPARE_DOMAIN_ASSET_CLEANUP_FAILED'
+          ? 503
+          : 400
+    return NextResponse.json(
+      { success: false, error: { code: error.code, message: error.message } },
+      { status, headers: privateHeaders }
+    )
+  }
   if (error instanceof AssetError) {
     const status = error.code === 'ASSET_NOT_FOUND' ? 404 : error.code === 'ASSET_IN_USE' ? 409 : error.code === 'ASSET_STORAGE_UNAVAILABLE' || error.code === 'ASSET_COMPENSATION_FAILED' ? 503 : 400
     return NextResponse.json(

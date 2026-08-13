@@ -1095,3 +1095,30 @@ critical
   automatic selection/save/publish or private public-media preview was added.
 - Added no package, schema/migration, Firebase Storage, Firestore, AI provider,
   network call, or live infrastructure operation.
+
+# Domain Preparation UX Simplification v1
+
+- Added a one-click authenticated Prepare-domain workflow that validates sales
+  facts, generates only missing deterministic visual assets, selects only assets
+  created for previously empty slots in that request, saves canonical
+  preparation with exact optimistic versioning, and returns refreshed readiness.
+- Preserved all existing manual and generated selections. Regeneration remains
+  non-destructive and never replaces the current choice; previously available
+  unselected assets are not automatically selected.
+- Derived `ctaConfigured` only after the existing generator and landing renderer
+  accept the controlled CTA label and exact validated HTTPS external sales URL.
+  No checkout, purchase, or provider confirmation is inferred.
+- Added explicit reverse-order cleanup for request-created assets after partial
+  generation or save failure. A cleanup failure is reported explicitly and can
+  never be mistaken for successful preparation.
+- Reworked the admin page into Sales details → Prepare → Preview → Publish with
+  non-numeric status states and exact missing requirements. Publish remains an
+  explicit eligibility-controlled application-service action; advanced upload,
+  regenerate, select, and delete controls remain available in a collapsed area.
+- Added an authenticated stored-render-model preview and tenant/domain-scoped
+  private draft-asset reads. Public media authorization was not changed.
+- Replaced generic preparation failures with allowlisted actionable messages
+  while preserving sanitized infrastructure errors and private-data boundaries.
+- Added no schema/migration, live infrastructure operation, Firestore write,
+  Firebase Storage, AI, automatic publication, marketing, CRM, Reverse
+  Discovery, Opportunity Feed, checkout, bid, or backorder behavior.

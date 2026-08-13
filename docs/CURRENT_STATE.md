@@ -1619,3 +1619,34 @@ Continue only from the current state of the repository.
   weakening public authorization.
 - Added no package, schema, migration, Firebase Storage, Firestore persistence,
   AI provider, network call, or live filesystem/database operation.
+
+## Domain Preparation UX Simplification v1
+
+- Simplified the authenticated preparation workflow to Sales details → Prepare
+  domain → Preview → Publish while retaining manual upload, generation,
+  regeneration, selection, and guarded deletion in secondary advanced controls.
+- Added a server-only Prepare-domain coordinator. It validates canonical sales
+  facts, preserves existing selections, generates only empty logo/favicon/Open
+  Graph slots in deterministic order, persists bytes through the existing
+  upload pipeline, and auto-selects only assets created during that request.
+- The coordinator reuses deterministic content generation, landing rendering,
+  canonical Domain Preparation construction, exact optimistic versioning, and
+  readiness evaluation. A valid generated CTA deterministically configures the
+  existing CTA fact from the exact validated external HTTPS sales URL; it does
+  not represent checkout, acquisition, or provider confirmation.
+- Prepare never publishes. Publish remains a separate explicit action through
+  `MarketplacePublicationApplicationService` and stays disabled while canonical
+  preparation requirements fail.
+- Added reverse-order compensation for newly generated request assets when a
+  later generation or preparation save fails. Existing preparation and selected
+  assets remain unchanged until the final save succeeds; filesystem and SQL are
+  explicitly not represented as one ACID transaction.
+- Added a stored-model authenticated preview per SQL-owned hostname and a
+  tenant/domain-scoped private asset-content boundary for draft visuals. The
+  existing public media route remains published-snapshot-only and unchanged.
+- Added controlled actionable validation, storage, database, selected-asset,
+  generation, optimistic-conflict, and cleanup messages without exposing SQL,
+  paths, tenant identity, credentials, stack traces, or internal causes.
+- Added no schema/migration, Firestore business write, Firebase Storage, AI,
+  provider transaction, automatic publication, marketing, CRM, Reverse
+  Discovery, Opportunity Feed, checkout, bid, or backorder behavior.

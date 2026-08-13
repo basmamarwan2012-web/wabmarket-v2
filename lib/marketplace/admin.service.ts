@@ -5,6 +5,7 @@ import { generatePreparationAssetsAndContent } from '@/lib/domain-preparation/ge
 import type { PreparationAssetInput } from '@/lib/domain-preparation/generation.types'
 import { createLandingPageRenderModel } from '@/lib/domain-preparation/landing-page'
 import { createDomainPreparation } from '@/lib/domain-preparation/preparation'
+import { createAdminLandingPreviewModel } from './admin-preview'
 import { DomainPreparationApplicationService } from '@/lib/domain-preparation/preparation.service'
 import type { PersistenceAccountContext } from '@/lib/persistence/context'
 import { PersistenceError } from '@/lib/persistence/errors'
@@ -13,6 +14,7 @@ import { MarketplacePublicationApplicationService } from './publication.service'
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
+  AdminMarketplacePreviewResult,
   PublishAdminMarketplaceInput,
   SaveAdminMarketplacePreparationInput,
   UnpublishAdminMarketplaceInput,
@@ -103,6 +105,32 @@ export class AdminMarketplaceService {
     })
   }
 
+  preview(
+    context: PersistenceAccountContext,
+    hostname: string
+  ): Promise<AdminMarketplacePreviewResult> {
+    return this.unitOfWork.run(async (repositories) => {
+      const domain = await repositories.ownedDomains.findByHostname(
+        context,
+        hostname
+      )
+      if (!domain) throw new PersistenceError('PERSISTENCE_NOT_FOUND')
+      const preparation = await repositories.preparations.getCurrent(
+        context,
+        domain.id
+      )
+      if (
+        !preparation ||
+        preparation.landingPage.readiness.state === 'NOT_RENDERABLE'
+      )
+        throw new PersistenceError('PERSISTENCE_NOT_FOUND')
+      return Object.freeze({
+        hostname: domain.normalizedHostname,
+        model: createAdminLandingPreviewModel(preparation),
+      })
+    })
+  }
+
   async save(
     context: PersistenceAccountContext,
     hostname: string,
@@ -134,6 +162,10 @@ export class AdminMarketplaceService {
       })
       if (!generation) throw new PersistenceError('PERSISTENCE_INVALID_INPUT')
       const landingPage = createLandingPageRenderModel(generation)
+      const ctaConfigured =
+        landingPage.cta.label !== null &&
+        landingPage.cta.externalSalesUrl === input.externalSalesUrl &&
+        landingPage.readiness.state !== 'NOT_RENDERABLE'
       const preparation = createDomainPreparation({
         hostname: domain.normalizedHostname,
         ownershipConfirmed: domain.ownership.confirmed,
@@ -142,7 +174,7 @@ export class AdminMarketplaceService {
           favicon: { present: generation.assets.favicon.status === 'AVAILABLE', reference: generation.assets.favicon.reference },
           description: { present: true, contentOrReference: generation.description.value },
           landingPage: { present: true, reference: internalLandingReference(domain.normalizedHostname) },
-          sales: { askingPrice: input.askingPrice, currency: input.currency, externalSalesUrl: input.externalSalesUrl, ctaConfigured: input.ctaConfigured },
+          sales: { askingPrice: input.askingPrice, currency: input.currency, externalSalesUrl: input.externalSalesUrl, ctaConfigured },
         },
       })
       if (!preparation) throw new PersistenceError('PERSISTENCE_INVALID_INPUT')

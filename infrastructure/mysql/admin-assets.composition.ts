@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { AuthenticatedSession } from '@/lib/auth/session'
 import { AssetUploadApplicationService } from '@/lib/assets/asset-upload.service'
+import { PrivateAssetService } from '@/lib/assets/private-asset.service'
 import { BrandingGenerationService } from '@/lib/branding/generation.service'
 import { DeterministicBrandAssetGenerator } from '@/lib/branding/deterministic-generator'
 import { AssetError } from '@/lib/assets/asset.errors'
@@ -50,3 +51,20 @@ export const executeAdminBrandingOperation = async <T>(
   ),
   context
 ))
+
+export const executeAdminPrivateAssetOperation = async <T>(
+  session: AuthenticatedSession,
+  operation: (
+    service: PrivateAssetService,
+    context: ReturnType<typeof createPersistenceAccountContext>
+  ) => Promise<T>
+) =>
+  executeAssetComposition(session, (_uploader, unitOfWork, context) =>
+    operation(
+      new PrivateAssetService(
+        unitOfWork,
+        new FileSystemAssetStore(getAssetStorageConfig().root)
+      ),
+      context
+    )
+  )

@@ -8,10 +8,23 @@ export const saveAdminMarketplacePreparationSchema = z
     currency: z.string().trim().length(3).transform((value) => value.toUpperCase()),
     manualDescription: z.string().trim().min(1).max(20_000).nullable().optional(),
     externalSalesUrl: z.string().trim().url().max(2_048),
-    ctaConfigured: z.boolean(),
     logoAssetId: nullableId,
     faviconAssetId: nullableId,
     openGraphAssetId: nullableId,
+    expectedVersion: z.number().int().positive().nullable(),
+  })
+  .strict()
+
+export const prepareAdminMarketplaceDomainSchema = z
+  .object({
+    askingPrice: z.coerce.number().finite().positive(),
+    currency: z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{3}$/)
+      .transform((value) => value.toUpperCase()),
+    manualDescription: z.string().trim().min(1).max(20_000).nullable().optional(),
+    externalSalesUrl: z.string().trim().max(2_048),
     expectedVersion: z.number().int().positive().nullable(),
   })
   .strict()

@@ -14,11 +14,13 @@
     "db:check": "node --conditions=react-server --import tsx scripts/db-check.ts",
     "db:migrate": "node --conditions=react-server --import tsx scripts/db-migrate.ts",
     "db:smoke": "node --conditions=react-server --import tsx scripts/db-smoke.ts",
+    "db:seed-owned-domain": "node --conditions=react-server --import tsx scripts/db-seed-owned-domain.ts",
     "postinstall": "husky install"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@hookform/resolvers": "^3.9.1",
+    "@opentelemetry/api": "^1.9.1",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
