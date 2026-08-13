@@ -15,7 +15,7 @@ export interface DatabaseCheckResult {
 /** Performs one non-mutating connectivity query and always closes its pool. */
 export const runDatabaseCheck = async (): Promise<DatabaseCheckResult> => {
   let client: ReturnType<typeof createWabmarketMySqlClient> | null = null
-  let failure: DatabaseOperatorError | null = null
+  let failure: ReturnType<typeof toSafeDatabaseOperatorError> | null = null
 
   try {
     client = createWabmarketMySqlClient(getDatabaseConfig())

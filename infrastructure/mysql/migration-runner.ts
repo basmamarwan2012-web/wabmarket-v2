@@ -123,7 +123,7 @@ const withMigrationClient = async <T>(
 ): Promise<T> => {
   let client: ReturnType<typeof createWabmarketMySqlClient> | null = null
   let value: T | undefined
-  let failure: DatabaseOperatorError | null = null
+  let failure: ReturnType<typeof toSafeDatabaseOperatorError> | null = null
 
   try {
     client = createWabmarketMySqlClient(getDatabaseConfig())

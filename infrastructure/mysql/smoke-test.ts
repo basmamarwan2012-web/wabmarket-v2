@@ -26,7 +26,7 @@ class SuccessfulSmokeRollback extends Error {}
 export const runDatabaseSmokeTest = async (): Promise<DatabaseSmokeTestResult> => {
   let client: ReturnType<typeof createWabmarketMySqlClient> | null = null
   let completed = false
-  let failure: DatabaseOperatorError | null = null
+  let failure: ReturnType<typeof toSafeDatabaseOperatorError> | null = null
 
   try {
     client = createWabmarketMySqlClient(getDatabaseConfig())

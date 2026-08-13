@@ -1,9 +1,16 @@
 export {}
 
 const CONFIRMATION = '--confirm-live-database-check'
-const argumentsProvided = process.argv.slice(2)
 const SAFE_OPERATION_MESSAGES = Object.freeze({
   DATABASE_CONFIGURATION_ERROR: 'Database configuration is invalid.',
+  DATABASE_HOST_INVALID: 'The database host configuration is invalid.',
+  DATABASE_PORT_INVALID: 'The database port configuration is invalid.',
+  DATABASE_NAME_INVALID: 'The database name configuration is invalid.',
+  DATABASE_USER_INVALID: 'The database user configuration is invalid.',
+  DATABASE_PASSWORD_MISSING: 'The database password configuration is missing.',
+  DATABASE_SSL_INVALID: 'The database SSL configuration is invalid.',
+  DATABASE_CONNECTION_LIMIT_INVALID:
+    'The database connection-limit configuration is invalid.',
   DATABASE_CONNECTION_FAILED: 'The database connection check failed.',
 })
 
@@ -12,30 +19,43 @@ const printError = (code: string, message: string) => {
   process.exitCode = 1
 }
 
-if (argumentsProvided.length !== 1 || argumentsProvided[0] !== CONFIRMATION) {
-  printError(
-    argumentsProvided.length === 0
-      ? 'DATABASE_CONFIRMATION_REQUIRED'
-      : 'DATABASE_ARGUMENT_INVALID',
-    argumentsProvided.length === 0
-      ? `Database access requires ${CONFIRMATION}.`
-      : 'The database check arguments are invalid.'
-  )
-} else {
+const main = async () => {
+  const argumentsProvided = process.argv.slice(2)
+
+  if (argumentsProvided.length !== 1 || argumentsProvided[0] !== CONFIRMATION) {
+    printError(
+      argumentsProvided.length === 0
+        ? 'DATABASE_CONFIRMATION_REQUIRED'
+        : 'DATABASE_ARGUMENT_INVALID',
+      argumentsProvided.length === 0
+        ? `Database access requires ${CONFIRMATION}.`
+        : 'The database check arguments are invalid.'
+    )
+    return
+  }
+
   try {
+    const { loadEnvFile } = await import('node:process')
+    loadEnvFile('.env.local')
     const { runDatabaseCheck } = await import(
       '../infrastructure/mysql/database-check'
     )
     const result = await runDatabaseCheck()
     console.log(JSON.stringify(result, null, 2))
   } catch (error) {
-    const code =
+    const errorCode =
       typeof error === 'object' &&
       error !== null &&
       'code' in error &&
-      error.code === 'DATABASE_CONFIGURATION_ERROR'
-        ? 'DATABASE_CONFIGURATION_ERROR'
+      typeof error.code === 'string'
+        ? error.code
+        : 'DATABASE_CONNECTION_FAILED'
+    const code =
+      errorCode in SAFE_OPERATION_MESSAGES
+        ? (errorCode as keyof typeof SAFE_OPERATION_MESSAGES)
         : 'DATABASE_CONNECTION_FAILED'
     printError(code, SAFE_OPERATION_MESSAGES[code])
   }
 }
+
+void main()

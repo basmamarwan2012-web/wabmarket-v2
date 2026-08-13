@@ -1,5 +1,11 @@
 import 'server-only'
 
+import {
+  DATABASE_CONFIGURATION_ERROR_CODES,
+  DatabaseConfigurationError,
+  type DatabaseConfigurationErrorCode,
+} from '@/lib/config/database'
+
 export const DATABASE_OPERATOR_ERROR_CODES = Object.freeze([
   'DATABASE_CONFIGURATION_ERROR',
   'DATABASE_CONNECTION_FAILED',
@@ -9,6 +15,9 @@ export const DATABASE_OPERATOR_ERROR_CODES = Object.freeze([
 
 export type DatabaseOperatorErrorCode =
   (typeof DATABASE_OPERATOR_ERROR_CODES)[number]
+export type SafeDatabaseOperatorErrorCode =
+  | DatabaseOperatorErrorCode
+  | DatabaseConfigurationErrorCode
 
 const SAFE_MESSAGES: Readonly<Record<DatabaseOperatorErrorCode, string>> =
   Object.freeze({
@@ -31,8 +40,20 @@ export class DatabaseOperatorError extends Error {
 export const toSafeDatabaseOperatorError = (
   error: unknown,
   fallback: DatabaseOperatorErrorCode
-): DatabaseOperatorError => {
+): DatabaseOperatorError | DatabaseConfigurationError => {
+  if (error instanceof DatabaseConfigurationError) return error
   if (error instanceof DatabaseOperatorError) return error
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof error.code === 'string' &&
+    DATABASE_CONFIGURATION_ERROR_CODES.some((code) => code === error.code)
+  )
+    return new DatabaseConfigurationError(
+      error.code as DatabaseConfigurationErrorCode
+    )
 
   if (
     typeof error === 'object' &&
