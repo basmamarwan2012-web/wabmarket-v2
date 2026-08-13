@@ -9,6 +9,7 @@ import { PersistenceError } from '@/lib/persistence/errors'
 import { AssetError } from '@/lib/assets/asset.errors'
 import { PrepareDomainError } from '@/lib/domain-preparation/prepare-domain.errors'
 import { OwnedDomainManagementError } from '@/lib/owned-domains/owned-domain-management.errors'
+import { RegistrarSyncError } from '@/lib/registrar-sync/errors'
 
 const privateHeaders = { 'Cache-Control': 'private, no-store' }
 
@@ -83,6 +84,11 @@ export const marketplaceAdminError = (error: unknown) => {
       { status, headers: privateHeaders }
     )
   }
+  if (error instanceof RegistrarSyncError)
+    return NextResponse.json(
+      { success: false, error: { code: error.code, message: error.message } },
+      { status: 503, headers: privateHeaders }
+    )
   if (error instanceof PersistenceError) {
     const status =
       error.code === 'PERSISTENCE_NOT_FOUND'

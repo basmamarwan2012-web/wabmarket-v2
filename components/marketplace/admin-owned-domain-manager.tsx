@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
 
-import type { AdminMarketplaceDomainSummary } from '@/lib/marketplace/admin.types'
+import type {
+  AdminMarketplaceDomainSummary,
+  AdminRegistrarOwnedDomainSyncReport,
+} from '@/lib/marketplace/admin.types'
 import { marketplaceAdminService } from '@/services/marketplace-admin.service'
 import { TransitionLink } from '@/components/ui/transition-link'
 
@@ -20,6 +23,9 @@ export function AdminOwnedDomainManager({
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [syncReport, setSyncReport] =
+    useState<AdminRegistrarOwnedDomainSyncReport | null>(null)
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -57,12 +63,39 @@ export function AdminOwnedDomainManager({
     } finally { setBusy(false) }
   }
 
+  const syncDynadot = async () => {
+    setSyncing(true); setMessage(null); setFailed(false)
+    try {
+      const report = await marketplaceAdminService.syncDynadotOwnedDomains()
+      setSyncReport(report)
+      setMessage('Dynadot domains synchronized.')
+      router.refresh()
+    } catch (error) {
+      setFailed(true)
+      setMessage(error instanceof Error ? error.message : 'Unable to synchronize domains.')
+    } finally { setSyncing(false) }
+  }
+
   return (
     <div className="space-y-5">
       {editable && (
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" onClick={() => setAdding((value) => !value)} className="rounded-md bg-black px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-black">+ Add Owned Domain</button>
+          <button type="button" disabled={syncing || busy} onClick={() => void syncDynadot()} className="rounded-md border px-4 py-2 text-sm font-semibold disabled:opacity-50">{syncing ? 'Syncing Dynadot…' : 'Sync Domains · Dynadot'}</button>
         </div>
+      )}
+      {syncReport && (
+        <section aria-label="Dynadot synchronization report" className="rounded-xl border bg-white p-4 text-sm dark:bg-gray-900">
+          <p className="font-semibold">Last Dynadot sync</p>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div><dt className="text-gray-500">Fetched</dt><dd>{syncReport.fetchedCount}</dd></div>
+            <div><dt className="text-gray-500">Created</dt><dd>{syncReport.createdCount}</dd></div>
+            <div><dt className="text-gray-500">Existing</dt><dd>{syncReport.existingCount}</dd></div>
+            <div><dt className="text-gray-500">Invalid</dt><dd>{syncReport.skippedInvalidCount}</dd></div>
+            <div><dt className="text-gray-500">Duplicates</dt><dd>{syncReport.duplicateCount}</dd></div>
+          </dl>
+          {syncReport.truncated && <p role="alert" className="mt-3 text-amber-700">The safety ceiling was reached. This is a partial synchronization report.</p>}
+        </section>
       )}
       {adding && (
         <form onSubmit={(event) => void create(event)} className="space-y-4 rounded-xl border bg-white p-5 dark:bg-gray-900">

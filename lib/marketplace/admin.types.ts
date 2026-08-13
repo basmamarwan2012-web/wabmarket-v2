@@ -12,6 +12,7 @@ import type {
   DeleteOwnedDomainResult,
   OwnedDomainDeletionEligibility,
 } from '@/lib/owned-domains/owned-domain-management.types'
+import type { RegistrarOwnedDomainSyncReport } from '@/lib/registrar-sync/types'
 
 export interface AdminMarketplaceDomainSummary {
   readonly ownedDomainId: string
@@ -28,6 +29,7 @@ export interface AdminMarketplaceDomainSummary {
 export type CreateAdminOwnedDomainInput = CreateOwnedDomainCommand
 export type CreateAdminOwnedDomainResult = CreateOwnedDomainResult
 export type DeleteAdminOwnedDomainResult = DeleteOwnedDomainResult
+export type AdminRegistrarOwnedDomainSyncReport = RegistrarOwnedDomainSyncReport
 
 export interface AdminMarketplaceAssetOption {
   readonly id: string

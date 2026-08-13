@@ -1685,3 +1685,30 @@ Continue only from the current state of the repository.
   scarcity, urgency, review, customer, or operating-business claim is created.
 - Added no schema/migration, Firestore business write, registrar sync, AI,
   marketing, CRM, checkout, automatic publication, or destructive cascade.
+
+## Registrar Owned-Domain Sync v1
+
+- Added a provider-neutral manual registrar-inventory contract and tenant-scoped
+  reconciliation service. A sync normalizes, deduplicates, and sorts provider
+  hostnames before one SQL unit of work creates only missing owned domains.
+- Added the Dynadot REST v2 account inventory adapter for
+  `GET /restful/v2/domains`. Requests use server-only API-key/secret
+  configuration, an exact HMAC-SHA256 `X-Signature`, a per-request UUID, a
+  ten-second timeout, native fetch, and no retries.
+- Manual synchronization is bounded to 100 records per page, five sequential
+  pages/requests, and 500 fetched records. A result that reaches the ceiling is
+  explicitly partial and never claims complete provider coverage.
+- A successful authenticated registrar inventory is accepted as controlled
+  ownership evidence for newly imported domains. Existing manual, prepared,
+  asset-backed, and published records are never overwritten.
+- Domains absent from a later complete provider inventory are counted only when
+  they carry the controlled Dynadot evidence, but are retained unchanged. A
+  truncated inventory cannot produce an absence count.
+- Added a `domains.manage`-protected manual Dynadot sync endpoint and an admin
+  action with session-local safe counts and a truncation warning. Browser input
+  contains no account identity, provider selection, or credentials.
+- Registrar expiration, auto-renew, provider status, provider record identity,
+  and last-seen history remain transient/deferred because the current schema has
+  no canonical columns for them. No schema, migration, scheduled sync,
+  destructive reconciliation, Firestore write, purchase, renewal, or transfer
+  behavior was added.

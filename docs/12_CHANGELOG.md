@@ -1153,3 +1153,29 @@ critical
 - Added no schema/migration, live database operation, Firestore write,
   registrar sync, AI, marketing, CRM, checkout, automatic publication, or
   destructive cascade behavior.
+
+# Registrar Owned-Domain Sync v1
+
+- Added provider-neutral registrar inventory types, a bounded manual sync
+  service, controlled errors, and immutable reports with fetched, unique,
+  created, existing, invalid, duplicate, missing, and truncation facts.
+- Added a signed Dynadot REST v2 domain-list adapter using the documented
+  key/path/request-ID/body string order, HMAC-SHA256/Base64 signature, exact
+  signed request path/query, ten-second timeout, caller cancellation, and no
+  retries.
+- Limited a manual run to five sequential 100-record requests and 500 fetched
+  records. Reaching the ceiling returns an explicit partial result.
+- Reconciled imports inside one tenant-scoped SQL unit of work with controlled
+  `registrar:dynadot:v1` ownership evidence. Repeated syncs are idempotent and
+  existing ownership, preparation, assets, content, branding, price, and
+  publication are preserved.
+- Retained provider-disappeared domains without revoking ownership, deleting,
+  unpublishing, or changing preparation/assets. Missing counts are withheld for
+  truncated inventories.
+- Added the authenticated `domains.manage` Dynadot sync endpoint and an admin
+  button/report that refreshes the current owned-domain list after success.
+- Added `DYNADOT_API_SECRET` only to the signed inventory configuration; the
+  existing API-key-only availability adapter is unchanged.
+- Added no schema/migration, background job, cron, webhook, Firestore write,
+  dual-write, purchase, renewal, transfer, registrar settings dashboard, AI,
+  marketing, CRM, Reverse Discovery, or Opportunity Feed behavior.

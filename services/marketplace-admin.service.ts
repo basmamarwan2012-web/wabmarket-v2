@@ -1,6 +1,7 @@
 import type {
   AdminMarketplaceDomainDetail,
   AdminMarketplaceDomainSummary,
+  AdminRegistrarOwnedDomainSyncReport,
   CreateAdminOwnedDomainInput,
   CreateAdminOwnedDomainResult,
   DeleteAdminOwnedDomainResult,
@@ -96,6 +97,11 @@ export const marketplaceAdminService = Object.freeze({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
     }),
+  syncDynadotOwnedDomains: () =>
+    request<AdminRegistrarOwnedDomainSyncReport>(
+      '/api/admin/marketplace/registrars/dynadot/sync',
+      { method: 'POST' }
+    ),
   deleteOwnedDomain: (hostname: string) =>
     request<DeleteAdminOwnedDomainResult>(endpoint(hostname), {
       method: 'DELETE',
