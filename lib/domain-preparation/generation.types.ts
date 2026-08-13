@@ -34,6 +34,8 @@ export interface PreparationGenerationInput {
   readonly category?: string | null
   readonly primaryKeyword?: string | null
   readonly city?: string | null
+  /** Explicit description-only override; template behavior is unchanged when absent. */
+  readonly manualDescription?: string | null
   /** Intended resale price, not acquisition cost or budget. */
   readonly askingPrice: number
   readonly currency: string
@@ -83,4 +85,3 @@ export interface PreparationGenerator {
     input: PreparationGenerationInput
   ): PreparationGenerationResult | null | Promise<PreparationGenerationResult | null>
 }
-

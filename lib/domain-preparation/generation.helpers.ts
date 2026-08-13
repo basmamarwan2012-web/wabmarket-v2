@@ -19,6 +19,7 @@ export interface NormalizedPreparationGenerationInput {
   readonly category: string | null
   readonly primaryKeyword: string | null
   readonly city: string | null
+  readonly manualDescription: string | null
   readonly askingPrice: number
   readonly currency: string
   readonly externalSalesUrl: string
@@ -32,6 +33,15 @@ const normalizeOptionalContext = (value: unknown) => {
   if (typeof value !== 'string') return undefined
   const normalized = normalizeBusinessName(value)
   return normalized !== null && normalized.length <= MAXIMUM_CONTEXT_LENGTH
+    ? normalized
+    : undefined
+}
+
+const normalizeManualDescription = (value: unknown) => {
+  if (value === null || value === undefined) return null
+  if (typeof value !== 'string') return undefined
+  const normalized = value.normalize('NFKC').trim().replace(/\s+/g, ' ')
+  return normalized.length > 0 && normalized.length <= 20_000
     ? normalized
     : undefined
 }
@@ -85,6 +95,7 @@ export const normalizePreparationGenerationInput = (
   const category = normalizeOptionalContext(input.category)
   const primaryKeyword = normalizeOptionalContext(input.primaryKeyword)
   const city = normalizeOptionalContext(input.city)
+  const manualDescription = normalizeManualDescription(input.manualDescription)
   const currency = normalizePreparationCurrency(input.currency)
   const externalSalesUrl = normalizeExternalSalesUrl(input.externalSalesUrl)
   const logo = normalizeAssetSlot(input.logo)
@@ -97,6 +108,7 @@ export const normalizePreparationGenerationInput = (
     category === undefined ||
     primaryKeyword === undefined ||
     city === undefined ||
+    manualDescription === undefined ||
     currency === null ||
     currency === undefined ||
     externalSalesUrl.status !== 'VALID' ||
@@ -115,6 +127,7 @@ export const normalizePreparationGenerationInput = (
     category,
     primaryKeyword,
     city,
+    manualDescription,
     askingPrice: input.askingPrice,
     currency,
     externalSalesUrl: externalSalesUrl.value,

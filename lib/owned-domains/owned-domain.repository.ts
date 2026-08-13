@@ -44,6 +44,7 @@ export interface CreateOwnedDomainRecord {
 }
 
 export interface OwnedDomainRepository {
+  list(context: PersistenceAccountContext): Promise<readonly StoredOwnedDomain[]>
   create(
     context: PersistenceAccountContext,
     input: CreateOwnedDomainRecord

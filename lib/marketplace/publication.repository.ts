@@ -32,6 +32,10 @@ export interface MarketplacePublicationRecord {
 }
 
 export interface MarketplacePublicationRepository {
+  findByOwnedDomain(
+    context: PersistenceAccountContext,
+    ownedDomainId: string
+  ): Promise<MarketplacePublicationRecord | null>
   saveDraft(
     context: PersistenceAccountContext,
     input: MarketplacePublicationWrite

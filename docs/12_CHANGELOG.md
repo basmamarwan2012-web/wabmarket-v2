@@ -1027,3 +1027,26 @@ critical
 - Added no schema/migration, write path, admin workflow, Firestore change, asset
   storage, AI, outreach, CRM, Reverse Discovery, Opportunity Feed, or commercial
   transaction behavior.
+
+# Admin Marketplace Operations v1
+
+- Added authenticated admin marketplace list/detail pages, loading/error states,
+  a compact preparation form, and private list/detail/save/publish/unpublish API
+  routes using existing RBAC.
+- Added a provider-neutral admin marketplace service and request-scoped MySQL
+  composition that resolves trusted Firebase identity to a SQL account and
+  closes its pool on success or failure.
+- Extended repository contracts only with tenant-scoped owned-domain listing
+  and publication lookup; no schema or migration changed.
+- Added one explicit manual-description override to deterministic preparation
+  generation. Absent overrides retain template behavior; supplied valid text is
+  preserved unchanged with `MANUAL` source metadata.
+- Derived the safe internal marketplace landing path server-side from the
+  normalized SQL-owned hostname. Browsers cannot submit a landing destination,
+  and canonical listing logic still invents no URL.
+- Reused canonical generation, preparation, rendering, asset association,
+  publication eligibility, optimistic versioning, publish/unpublish, and public
+  MySQL read behavior without weakening missing-asset requirements.
+- Added no direct SQL in UI/API handlers, fixture fallback, Firestore migration
+  or dual-write, asset upload/storage, AI, provider marketplace API, checkout,
+  bidding, outreach, CRM, Reverse Discovery, Opportunity Feed, or team model.

@@ -1506,3 +1506,41 @@ Continue only from the current state of the repository.
 - Added no component redesign, write API, admin workflow, schema/migration,
   Firestore migration or dual-write, asset storage, AI, outreach, CRM, Reverse
   Discovery, Opportunity Feed, or purchase behavior.
+
+## Admin Marketplace Operations v1
+
+- Added authenticated `/admin/marketplace` list and per-hostname preparation
+  routes plus private admin APIs for list/detail, preparation save, publish, and
+  unpublish. Reads follow the authenticated admin-shell policy; mutations use
+  the existing `domains.manage` permission for administrators and managers.
+- Added tenant-scoped owned-domain and publication read methods without schema
+  changes. Every operation derives trusted identity from the verified Firebase
+  session, resolves the SQL account server-side, creates one request-owned pool,
+  and closes it after success or failure.
+- Preparation input is limited to resale asking price/currency, explicit
+  external sales URL, CTA state, optional description override, and existing
+  account/domain-scoped asset metadata IDs. No identity, tenant, role,
+  ownership actor, landing destination, raw asset reference, or SQL fact is
+  accepted from the browser.
+- A missing description override preserves existing deterministic `TEMPLATE`
+  generation. A validated explicit override is copied unchanged with `MANUAL`
+  source metadata; other landing, SEO, and Open Graph text remains template
+  generated.
+- The application layer derives exactly
+  `/marketplace/domains/<normalized-hostname>` from the trusted SQL-owned domain
+  and stores it as the preparation landing reference. The listing core still
+  constructs no public URL, and external sales URLs remain separate.
+- Preparation construction reuses generation, canonical Domain Preparation,
+  landing rendering, and `DomainPreparationApplicationService`. Missing assets
+  remain missing requirements; no upload/reference fabrication or readiness
+  weakening was introduced.
+- Publish and unpublish exclusively call
+  `MarketplacePublicationApplicationService` with exact optimistic versions.
+  Conflicts return a sanitized reload-and-retry state with no overwrite or
+  automatic retry. Successful mutations revalidate only the corresponding
+  public and admin framework paths.
+- Existing public MySQL reads automatically include `PUBLISHED` snapshots and
+  exclude unpublished records. No fixture fallback, direct UI/API SQL write,
+  schema/migration, Firestore business persistence, dual-write, asset storage,
+  AI, provider transaction, outreach, CRM, Reverse Discovery, or Opportunity
+  Feed behavior was added.

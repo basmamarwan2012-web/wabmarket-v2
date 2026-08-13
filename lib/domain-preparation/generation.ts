@@ -21,9 +21,9 @@ export const generatePreparationAssetsAndContent = (
   const normalized = normalizePreparationGenerationInput(input)
   if (!normalized) return null
 
-  const description = createTemplateText(
-    buildPreparationDescription(normalized)
-  )
+  const description = normalized.manualDescription
+    ? Object.freeze({ value: normalized.manualDescription, source: 'MANUAL' as const })
+    : createTemplateText(buildPreparationDescription(normalized))
   const headline = createTemplateText(buildLandingPageHeadline(normalized))
   const seoTitle = createTemplateText(buildSeoTitle(normalized))
   const seoDescription = createTemplateText(buildSeoDescription(normalized))
@@ -77,4 +77,3 @@ export type {
   PreparationOpenGraphMetadata,
   PreparationSeoMetadata,
 } from './generation.types'
-

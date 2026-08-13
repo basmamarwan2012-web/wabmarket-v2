@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq } from 'drizzle-orm'
+import { and, asc, eq } from 'drizzle-orm'
 
 import { normalizeHostname } from '@/lib/domain-analysis/analyzer.helpers'
 import type { PersistenceAccountContext } from '@/lib/persistence/context'
@@ -18,6 +18,15 @@ import { createPersistenceId, toIso } from './helpers'
 
 export class MySqlOwnedDomainRepository implements OwnedDomainRepository {
   constructor(private readonly database: WabmarketMySqlDatabase) {}
+
+  async list(context: PersistenceAccountContext) {
+    const rows = await this.database
+      .select()
+      .from(ownedDomains)
+      .where(eq(ownedDomains.accountId, context.accountId))
+      .orderBy(asc(ownedDomains.normalizedHostname), asc(ownedDomains.id))
+    return Object.freeze(rows.map((row) => this.map(row)))
+  }
 
   async create(
     context: PersistenceAccountContext,

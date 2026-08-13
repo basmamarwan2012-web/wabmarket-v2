@@ -23,6 +23,24 @@ export class MySqlMarketplacePublicationRepository
 {
   constructor(private readonly database: WabmarketMySqlDatabase) {}
 
+  async findByOwnedDomain(
+    context: PersistenceAccountContext,
+    ownedDomainId: string
+  ) {
+    const [row] = await this.database
+      .select({ listing: marketplaceListings })
+      .from(marketplaceListings)
+      .innerJoin(ownedDomains, eq(marketplaceListings.ownedDomainId, ownedDomains.id))
+      .where(
+        and(
+          eq(ownedDomains.accountId, context.accountId),
+          eq(marketplaceListings.ownedDomainId, ownedDomainId)
+        )
+      )
+      .limit(1)
+    return row ? this.map(row.listing) : null
+  }
+
   saveDraft(
     context: PersistenceAccountContext,
     input: MarketplacePublicationWrite

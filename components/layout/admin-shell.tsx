@@ -16,6 +16,7 @@ import { useState } from 'react'
 const navItems = [
   { name: 'Dashboard', href: '/admin/dashboard' },
   { name: 'Portfolio', href: '/admin/domains' },
+  { name: 'Marketplace', href: '/admin/marketplace' },
   { name: 'Domain Discovery', href: '/admin/discovery' },
   { name: 'Opportunities', href: '/admin/opportunities' },
   { name: 'Leads', href: '/admin/leads' },
