@@ -994,3 +994,18 @@ critical
   on any failed step.
 - Performed no live connection, status query, migration, smoke test, route
   cutover, Firestore migration, dual-write, or fixture removal.
+
+# Production MySQL Composition for Public Marketplace Reads
+
+- Added a provider-neutral read service for published marketplace pages and
+  normalized-hostname resolution, returning cloned deeply immutable public
+  snapshots with no infrastructure imports.
+- Added a server-only MySQL execution composition that owns one fresh lazy pool
+  per operation, injects the existing `MySqlMarketplaceReadRepository`, and
+  closes the pool on success and failure.
+- Preserved empty catalog and missing-hostname outcomes while sanitizing
+  configuration, driver, query, and close failures through existing persistence
+  errors.
+- Added no fixture fallback, route cutover, UI change, schema/migration change,
+  Firestore migration or dual-write, admin workflow, asset adapter, AI,
+  outreach, CRM, Reverse Discovery, Opportunity Feed, or purchase behavior.

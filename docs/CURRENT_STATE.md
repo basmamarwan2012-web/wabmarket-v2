@@ -1465,3 +1465,23 @@ Continue only from the current state of the repository.
 - No live database operation, migration execution, Firestore migration,
   dual-write, route cutover, fixture removal, asset-storage implementation, or
   automatic build/start/deploy migration was added.
+
+## Production MySQL composition for public marketplace reads
+
+- Added a provider-neutral Marketplace read application service over the
+  existing `MarketplaceReadRepository`. It lists published records and resolves
+  a safely normalized hostname while preserving empty pages, missing records,
+  and persistence failures as distinct outcomes.
+- Service results are cloned and deeply frozen public snapshots. The service
+  imports no MySQL, Drizzle, configuration, fixture, route, or UI module.
+- Added a server-only MySQL composition boundary that lazily reads database
+  configuration, creates a fresh client, constructs the existing MySQL read
+  repository, injects the service, and closes the owned pool after success or
+  failure. Infrastructure failures remain sanitized persistence errors.
+- The composition exposes operations rather than an open client or mutable
+  singleton. No connection occurs at import time and no fixture fallback masks
+  database failures.
+- Public marketplace routes remain fixture-backed in this slice. No route/UI,
+  schema, migration, Firestore, publication workflow, asset storage, AI,
+  outreach, CRM, Reverse Discovery, Opportunity Feed, or transaction behavior
+  changed.
